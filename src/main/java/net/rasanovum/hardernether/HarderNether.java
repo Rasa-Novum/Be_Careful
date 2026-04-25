@@ -41,6 +41,7 @@ public class HarderNether implements ModInitializer {
 			TagKey.of(RegistryKeys.ITEM, new Identifier("harder-nether", "fire_resistant_foods"));
 	public static EnvironmentHazard DEEP_DARK;
 	public static EnvironmentHazard NETHER;
+	public static final Item ECHO_SHARD_DUST = new Item(new FabricItemSettings());
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 
@@ -48,6 +49,7 @@ public class HarderNether implements ModInitializer {
 	public void onInitialize() {
 		Registry.register(Registries.STATUS_EFFECT, new Identifier("harder-nether", "corruption"), CORRUPTION);
 		Registry.register(Registries.ITEM, new Identifier("harder-nether", "totem_of_light"), TOTEM_OF_LIGHT);
+		Registry.register(Registries.ITEM, new Identifier("harder-nether", "echo_shard_dust"), ECHO_SHARD_DUST);
 
 		DEEP_DARK = new EnvironmentHazard(
 				"A chill goes down your spine...",

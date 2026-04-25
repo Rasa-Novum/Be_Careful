@@ -1,5 +1,6 @@
 {
   "effect.harder-nether.corruption": "Corruption",
   "death.attack.harder-nether.corruption": "%1$s was consumed by the darkness",
-  "item.harder-nether.totem_of_light": "Totem of Light"
+  "item.harder-nether.totem_of_light": "Totem of Light",
+  "item.harder-nether.echo_shard_dust": "Echo Shard Dust"
 }

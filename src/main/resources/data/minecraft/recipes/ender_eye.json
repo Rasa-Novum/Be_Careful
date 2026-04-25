@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DP",
+    "BD"
+  ],
+  "key": {
+    "D": { "item": "harder-nether:echo_shard_dust" },
+    "P": { "item": "minecraft:ender_pearl" },
+    "B": { "item": "minecraft:blaze_powder" }
+  },
+  "result": {
+    "item": "minecraft:ender_eye",
+    "count": 1
+  }
+}
