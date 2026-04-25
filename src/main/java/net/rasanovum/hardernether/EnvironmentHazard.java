@@ -23,12 +23,10 @@ public class EnvironmentHazard {
     }
 
     public void tick(ServerPlayerEntity player, int time) {
-        // 1. Unique Entry Message
         if (time == 80) {
             player.sendMessage(Text.literal(entryMessage).formatted(Formatting.YELLOW), true);
         }
-
-        // 2. Unique Warning Message & Sound
+        // warning block
         if (time >= warningTicks && time < dangerTicks) {
             if (time == warningTicks) {
                 player.sendMessage(Text.literal(warningMessage).formatted(Formatting.RED), true);
@@ -37,10 +35,7 @@ public class EnvironmentHazard {
                 warningAction.accept(player);
             }
         }
-
-
-        // 3. Constant Danger Action
-        // This runs every single tick once the player is past the danger threshold
+        // danger/status effect appplication
         if (time >= dangerTicks) {
             dangerAction.accept(player);
         }

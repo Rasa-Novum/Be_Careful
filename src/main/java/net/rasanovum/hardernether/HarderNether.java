@@ -12,7 +12,6 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
@@ -21,7 +20,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +49,6 @@ public class HarderNether implements ModInitializer {
 		Registry.register(Registries.STATUS_EFFECT, new Identifier("harder-nether", "corruption"), CORRUPTION);
 		Registry.register(Registries.ITEM, new Identifier("harder-nether", "totem_of_light"), TOTEM_OF_LIGHT);
 
-		// Deep Dark Instance
 		DEEP_DARK = new EnvironmentHazard(
 				"A chill goes down your spine...",
 				"The darkness is closing in...",
@@ -70,7 +67,6 @@ public class HarderNether implements ModInitializer {
 				}
 		);
 
-		// Nether Instance
 		NETHER = new EnvironmentHazard(
 				"The air here is blistering...",
 				"The heat is becoming unbearable...",
