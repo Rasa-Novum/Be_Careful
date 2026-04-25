@@ -1,70 +1,64 @@
 package net.rasanovum.hardernether;
 
-import net.minecraft.entity.EntityStatuses;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
-import net.minecraft.util.UseAction;
-import net.minecraft.util.math.Box;
-import net.minecraft.world.World;
-
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import java.util.List;
 
 public class TotemOfLight extends Item {
-    public TotemOfLight(Settings settings) {
-        super(settings);
-    }
-
-
-    @Override
-    public UseAction getUseAction(ItemStack stack) {
-        return UseAction.BOW;
+    public TotemOfLight(Properties pProperties) {
+        super(pProperties);
     }
 
     @Override
-    public int getMaxUseTime(ItemStack stack) {
-        return 32;
+    public int getUseDuration(ItemStack pStack) {
+        return 30;
     }
 
     @Override
-    public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
-        user.setCurrentHand(hand);
-        return TypedActionResult.consume(user.getStackInHand(hand));
+    public UseAnim getUseAnimation(ItemStack pStack) {
+        return UseAnim.BOW;
     }
 
     @Override
-    public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user) {
-        if (!world.isClient && user instanceof ServerPlayerEntity player) {
-            int revealTick = player.getServer().getTicks() + 40;
-            // 10 block radius
-            Box cleanseArea = player.getBoundingBox().expand(10.0);
-            // find all players in that area
-            List<ServerPlayerEntity> nearbyPlayers = world.getEntitiesByClass(
-                    ServerPlayerEntity.class,
-                    cleanseArea,
-                    p -> true
-            );
-            // cleanse all players in area
-            for (ServerPlayerEntity target : nearbyPlayers) {
+    public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pUsedHand) {
+        pPlayer.startUsingItem(pUsedHand);
+        return InteractionResultHolder.consume(pPlayer.getItemInHand(pUsedHand));
+    }
 
-                world.sendEntityStatus(target, EntityStatuses.USE_TOTEM_OF_UNDYING);
-                HarderNether.deepDarkTimers.put(target.getUuid(), 0);
-                target.removeStatusEffect(HarderNether.CORRUPTION);
-                target.removeStatusEffect(StatusEffects.DARKNESS);
-                target.addStatusEffect(new StatusEffectInstance(StatusEffects.GLOWING, 200, 0));
-                target.addStatusEffect(new StatusEffectInstance(StatusEffects.REGENERATION,80,1));
+    @Override
+    public ItemStack finishUsingItem(ItemStack pStack, Level pLevel, LivingEntity pLivingEntity) {
+        if (!pLevel.isClientSide() && pLivingEntity instanceof Player player) {
 
-                HarderNether.messageSchedule.put(target.getUuid(), revealTick);
+            double radius = 10.0;
+            AABB area = player.getBoundingBox().inflate(radius);
+            List<Player> playersInRange = pLevel.getEntitiesOfClass(Player.class, area);
+
+            for (Player target : playersInRange) {
+                target.removeEffect(HarderNether.CORRUPTION);
+                HarderNether.deepDarkTimers.put(target.getUUID(), 0);
+
+                target.displayClientMessage(
+                        Component.literal("The light cleanses the smothering darkness...")
+                                .withStyle(ChatFormatting.GOLD),
+                        true
+                );
             }
 
-            stack.decrement(1);
+            pLevel.broadcastEntityEvent(player, (byte) 35);
+
+            if (!player.getAbilities().instabuild) {
+                pStack.shrink(1);
+            }
         }
-        return stack;
+        return pStack;
     }
 }

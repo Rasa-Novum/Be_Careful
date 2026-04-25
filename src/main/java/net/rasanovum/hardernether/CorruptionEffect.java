@@ -1,49 +1,54 @@
 package net.rasanovum.hardernether;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.AttributeContainer;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundEvents;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.level.Level;
 
-public class CorruptionEffect extends StatusEffect {
+public class CorruptionEffect extends MobEffect {
     public CorruptionEffect() {
-        super(StatusEffectCategory.HARMFUL, 0x4B0082);
+        super(MobEffectCategory.HARMFUL, 0x4B0082);
     }
+    public static final ResourceKey<DamageType> CORRUPTION_DAMAGE =
+            ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation("harder-nether", "corruption"));
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
-        int interval = 40 >> amplifier;
-        if (interval > 0) {
-            return duration % interval == 0;
-        }
-        return true;
-    }
-
-    @Override
-    public void applyUpdateEffect(LivingEntity entity, int amplifier) {
-        var registry = entity.getWorld().getRegistryManager().get(RegistryKeys.DAMAGE_TYPE);
-        var entry = registry.getEntry(HarderNether.CORRUPTION_DAMAGE_TYPE);
-
-        if (entry.isPresent()) {
-            DamageSource corruptionSource = new DamageSource(entry.get());
-            entity.damage(corruptionSource, 2.0f * (amplifier + 1));
+    public boolean isDurationEffectTick(int pDuration, int pAmplifier) {
+        // This is the most common name in 1.20.1 official mappings
+        int k = 20 >> pAmplifier;
+        if (k > 0) {
+            return pDuration % k == 0;
         } else {
-
-            entity.damage(entity.getDamageSources().magic(), 1.0f * (amplifier + 1));
+            return true;
         }
-
-        entity.addStatusEffect(new StatusEffectInstance(StatusEffects.DARKNESS, 100, 0));
     }
 
     @Override
-    public void onRemoved(LivingEntity entity, AttributeContainer attributes, int amplifier) {
-        if (entity instanceof ServerPlayerEntity player) {
-            player.playSound(SoundEvents.ENTITY_PLAYER_BREATH, 1.0f, 1.0f);
+    public void applyEffectTick(LivingEntity entity, int amplifier) {
+        Level level = entity.level();
+        if (!level.isClientSide()) {
+            entity.hurt(level.damageSources().source(CORRUPTION_DAMAGE), 2.0f);
+
+        } else {
+            entity.hurt(entity.damageSources().magic(), 1.0f + amplifier);
+        }
+
+        entity.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 100, 0));
+    }
+
+    @Override
+    public void removeAttributeModifiers(LivingEntity entity, AttributeMap attributes, int amplifier) {
+        super.removeAttributeModifiers(entity, attributes, amplifier);
+        if (entity instanceof ServerPlayer player) {
+            player.playSound(SoundEvents.PLAYER_BREATH, 1.0f, 1.0f);
         }
     }
 }

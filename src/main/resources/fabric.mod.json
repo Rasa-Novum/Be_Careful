@@ -3,9 +3,9 @@
 	"id": "harder-nether",
 	"version": "${version}",
 	"name": "Harder Nether",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "A difficulty overhaul mod that alters the progression of the game and makes certain areas of the game world more challenging.",
 	"authors": [
-		"Me!"
+		"Rasa Novum"
 	],
 	"contact": {
 		"homepage": "https://fabricmc.net/",
@@ -17,17 +17,10 @@
 	"entrypoints": {
 		"main": [
 			"net.rasanovum.hardernether.HarderNether"
-		],
-		"client": [
-			"net.rasanovum.hardernether.client.HarderNetherClient"
 		]
 	},
 	"mixins": [
-		"harder-nether.mixins.json",
-		{
-			"config": "harder-nether.client.mixins.json",
-			"environment": "client"
-		}
+		"harder-nether.mixins.json"
 	],
 	"depends": {
 		"fabricloader": ">=0.19.2",

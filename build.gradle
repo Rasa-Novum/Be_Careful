@@ -1,5 +1,5 @@
 plugins {
-	id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+	id 'fabric-loom' version '1.6-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -7,46 +7,38 @@ version = project.mod_version
 group = project.maven_group
 
 repositories {
-	// Add repositories to retrieve artifacts from in here.
-	// You should only use this when depending on other mods because
-	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
-	// for more information about repositories.
-}
-
-loom {
-	splitEnvironmentSourceSets()
-
-	mods {
-		"harder-nether" {
-			sourceSet sourceSets.main
-			sourceSet sourceSets.client
-		}
-	}
-
 }
 
 dependencies {
-	// To change the versions see the gradle.properties file
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+	minecraft "com.mojang:minecraft:1.20.1"
+	mappings loom.layered() {
+		officialMojangMappings()
+	}
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-
-	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-	
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 17
+	// This line tells the compiler to use the Minecraft Jar as a "source" for the Mixin AP
+	it.options.compilerArgs << "-Aproject=${project.group}:${project.name}"
+}
+
+loom {
+	mixin {
+		defaultRefmapName = "harder-nether-refmap.json"
+	}
 }
 
 processResources {
 	inputs.property "version", project.version
 
 	filesMatching("fabric.mod.json") {
-		expand "version": inputs.properties.version
+		expand "version": project.version
 	}
-}
 
-tasks.withType(JavaCompile).configureEach {
-	it.options.release = 17
+	// FIX: This solves the "duplicate but no duplicate handling strategy" error
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 java {

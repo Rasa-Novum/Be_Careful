@@ -3,24 +3,24 @@ package net.rasanovum.hardernether;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import net.minecraft.entity.damage.DamageType;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.item.Item;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.BiomeKeys;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.server.level.ServerPlayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.HashMap;
@@ -28,44 +28,54 @@ import java.util.Map;
 import java.util.UUID;
 
 
+
 public class HarderNether implements ModInitializer {
 	public static final String MOD_ID = "harder-nether";
-	public static final StatusEffect CORRUPTION = new CorruptionEffect();
+	public static MobEffect CORRUPTION;
+	public static Item TOTEM_OF_LIGHT;
+	public static Item ECHO_SHARD_DUST;
+
 	public static final Map<UUID, Integer> deepDarkTimers = new HashMap<>();
 	public static final Map<UUID, Integer> netherTimers = new HashMap<>();
-	public static final RegistryKey<DamageType> CORRUPTION_DAMAGE_TYPE =
-			RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier("harder-nether", "corruption"));
-	public static final Item TOTEM_OF_LIGHT = new TotemOfLight(new FabricItemSettings().maxCount(1));
 	public static final Map<UUID, Integer> messageSchedule = new HashMap<>();
+
+	public static final ResourceKey<DamageType> CORRUPTION_DAMAGE_TYPE =
+			ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MOD_ID, "corruption"));
+
 	public static final TagKey<Item> FIRE_RESISTANT_FOODS =
-			TagKey.of(RegistryKeys.ITEM, new Identifier("harder-nether", "fire_resistant_foods"));
+			TagKey.create(Registries.ITEM, new ResourceLocation(MOD_ID, "fire_resistant_foods"));
+
 	public static EnvironmentHazard DEEP_DARK;
 	public static EnvironmentHazard NETHER;
-	public static final Item ECHO_SHARD_DUST = new Item(new FabricItemSettings());
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 
 	@Override
 	public void onInitialize() {
-		Registry.register(Registries.STATUS_EFFECT, new Identifier("harder-nether", "corruption"), CORRUPTION);
-		Registry.register(Registries.ITEM, new Identifier("harder-nether", "totem_of_light"), TOTEM_OF_LIGHT);
-		Registry.register(Registries.ITEM, new Identifier("harder-nether", "echo_shard_dust"), ECHO_SHARD_DUST);
 
-		DEEP_DARK = new EnvironmentHazard(
+		CORRUPTION = new CorruptionEffect();
+		TOTEM_OF_LIGHT = new TotemOfLight(new FabricItemSettings().maxCount(1));
+		ECHO_SHARD_DUST = new Item(new FabricItemSettings());
+
+		Registry.register(BuiltInRegistries.MOB_EFFECT, new ResourceLocation("harder-nether", "corruption"), CORRUPTION);
+		Registry.register(BuiltInRegistries.ITEM, new ResourceLocation(MOD_ID, "totem_of_light"), TOTEM_OF_LIGHT);
+        Registry.register(BuiltInRegistries.ITEM, new ResourceLocation("harder-nether", "echo_shard_dust"), ECHO_SHARD_DUST);
+
+        DEEP_DARK = new EnvironmentHazard(
 				"A chill goes down your spine...",
 				"The darkness is closing in...",
 				450, 600,
 				player -> {
-					int playerTime = HarderNether.deepDarkTimers.getOrDefault(player.getUuid(), 0);
+					int playerTime = HarderNether.deepDarkTimers.getOrDefault(player.getUUID(), 0);
 					int heartbeatRate = (playerTime > 550) ? 10 : 20;
-					if (player.getWorld().getTime() % heartbeatRate == 0) {
-						player.getWorld().playSound(null, player.getX(), player.getY(), player.getZ(),
-								SoundEvents.ENTITY_WARDEN_HEARTBEAT, SoundCategory.PLAYERS, 1.5f, 1.0f);
+					if ((player.level().getGameTime() % heartbeatRate) == 0) {
+						player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+								SoundEvents.WARDEN_HEARTBEAT, SoundSource.PLAYERS, 1.5f, 1.0f);
 					}
 				},
 				player -> {
-					player.addStatusEffect(new StatusEffectInstance(HarderNether.CORRUPTION, 40, 0, false, false));
-					player.addStatusEffect(new StatusEffectInstance(StatusEffects.DARKNESS, 40, 0, false, false));
+					player.addEffect(new MobEffectInstance(HarderNether.CORRUPTION, 40, 0, false, false));
+					player.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 40, 0, false, false));
 				}
 		);
 
@@ -77,36 +87,34 @@ public class HarderNether implements ModInitializer {
 					// empty, no sound plays
 				},
 				player -> {
-					player.setOnFireFor(2);
-					player.addExhaustion(0.05f);
+					player.setSecondsOnFire(2);
+					player.causeFoodExhaustion(0.05f);
 				}
 		);
 
 		ServerTickEvents.START_SERVER_TICK.register(server -> {
-			int currentTick = server.getTicks();
-			for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-				UUID uuid = player.getUuid();
+			int currentTick = server.getTickCount();
+			for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+				UUID uuid = player.getUUID();
 				if (messageSchedule.containsKey(uuid)) {
 					if (currentTick >= messageSchedule.get(uuid)) {
-						player.sendMessage(Text.literal("The light purges the encroaching darkness...").formatted(Formatting.GREEN), true);
+						player.displayClientMessage(Component.literal("The light purges the encroaching darkness...").withStyle(ChatFormatting.GREEN), true);
 						messageSchedule.remove(uuid);
 					}
 				}
 
-				if (player.getWorld().getBiome(player.getBlockPos()).matchesKey(BiomeKeys.DEEP_DARK)) {
-					int time = deepDarkTimers.getOrDefault(uuid, 0) + 1;
-					deepDarkTimers.put(uuid, time);
+				if (player.level().getBiome(player.blockPosition()).is(Biomes.DEEP_DARK)) {
+					int time = deepDarkTimers.getOrDefault(player.getUUID(), 0) + 1;
+					deepDarkTimers.put(player.getUUID(), time);
 					DEEP_DARK.tick(player, time);
 				} else {
-					deepDarkTimers.remove(uuid);
+					deepDarkTimers.remove(player.getUUID());
 				}
 
-				if (player.getWorld().getRegistryKey() == World.NETHER) {
-					int time = netherTimers.getOrDefault(uuid, 0) + 1;
-					netherTimers.put(uuid, time);
+				if (player.level().dimension().equals(Level.NETHER)) {
+					int time = netherTimers.getOrDefault(player.getUUID(), 0) + 1;
+					netherTimers.put(player.getUUID(), time);
 					NETHER.tick(player, time);
-				} else {
-					netherTimers.remove(uuid);
 				}
 			}
 		});

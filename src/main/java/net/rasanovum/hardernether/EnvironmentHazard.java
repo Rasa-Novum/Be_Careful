@@ -1,8 +1,8 @@
 package net.rasanovum.hardernether;
 
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import java.util.function.Consumer;
 
 public class EnvironmentHazard {
@@ -10,10 +10,10 @@ public class EnvironmentHazard {
     private final String warningMessage;
     private final int warningTicks;
     private final int dangerTicks;
-    private final Consumer<ServerPlayerEntity> warningAction;
-    private final Consumer<ServerPlayerEntity> dangerAction;
+    private final Consumer<ServerPlayer> warningAction;
+    private final Consumer<ServerPlayer> dangerAction;
 
-    public EnvironmentHazard(String entryMessage, String warningMessage, int warningTicks, int dangerTicks, Consumer<ServerPlayerEntity> warningAction, Consumer<ServerPlayerEntity> dangerAction) {
+    public EnvironmentHazard(String entryMessage, String warningMessage, int warningTicks, int dangerTicks, Consumer<ServerPlayer> warningAction, Consumer<ServerPlayer> dangerAction) {
         this.entryMessage = entryMessage;
         this.warningMessage = warningMessage;
         this.warningTicks = warningTicks;
@@ -22,20 +22,20 @@ public class EnvironmentHazard {
         this.dangerAction = dangerAction;
     }
 
-    public void tick(ServerPlayerEntity player, int time) {
+    public void tick(ServerPlayer player, int time) {
         if (time == 80) {
-            player.sendMessage(Text.literal(entryMessage).formatted(Formatting.YELLOW), true);
+            player.displayClientMessage(Component.literal(entryMessage).withStyle(ChatFormatting.YELLOW), true);
         }
         // warning block
         if (time >= warningTicks && time < dangerTicks) {
             if (time == warningTicks) {
-                player.sendMessage(Text.literal(warningMessage).formatted(Formatting.RED), true);
+                player.displayClientMessage(Component.literal(warningMessage).withStyle(ChatFormatting.RED), true);
             }
             if (warningAction != null) {
                 warningAction.accept(player);
             }
         }
-        // danger/status effect appplication
+        // danger/status effect application
         if (time >= dangerTicks) {
             dangerAction.accept(player);
         }
