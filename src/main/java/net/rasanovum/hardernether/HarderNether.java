@@ -2,6 +2,8 @@ package net.rasanovum.hardernether;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
+import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Registry;
@@ -18,6 +20,7 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.server.level.ServerPlayer;
@@ -47,6 +50,9 @@ public class HarderNether implements ModInitializer {
 
 	public static EnvironmentHazard DEEP_DARK;
 	public static EnvironmentHazard NETHER;
+
+	public static GameRules.Key<GameRules.BooleanValue> RULE_ONLY_RUINED_PORTALS;
+
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 
@@ -60,6 +66,12 @@ public class HarderNether implements ModInitializer {
 		Registry.register(BuiltInRegistries.MOB_EFFECT, new ResourceLocation("harder-nether", "corruption"), CORRUPTION);
 		Registry.register(BuiltInRegistries.ITEM, new ResourceLocation(MOD_ID, "totem_of_light"), TOTEM_OF_LIGHT);
         Registry.register(BuiltInRegistries.ITEM, new ResourceLocation("harder-nether", "echo_shard_dust"), ECHO_SHARD_DUST);
+
+		RULE_ONLY_RUINED_PORTALS = GameRuleRegistry.register(
+				"onlyRuinedPortals",
+				GameRules.Category.PLAYER,
+				GameRuleFactory.createBooleanRule(true)
+		);
 
         DEEP_DARK = new EnvironmentHazard(
 				"A chill goes down your spine...",

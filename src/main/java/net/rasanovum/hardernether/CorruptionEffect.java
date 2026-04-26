@@ -22,7 +22,6 @@ public class CorruptionEffect extends MobEffect {
 
     @Override
     public boolean isDurationEffectTick(int pDuration, int pAmplifier) {
-        // This is the most common name in 1.20.1 official mappings
         int k = 20 >> pAmplifier;
         if (k > 0) {
             return pDuration % k == 0;
