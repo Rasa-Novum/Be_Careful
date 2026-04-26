@@ -22,7 +22,8 @@ public abstract class FoodEatMixin {
         if (!pLevel.isClientSide() && entity instanceof ServerPlayer player) {
             if (pStack.is(HarderNether.FIRE_RESISTANT_FOODS)) {
                 player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 300, 0));
-                player.displayClientMessage(Component.literal("The food cools your core...").withStyle(ChatFormatting.AQUA), true); //no clue if a message is necessary here since the fire resist effect pops up anyway
+                player.displayClientMessage(Component.literal("The food cools your core...")
+                        .withStyle(ChatFormatting.AQUA), true); //no clue if a message is necessary here since the fire resist effect pops up anyway
             }
         }
     }

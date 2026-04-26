@@ -110,7 +110,8 @@ public class HarderNether implements ModInitializer {
 				UUID uuid = player.getUUID();
 				if (messageSchedule.containsKey(uuid)) {
 					if (currentTick >= messageSchedule.get(uuid)) {
-						player.displayClientMessage(Component.literal("The light purges the encroaching darkness...").withStyle(ChatFormatting.GREEN), true);
+						player.displayClientMessage(Component.literal("The light purges the encroaching darkness...")
+								.withStyle(ChatFormatting.GREEN), true);
 						messageSchedule.remove(uuid);
 					}
 				}
