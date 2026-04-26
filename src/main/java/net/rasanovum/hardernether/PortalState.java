@@ -29,8 +29,9 @@ public class PortalState extends SavedData {
 
     public boolean isAuthorized(BlockPos pos, ServerLevel level) {
         boolean isNether = level.dimension().equals(Level.NETHER);
-        long checkX = (long) pos.getX() * (isNether ? 8 : 1);
-        long checkZ = (long) pos.getZ() * (isNether ? 8 : 1);
+        double coordinateScale = level.dimensionType().coordinateScale();
+        long checkX = (long) (pos.getX() * (isNether ? (1.0 / coordinateScale) : 1.0));
+        long checkZ = (long) (pos.getZ() * (isNether ? (1.0 / coordinateScale) : 1.0));
 
         // debug
         ServerPlayer debugPlayer = (ServerPlayer) level.getNearestPlayer(pos.getX(), pos.getY(), pos.getZ(), 10.0, false);

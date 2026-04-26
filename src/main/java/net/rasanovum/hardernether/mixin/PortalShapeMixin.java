@@ -45,7 +45,7 @@ public class PortalShapeMixin {
                     if (state.isAuthorized(pos, serverLevel)) {
                         return;
                     }
-                    sendFailure(serverLevel, pos, "The nether energies here are unstable. No anchor found in the world above...");
+                    sendFailure(serverLevel, pos, "No overworld anchor found for this portal...");
                     cir.setReturnValue(Optional.empty());
                 } else {
                     StructureStart start = serverLevel.structureManager().getStructureWithPieceAt(pos, RUINED_PORTALS);
@@ -55,7 +55,7 @@ public class PortalShapeMixin {
                         return;
                     }
 
-                    sendFailure(serverLevel, pos, "The veil is too thin here. Only ancient ruins can anchor a rift...");
+                    sendFailure(serverLevel, pos, "The dimensional connection is not strong enough here...");
                     cir.setReturnValue(Optional.empty());
                 }
             }
