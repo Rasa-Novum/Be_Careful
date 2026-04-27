@@ -6,16 +6,22 @@ import net.minecraft.server.level.ServerPlayer;
 import java.util.function.Consumer;
 
 public class EnvironmentHazard {
-    private final String entryMessage;
-    private final String warningMessage;
+
+    private final String entryBaseKey;
+    private final int entryVariants;
+    private final String warningBaseKey;
+    private final int warningVariants;
     private final int warningTicks;
     private final int dangerTicks;
     private final Consumer<ServerPlayer> warningAction;
     private final Consumer<ServerPlayer> dangerAction;
 
-    public EnvironmentHazard(String entryMessage, String warningMessage, int warningTicks, int dangerTicks, Consumer<ServerPlayer> warningAction, Consumer<ServerPlayer> dangerAction) {
-        this.entryMessage = entryMessage;
-        this.warningMessage = warningMessage;
+
+    public EnvironmentHazard(String entryBaseKey, int entryVariants, String warningBaseKey, int warningVariants, int warningTicks, int dangerTicks, Consumer<ServerPlayer> warningAction, Consumer<ServerPlayer> dangerAction) {
+        this.entryBaseKey = entryBaseKey;
+        this.entryVariants = entryVariants;
+        this.warningBaseKey = warningBaseKey;
+        this.warningVariants = warningVariants;
         this.warningTicks = warningTicks;
         this.dangerTicks = dangerTicks;
         this.warningAction = warningAction;
@@ -24,12 +30,16 @@ public class EnvironmentHazard {
 
     public void tick(ServerPlayer player, int time) {
         if (time == 80) {
-            player.displayClientMessage(Component.literal(entryMessage).withStyle(ChatFormatting.YELLOW), true);
+            player.displayClientMessage(
+            MessageManager.getRandomTranslatable(entryBaseKey, entryVariants).copy().withStyle(ChatFormatting.YELLOW),
+                    true);
         }
         // warning block
         if (time >= warningTicks && time < dangerTicks) {
             if (time == warningTicks) {
-                player.displayClientMessage(Component.literal(warningMessage).withStyle(ChatFormatting.RED), true);
+                player.displayClientMessage(
+                MessageManager.getRandomTranslatable(warningBaseKey, warningVariants).copy().withStyle(ChatFormatting.RED),
+                        true);
             }
             if (warningAction != null) {
                 warningAction.accept(player);

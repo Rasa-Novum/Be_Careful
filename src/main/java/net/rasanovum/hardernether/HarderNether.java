@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.UUID;
 
 
-
 public class HarderNether implements ModInitializer {
 	public static final String MOD_ID = "harder-nether";
 	public static MobEffect CORRUPTION;
@@ -74,12 +73,13 @@ public class HarderNether implements ModInitializer {
 		);
 
         DEEP_DARK = new EnvironmentHazard(
-				"A chill goes down your spine...",
-				"The darkness is closing in...",
-				450, 600,
+				"message.hardernether.deep_dark_entry",
+				3,
+				"message.hardernether.deep_dark_warning", 3,
+				450, 600, //change this after
 				player -> {
 					int playerTime = HarderNether.deepDarkTimers.getOrDefault(player.getUUID(), 0);
-					int heartbeatRate = (playerTime > 550) ? 10 : 20;
+					int heartbeatRate = (playerTime > 550) ? 10 : 20; //this too
 					if ((player.level().getGameTime() % heartbeatRate) == 0) {
 						player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
 								SoundEvents.WARDEN_HEARTBEAT, SoundSource.PLAYERS, 1.5f, 1.0f);
@@ -92,8 +92,9 @@ public class HarderNether implements ModInitializer {
 		);
 
 		NETHER = new EnvironmentHazard(
-				"The air here is blistering...",
-				"The heat is becoming unbearable...",
+				"message.hardernether.nether_entry",
+				3,
+				"message.hardernether.nether_warning", 3,
 				200, 400,
 				player -> {
 					// empty, no sound plays
@@ -110,8 +111,7 @@ public class HarderNether implements ModInitializer {
 				UUID uuid = player.getUUID();
 				if (messageSchedule.containsKey(uuid)) {
 					if (currentTick >= messageSchedule.get(uuid)) {
-						player.displayClientMessage(Component.literal("The light purges the encroaching darkness...")
-								.withStyle(ChatFormatting.GREEN), true);
+						player.displayClientMessage(MessageManager.getRandomTranslatable("message.hardernether.totem_cleanse", 3).copy().withStyle(ChatFormatting.GREEN), true);
 						messageSchedule.remove(uuid);
 					}
 				}

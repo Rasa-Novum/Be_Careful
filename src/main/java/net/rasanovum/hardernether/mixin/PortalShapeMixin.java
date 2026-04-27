@@ -14,6 +14,7 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.portal.PortalShape;
 import net.rasanovum.hardernether.HarderNether;
+import net.rasanovum.hardernether.MessageManager;
 import net.rasanovum.hardernether.PortalState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -42,11 +43,11 @@ public class PortalShapeMixin {
                 boolean isNether = serverLevel.dimension().equals(net.minecraft.world.level.Level.NETHER);
 
                 if (isNether) {
-                    if (state.isAuthorized(pos, serverLevel)) {
-                        return;
+                    if (!state.isAuthorized(pos, serverLevel)) {
+                        Component msg = MessageManager.getRandomTranslatable("message.hardernether.no_overworld_anchor", 3);
+                        sendFailure(serverLevel, pos, msg);
+                        cir.setReturnValue(Optional.empty());
                     }
-                    sendFailure(serverLevel, pos, "No overworld anchor found for this portal...");
-                    cir.setReturnValue(Optional.empty());
                 } else {
                     StructureStart start = serverLevel.structureManager().getStructureWithPieceAt(pos, RUINED_PORTALS);
 
@@ -54,19 +55,19 @@ public class PortalShapeMixin {
                         state.addPortal(pos);
                         return;
                     }
-
-                    sendFailure(serverLevel, pos, "The dimensional connection is not strong enough here...");
+                    Component msg = MessageManager.getRandomTranslatable("message.hardernether.not_ruined_portal", 3);
+                    sendFailure(serverLevel, pos, msg);
                     cir.setReturnValue(Optional.empty());
                 }
             }
         }
     }
 
-    private static void sendFailure(ServerLevel level, BlockPos pos, String message) {
+    private static void sendFailure(ServerLevel level, BlockPos pos, Component message) {
         ServerPlayer player = (ServerPlayer) level.getNearestPlayer(pos.getX(), pos.getY(), pos.getZ(), 7.0, false);
         if (player != null) {
             player.displayClientMessage(
-                    Component.literal(message).withStyle(ChatFormatting.LIGHT_PURPLE),
+                    message.copy().withStyle(ChatFormatting.LIGHT_PURPLE),
                     true
             );
         }
