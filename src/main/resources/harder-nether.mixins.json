@@ -5,7 +5,8 @@
   "refmap": "harder-nether-refmap.json",
   "mixins": [
     "FoodEatMixin",
-    "PortalShapeMixin"
+    "PortalShapeMixin",
+    "DimensionScaleMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -1,7 +1,6 @@
 package net.rasanovum.hardernether;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import java.util.function.Consumer;
 

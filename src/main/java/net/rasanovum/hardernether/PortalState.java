@@ -9,7 +9,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import java.util.HashSet;
 import java.util.Set;
@@ -28,10 +27,8 @@ public class PortalState extends SavedData {
     }
 
     public boolean isAuthorized(BlockPos pos, ServerLevel level) {
-        boolean isNether = level.dimension().equals(Level.NETHER);
-        double coordinateScale = level.dimensionType().coordinateScale();
-        long checkX = (long) (pos.getX() * (isNether ? (1.0 / coordinateScale) : 1.0));
-        long checkZ = (long) (pos.getZ() * (isNether ? (1.0 / coordinateScale) : 1.0));
+        long checkX = (long) pos.getX();
+        long checkZ = (long) pos.getZ();
 
         // debug
         ServerPlayer debugPlayer = (ServerPlayer) level.getNearestPlayer(pos.getX(), pos.getY(), pos.getZ(), 10.0, false);
@@ -44,7 +41,7 @@ public class PortalState extends SavedData {
             long dz = authPos.getZ() - checkZ;
             long distSq = (dx * dx + dz * dz);
 
-            if ((dx * dx + dz * dz) <= 512) { //this can likely be reduced to 256 when the 1:1 nether datapack is implemented, but for now this works in most cases (1024 would catch some edge cases tho)
+            if ((dx * dx + dz * dz) <= 256) { //this can likely be reduced to 256 when the 1:1 nether datapack is implemented, but for now this works in most cases (1024 would catch some edge cases tho)
                 return true;
             } else {
                 // debug: show where nearest anchor is
