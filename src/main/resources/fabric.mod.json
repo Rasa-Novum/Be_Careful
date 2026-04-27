@@ -20,7 +20,11 @@
 		]
 	},
 	"mixins": [
-		"harder-nether.mixins.json"
+		"harder-nether.mixins.json",
+		{
+			"config": "harder-nether.client.mixins.json",
+			"environment": "client"
+		}
 	],
 	"depends": {
 		"fabricloader": ">=0.19.2",
