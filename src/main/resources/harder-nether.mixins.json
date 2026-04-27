@@ -6,7 +6,9 @@
   "mixins": [
     "FoodEatMixin",
     "PortalShapeMixin",
-    "DimensionScaleMixin"
+    "DimensionScaleMixin",
+    "DifficultyMixin",
+    "BedSleepRestrictionMixin"
   ],
   "injectors": {
     "defaultRequire": 1

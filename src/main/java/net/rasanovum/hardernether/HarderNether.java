@@ -105,8 +105,20 @@ public class HarderNether implements ModInitializer {
 		);
 
 		ServerTickEvents.START_SERVER_TICK.register(server -> {
+
+
 			int currentTick = server.getTickCount();
 			for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+
+				long inhabitedTime = player.serverLevel().getChunkAt(player.blockPosition()).getInhabitedTime();
+				if (inhabitedTime == 720000L) {
+					player.displayClientMessage(
+							MessageManager.getRandomTranslatable("message.hardernether.chunk_tamed", 2)
+									.copy().withStyle(ChatFormatting.GOLD),
+							false
+					);
+				}
+
 				UUID uuid = player.getUUID();
 				if (messageSchedule.containsKey(uuid)) {
 					if (currentTick >= messageSchedule.get(uuid)) {

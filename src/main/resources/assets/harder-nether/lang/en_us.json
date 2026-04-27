@@ -23,5 +23,9 @@
   "message.hardernether.no_overworld_anchor.3": "No dimensional connection can be made here...",
   "message.hardernether.totem_cleanse.1": "The light purges the encroaching darkness...",
   "message.hardernether.totem_cleanse.2": "A cleansing light is bestowed upon you...",
-  "message.hardernether.totem_cleanse.3": "The totem cleanses you of the crushing darkness..."
+  "message.hardernether.totem_cleanse.3": "The totem cleanses you of the crushing darkness...",
+  "message.hardernether.chunk_tamed.1": "The land here feels familiar...",
+  "message.hardernether.chunk_tamed.2": "The wilderness is calmer in this area...",
+  "message.hardernether.bed_unsafe.1": "This land is too wild to rest in.",
+  "message.hardernether.bed_unsafe.2": "The shadows of this untamed place keep you awake."
 }
