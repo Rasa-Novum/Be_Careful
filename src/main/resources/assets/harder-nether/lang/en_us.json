@@ -27,5 +27,9 @@
   "message.hardernether.chunk_tamed.1": "The land here feels familiar...",
   "message.hardernether.chunk_tamed.2": "The wilderness is calmer in this area...",
   "message.hardernether.bed_unsafe.1": "This land is too wild to rest in.",
-  "message.hardernether.bed_unsafe.2": "The shadows of this untamed place keep you awake."
+  "message.hardernether.bed_unsafe.2": "The shadows of this untamed place keep you awake.",
+  "gamerule.chunkTameTime": "Chunk Tame Time",
+  "gamerule.chunkTameTime.description": "The amount of time (in ticks) a player must inhabit a chunk before it is considered 'tamed' and safe for sleep.",
+  "gamerule.onlyRuinedPortals": "Only Ruined Portals",
+  "gamerule.onlyRuinedPortals.description": "If enabled, Nether portals can only be activated if they are part of a Ruined Portal structure or have a valid anchor."
 }

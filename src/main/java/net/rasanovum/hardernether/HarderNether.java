@@ -50,6 +50,7 @@ public class HarderNether implements ModInitializer {
 	public static EnvironmentHazard NETHER;
 
 	public static GameRules.Key<GameRules.BooleanValue> RULE_ONLY_RUINED_PORTALS;
+	public static GameRules.Key<GameRules.IntegerValue> RULE_CHUNK_TAME_TIME;
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
@@ -69,6 +70,12 @@ public class HarderNether implements ModInitializer {
 				"onlyRuinedPortals",
 				GameRules.Category.PLAYER,
 				GameRuleFactory.createBooleanRule(true)
+		);
+
+		RULE_CHUNK_TAME_TIME = GameRuleRegistry.register(
+				"chunkTameTime",
+				GameRules.Category.PLAYER,
+				GameRuleFactory.createIntRule(72000) // 1 hour default
 		);
 
         DEEP_DARK = new EnvironmentHazard(
@@ -109,9 +116,9 @@ public class HarderNether implements ModInitializer {
 
 			int currentTick = server.getTickCount();
 			for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-
+				int requiredTicks = player.serverLevel().getGameRules().getInt(RULE_CHUNK_TAME_TIME);
 				long inhabitedTime = player.serverLevel().getChunkAt(player.blockPosition()).getInhabitedTime();
-				if (inhabitedTime == 720000L) {
+				if (inhabitedTime == requiredTicks) {
 					player.displayClientMessage(
 							MessageManager.getRandomTranslatable("message.hardernether.chunk_tamed", 2)
 									.copy().withStyle(ChatFormatting.GOLD),
