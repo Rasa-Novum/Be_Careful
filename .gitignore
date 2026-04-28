@@ -5,6 +5,7 @@ build/
 out/
 classes/
 /gradle/wrapper
+/.github/workflows
 
 # eclipse
 
