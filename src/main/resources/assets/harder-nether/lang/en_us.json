@@ -31,5 +31,12 @@
   "gamerule.chunkTameTime": "Chunk Tame Time",
   "gamerule.chunkTameTime.description": "The amount of time (in ticks) a player must inhabit a chunk before it is considered 'tamed' and safe for sleep.",
   "gamerule.onlyRuinedPortals": "Only Ruined Portals",
-  "gamerule.onlyRuinedPortals.description": "If enabled, Nether portals can only be activated if they are part of a Ruined Portal structure or have a valid anchor."
+  "gamerule.onlyRuinedPortals.description": "If enabled, Nether portals can only be activated if they are part of a Ruined Portal structure or have a valid anchor.",
+  "harder-nether.midnightconfig.title": "Harder Nether Configuration",
+  "harder-nether.midnightconfig.netherCategory": "Nether Hazard Settings",
+  "harder-nether.midnightconfig.netherWarningTicks": "Nether Warning Delay (Ticks)",
+  "harder-nether.midnightconfig.netherDangerTicks": "Nether Danger Delay (Ticks)",
+  "harder-nether.midnightconfig.deepDarkCategory": "Deep Dark Hazard Settings",
+  "harder-nether.midnightconfig.deepDarkWarningTicks": "Deep Dark Warning Delay (Ticks)",
+  "harder-nether.midnightconfig.deepDarkDangerTicks": "Deep Dark Danger Delay (Ticks)"
 }

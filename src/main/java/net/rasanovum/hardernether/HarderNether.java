@@ -1,5 +1,6 @@
 package net.rasanovum.hardernether;
 
+import eu.midnightdust.lib.config.MidnightConfig;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
@@ -52,11 +53,29 @@ public class HarderNether implements ModInitializer {
 	public static GameRules.Key<GameRules.BooleanValue> RULE_ONLY_RUINED_PORTALS;
 	public static GameRules.Key<GameRules.IntegerValue> RULE_CHUNK_TAME_TIME;
 
+	// deep dark
+	public static final int DD_ENTRY_VARIANTS = HarderNetherConfig.deepDarkEntryVariants;
+	public static final int DD_WARN_TICKS = HarderNetherConfig.deepDarkWarningTicks;
+	public static final int DD_WARN_VARIANTS = HarderNetherConfig.deepDarkWarningVariants;
+	public static final int DD_DANGER_TICKS = HarderNetherConfig.deepDarkDangerTicks;
+	public static final int TOTEM_VARIANTS = HarderNetherConfig.totemVariants;
+
+	// nether
+	public static final int N_ENTRY_VARIANTS = HarderNetherConfig.netherEntryVariants;
+	public static final int N_WARN_VARIANTS = HarderNetherConfig.netherWarningVariants;
+	public static final int N_WARN_TICKS = HarderNetherConfig.netherWarningTicks;
+	public static final int N_DANGER_TICKS = HarderNetherConfig.netherDangerTicks;
+
+	// chunk tame
+	public static final int CHUNK_TAME_VARIANTS = HarderNetherConfig.chunkTameVariants;
+
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 
 	@Override
 	public void onInitialize() {
+
+		MidnightConfig.init(MOD_ID, HarderNetherConfig.class);
 
 		CORRUPTION = new CorruptionEffect();
 		TOTEM_OF_LIGHT = new TotemOfLight(new FabricItemSettings().maxCount(1));
@@ -80,12 +99,12 @@ public class HarderNether implements ModInitializer {
 
         DEEP_DARK = new EnvironmentHazard(
 				"message.hardernether.deep_dark_entry",
-				3,
-				"message.hardernether.deep_dark_warning", 3,
-				450, 600, //change this after
+				DD_ENTRY_VARIANTS,
+				"message.hardernether.deep_dark_warning", DD_WARN_VARIANTS,
+				DD_WARN_TICKS, DD_DANGER_TICKS,
 				player -> {
 					int playerTime = HarderNether.deepDarkTimers.getOrDefault(player.getUUID(), 0);
-					int heartbeatRate = (playerTime > 550) ? 10 : 20; //this too
+					int heartbeatRate = (playerTime > 550) ? 10 : 20;
 					if ((player.level().getGameTime() % heartbeatRate) == 0) {
 						player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
 								SoundEvents.WARDEN_HEARTBEAT, SoundSource.PLAYERS, 1.5f, 1.0f);
@@ -99,9 +118,9 @@ public class HarderNether implements ModInitializer {
 
 		NETHER = new EnvironmentHazard(
 				"message.hardernether.nether_entry",
-				3,
-				"message.hardernether.nether_warning", 3,
-				200, 400,
+				N_ENTRY_VARIANTS,
+				"message.hardernether.nether_warning", N_WARN_VARIANTS,
+				N_WARN_TICKS, N_DANGER_TICKS,
 				player -> {
 					// empty, no sound plays
 				},
@@ -120,7 +139,7 @@ public class HarderNether implements ModInitializer {
 				long inhabitedTime = player.serverLevel().getChunkAt(player.blockPosition()).getInhabitedTime();
 				if (inhabitedTime == requiredTicks) {
 					player.displayClientMessage(
-							MessageManager.getRandomTranslatable("message.hardernether.chunk_tamed", 2)
+							MessageManager.getRandomTranslatable("message.hardernether.chunk_tamed", CHUNK_TAME_VARIANTS)
 									.copy().withStyle(ChatFormatting.GOLD),
 							false
 					);
@@ -129,7 +148,7 @@ public class HarderNether implements ModInitializer {
 				UUID uuid = player.getUUID();
 				if (messageSchedule.containsKey(uuid)) {
 					if (currentTick >= messageSchedule.get(uuid)) {
-						player.displayClientMessage(MessageManager.getRandomTranslatable("message.hardernether.totem_cleanse", 3).copy().withStyle(ChatFormatting.GREEN), true);
+						player.displayClientMessage(MessageManager.getRandomTranslatable("message.hardernether.totem_cleanse", TOTEM_VARIANTS).copy().withStyle(ChatFormatting.GREEN), true);
 						messageSchedule.remove(uuid);
 					}
 				}

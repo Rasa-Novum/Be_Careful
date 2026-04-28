@@ -7,6 +7,14 @@ version = project.mod_version
 group = project.maven_group
 
 repositories {
+	maven {
+		name = "Modrinth"
+		url = "https://api.modrinth.com/maven"
+		content {
+			includeGroup "maven.modrinth"
+		}
+	}
+	maven { url "https://jitpack.io" }
 }
 
 dependencies {
@@ -16,6 +24,8 @@ dependencies {
 	}
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	modImplementation "maven.modrinth:midnightlib:1.4.1-fabric"
+	include "maven.modrinth:midnightlib:1.4.1-fabric"
 }
 
 tasks.withType(JavaCompile).configureEach {
