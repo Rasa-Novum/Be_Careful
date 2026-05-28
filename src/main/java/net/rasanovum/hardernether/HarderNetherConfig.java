@@ -5,8 +5,6 @@ import eu.midnightdust.lib.config.MidnightConfig;
 public class HarderNetherConfig extends MidnightConfig {
 
     // Nether Settings
-    @Comment(centered = true)
-    public static String netherCategory;
 
     @Entry(min = 0)
     public static int netherWarningTicks = 200;
@@ -21,8 +19,6 @@ public class HarderNetherConfig extends MidnightConfig {
     public static int netherWarningVariants = 3;
 
     // Deep Dark Settings
-    @Comment(centered = true)
-    public static String deepDarkCategory;
 
     @Entry(min = 0)
     public static int deepDarkWarningTicks = 450;
@@ -46,5 +42,10 @@ public class HarderNetherConfig extends MidnightConfig {
 
     @Entry(min = 1)
     public static int chunkUnsafeVariants = 2;
+
+    // End
+
+    @Entry public static int minSpawnRadius = 1000;
+    @Entry public static int maxSpawnRadius = 2000;
 
 }

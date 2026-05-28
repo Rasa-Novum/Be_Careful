@@ -2,7 +2,9 @@ package net.rasanovum.hardernether;
 
 import eu.midnightdust.lib.config.MidnightConfig;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
@@ -129,6 +131,10 @@ public class HarderNether implements ModInitializer {
 					player.causeFoodExhaustion(0.05f);
 				}
 		);
+
+		// end
+		UseItemCallback.EVENT.register(EndSpawnHandler::onUseEnderEye);
+		ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register(EndSpawnHandler::onPlayerEnterEnd);
 
 		ServerTickEvents.START_SERVER_TICK.register(server -> {
 

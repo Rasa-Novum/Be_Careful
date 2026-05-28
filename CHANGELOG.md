@@ -1,4 +1,4 @@
-# Harder Nether 0.0.0 Changelog:
+# Harder Nether 0.1.0 Changelog:
 
 ### Features:
 
@@ -16,7 +16,9 @@
 
 ### Changes:
 
-- None
+- Added random end spawning (configurable)
+- Blocked F3 coordinate viewing in end
+- Changed logic of eye of ender to locate the ender dragon fight for the player
 
 ### Notes: 
 

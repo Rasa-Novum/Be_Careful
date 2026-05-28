@@ -8,7 +8,8 @@
     "PortalShapeMixin",
     "DimensionScaleMixin",
     "DifficultyMixin",
-    "BedSleepRestrictionMixin"
+    "BedSleepRestrictionMixin",
+    "DebugScreenOverlayMixin"
   ],
   "injectors": {
     "defaultRequire": 1
