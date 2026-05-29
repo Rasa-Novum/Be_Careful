@@ -1,7 +1,8 @@
-package net.rasanovum.hardernether;
+package net.rasanovum.hardernether.util;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.server.level.ServerPlayer;
+
 import java.util.function.Consumer;
 
 public class EnvironmentHazard {

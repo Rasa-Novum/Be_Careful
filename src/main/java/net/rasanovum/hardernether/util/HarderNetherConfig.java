@@ -1,4 +1,4 @@
-package net.rasanovum.hardernether;
+package net.rasanovum.hardernether.util;
 
 import eu.midnightdust.lib.config.MidnightConfig;
 

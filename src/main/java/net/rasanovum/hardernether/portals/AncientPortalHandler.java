@@ -1,4 +1,4 @@
-package net.rasanovum.hardernether;
+package net.rasanovum.hardernether.portals;
 
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityCombatEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
@@ -14,6 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.rasanovum.hardernether.HarderNether;
 
 public class AncientPortalHandler {
 
