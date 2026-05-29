@@ -38,9 +38,7 @@ public class AncientPortalHandler {
 
                 if (!level.isClientSide()) {
                     ServerLevel serverLevel = (ServerLevel) level;
-
                     ignitePortalGateway(serverLevel, clickedPos);
-
                     level.playSound(
                             null, clickedPos,
                             SoundEvents.END_PORTAL_SPAWN, SoundSource.BLOCKS,

@@ -10,7 +10,8 @@
     "DifficultyMixin",
     "BedSleepRestrictionMixin",
     "DebugScreenOverlayMixin",
-    "WardenMixin"
+    "WardenMixin",
+    "EndPortalRenderMixin"
   ],
   "injectors": {
     "defaultRequire": 1
