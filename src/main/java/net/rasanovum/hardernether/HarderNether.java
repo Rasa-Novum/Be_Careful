@@ -22,6 +22,7 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biomes;
@@ -38,6 +39,7 @@ public class HarderNether implements ModInitializer {
 	public static MobEffect CORRUPTION;
 	public static Item TOTEM_OF_LIGHT;
 	public static Item ECHO_SHARD_DUST;
+	public static Item LOST_KEY;
 
 	public static final Map<UUID, Integer> deepDarkTimers = new HashMap<>();
 	public static final Map<UUID, Integer> netherTimers = new HashMap<>();
@@ -82,10 +84,16 @@ public class HarderNether implements ModInitializer {
 		CORRUPTION = new CorruptionEffect();
 		TOTEM_OF_LIGHT = new TotemOfLight(new FabricItemSettings().maxCount(1));
 		ECHO_SHARD_DUST = new Item(new FabricItemSettings());
+		LOST_KEY = new Item(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
 
 		Registry.register(BuiltInRegistries.MOB_EFFECT, new ResourceLocation("harder-nether", "corruption"), CORRUPTION);
 		Registry.register(BuiltInRegistries.ITEM, new ResourceLocation(MOD_ID, "totem_of_light"), TOTEM_OF_LIGHT);
         Registry.register(BuiltInRegistries.ITEM, new ResourceLocation("harder-nether", "echo_shard_dust"), ECHO_SHARD_DUST);
+		Registry.register(BuiltInRegistries.ITEM, new ResourceLocation("harder-nether", "lost_key"), LOST_KEY);
+
+		AncientPortalHandler.registerEvents();
+		UseItemCallback.EVENT.register(EndSpawnHandler::onUseEnderEye);
+		ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register(EndSpawnHandler::onPlayerEnterEnd);
 
 		RULE_ONLY_RUINED_PORTALS = GameRuleRegistry.register(
 				"onlyRuinedPortals",
@@ -131,10 +139,6 @@ public class HarderNether implements ModInitializer {
 					player.causeFoodExhaustion(0.05f);
 				}
 		);
-
-		// end
-		UseItemCallback.EVENT.register(EndSpawnHandler::onUseEnderEye);
-		ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register(EndSpawnHandler::onPlayerEnterEnd);
 
 		ServerTickEvents.START_SERVER_TICK.register(server -> {
 

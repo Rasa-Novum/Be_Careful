@@ -9,7 +9,8 @@
     "DimensionScaleMixin",
     "DifficultyMixin",
     "BedSleepRestrictionMixin",
-    "DebugScreenOverlayMixin"
+    "DebugScreenOverlayMixin",
+    "WardenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

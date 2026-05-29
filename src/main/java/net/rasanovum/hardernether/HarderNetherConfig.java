@@ -35,6 +35,9 @@ public class HarderNetherConfig extends MidnightConfig {
     @Entry(min = 1)
     public static int totemVariants = 3;
 
+    @Entry(min = 2)
+    public static int wardenHealthValue = 300;
+
     // Regional Difficulty / Chunk Taming
 
     @Entry(min = 1)
