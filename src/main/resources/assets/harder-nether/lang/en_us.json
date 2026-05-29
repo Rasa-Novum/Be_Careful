@@ -3,6 +3,7 @@
   "death.attack.harder-nether.corruption": "%1$s was consumed by the darkness",
   "item.harder-nether.totem_of_light": "Totem of Light",
   "item.harder-nether.echo_shard_dust": "Echo Shard Dust",
+  "item.harder-nether.lost_key": "Lost Key",
   "message.hardernether.nether_entry.1": "The air here is blistering...",
   "message.hardernether.nether_entry.2": "You notice the temperature rising...",
   "message.hardernether.nether_entry.3": "The heat begins to build...",
