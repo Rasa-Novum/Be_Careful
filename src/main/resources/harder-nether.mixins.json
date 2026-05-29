@@ -11,7 +11,8 @@
     "BedSleepRestrictionMixin",
     "DebugScreenOverlayMixin",
     "WardenMixin",
-    "EndPortalRenderMixin"
+    "EndPortalRenderMixin",
+    "DisableStrongholdsMixin"
   ],
   "injectors": {
     "defaultRequire": 1
