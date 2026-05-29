@@ -49,8 +49,8 @@ public class HarderNetherConfig extends MidnightConfig {
 
     // End
 
-    @Entry public static int minSpawnRadius = 1000;
-    @Entry public static int maxSpawnRadius = 2000;
+    @Entry (min = 100) public static int minSpawnRadius = 1000;
+    @Entry (min = 100) public static int maxSpawnRadius = 2000;
     @Entry (min = 1) public static long phantomSpawnAttemptsPerDay = 3;
     @Entry (min = 0) public static float phantomSpawnRateFloat = 0.5F;
 

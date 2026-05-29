@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "examplemod:food_item",
+    "farmersdelight:smoked_ham",
+    "create:honeyed_apple"
+  ]
+}
