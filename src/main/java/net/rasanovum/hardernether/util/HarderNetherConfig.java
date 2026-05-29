@@ -7,10 +7,10 @@ public class HarderNetherConfig extends MidnightConfig {
     // Nether Settings
 
     @Entry(min = 0)
-    public static int netherWarningTicks = 200;
+    public static int netherWarningTicks = 400;
 
     @Entry(min = 0)
-    public static int netherDangerTicks = 400;
+    public static int netherDangerTicks = 600;
 
     @Entry(min = 1)
     public static int netherEntryVariants = 3;
@@ -22,10 +22,10 @@ public class HarderNetherConfig extends MidnightConfig {
     // Deep Dark Settings
 
     @Entry(min = 0)
-    public static int deepDarkWarningTicks = 450;
+    public static int deepDarkWarningTicks = 1800;
 
     @Entry(min = 0)
-    public static int deepDarkDangerTicks = 600;
+    public static int deepDarkDangerTicks = 2400;
 
     @Entry(min = 1)
     public static int deepDarkEntryVariants = 3;
@@ -51,7 +51,7 @@ public class HarderNetherConfig extends MidnightConfig {
 
     @Entry (min = 100) public static int minSpawnRadius = 1000;
     @Entry (min = 100) public static int maxSpawnRadius = 2000;
-    @Entry (min = 1) public static long phantomSpawnAttemptsPerDay = 3;
-    @Entry (min = 0) public static float phantomSpawnRateFloat = 0.5F;
+    @Entry (min = 1) public static long phantomSpawnAttemptsPerDay = 8;
+    @Entry (min = 0) public static float phantomSpawnRateFloat = 0.75F;
 
 }
