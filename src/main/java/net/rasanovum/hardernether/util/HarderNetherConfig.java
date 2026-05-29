@@ -18,6 +18,7 @@ public class HarderNetherConfig extends MidnightConfig {
     @Entry(min = 1)
     public static int netherWarningVariants = 3;
 
+
     // Deep Dark Settings
 
     @Entry(min = 0)
@@ -50,5 +51,7 @@ public class HarderNetherConfig extends MidnightConfig {
 
     @Entry public static int minSpawnRadius = 1000;
     @Entry public static int maxSpawnRadius = 2000;
+    @Entry (min = 1) public static long phantomSpawnAttemptsPerDay = 3;
+    @Entry (min = 0) public static float phantomSpawnRateFloat = 0.5F;
 
 }

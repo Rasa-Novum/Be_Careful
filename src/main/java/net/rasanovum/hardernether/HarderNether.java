@@ -99,6 +99,7 @@ public class HarderNether implements ModInitializer {
 		AncientPortalHandler.registerEvents();
 		UseItemCallback.EVENT.register(EndSpawnHandler::onUseEnderEye);
 		ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register(EndSpawnHandler::onPlayerEnterEnd);
+		EndPhantomSpawner.register();
 
 		RULE_ONLY_RUINED_PORTALS = GameRuleRegistry.register(
 				"onlyRuinedPortals",

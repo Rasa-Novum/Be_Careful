@@ -12,7 +12,8 @@
     "DebugScreenOverlayMixin",
     "WardenMixin",
     "EndPortalRenderMixin",
-    "DisableStrongholdsMixin"
+    "DisableStrongholdsMixin",
+    "PhantomSpawnerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
