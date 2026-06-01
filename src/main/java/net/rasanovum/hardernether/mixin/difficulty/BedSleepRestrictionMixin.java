@@ -1,4 +1,4 @@
-package net.rasanovum.hardernether.mixin;
+package net.rasanovum.hardernether.mixin.difficulty;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.rasanovum.hardernether.HarderNether;
-import net.rasanovum.hardernether.util.HarderNetherConfig;
+import net.rasanovum.hardernether.HarderNetherConfig;
 import net.rasanovum.hardernether.util.MessageManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

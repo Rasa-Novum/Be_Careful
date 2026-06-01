@@ -1,4 +1,4 @@
-package net.rasanovum.hardernether.mixin;
+package net.rasanovum.hardernether.mixin.portal;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;

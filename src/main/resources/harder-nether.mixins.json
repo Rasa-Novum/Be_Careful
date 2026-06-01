@@ -5,15 +5,15 @@
   "refmap": "harder-nether-refmap.json",
   "mixins": [
     "FoodEatMixin",
-    "PortalShapeMixin",
+    "portal.PortalShapeMixin",
     "DimensionScaleMixin",
-    "DifficultyMixin",
-    "BedSleepRestrictionMixin",
+    "difficulty.DifficultyMixin",
+    "difficulty.BedSleepRestrictionMixin",
     "DebugScreenOverlayMixin",
-    "WardenMixin",
-    "EndPortalRenderMixin",
+    "mobs.WardenMixin",
+    "portal.EndPortalRenderMixin",
     "DisableStrongholdsMixin",
-    "PhantomSpawnerMixin"
+    "mobs.PhantomSpawnerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

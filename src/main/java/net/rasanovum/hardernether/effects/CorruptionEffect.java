@@ -1,4 +1,4 @@
-package net.rasanovum.hardernether;
+package net.rasanovum.hardernether.effects;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;

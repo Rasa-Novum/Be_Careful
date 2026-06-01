@@ -1,4 +1,4 @@
-package net.rasanovum.hardernether;
+package net.rasanovum.hardernether.spawning;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -8,7 +8,7 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.rasanovum.hardernether.util.HarderNetherConfig;
+import net.rasanovum.hardernether.HarderNetherConfig;
 
 public class EndPhantomSpawner {
 

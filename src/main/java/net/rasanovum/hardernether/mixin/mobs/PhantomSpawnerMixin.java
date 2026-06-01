@@ -1,4 +1,4 @@
-package net.rasanovum.hardernether.mixin;
+package net.rasanovum.hardernether.mixin.mobs;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;

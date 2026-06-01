@@ -1,4 +1,4 @@
-package net.rasanovum.hardernether.util;
+package net.rasanovum.hardernether.spawning;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -16,6 +16,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.rasanovum.hardernether.HarderNetherConfig;
 
 import java.util.Random;
 

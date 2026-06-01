@@ -1,4 +1,4 @@
-package net.rasanovum.hardernether.mixin;
+package net.rasanovum.hardernether.mixin.difficulty;
 
 import net.minecraft.world.DifficultyInstance;
 import org.spongepowered.asm.mixin.Mixin;

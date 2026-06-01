@@ -1,4 +1,4 @@
-package net.rasanovum.hardernether.mixin;
+package net.rasanovum.hardernether.mixin.portal;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
