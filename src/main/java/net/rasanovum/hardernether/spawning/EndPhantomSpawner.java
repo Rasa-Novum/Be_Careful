@@ -9,44 +9,48 @@ import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.rasanovum.hardernether.HarderNetherConfig;
+import net.rasanovum.hardernether.portals.EndEdgeGatewayManager;
 
 public class EndPhantomSpawner {
 
     public static void register() {
         net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_WORLD_TICK.register(level -> {
-            if (level.dimension() == Level.END && level.getDifficulty() != net.minecraft.world.Difficulty.PEACEFUL) {
-                long dayTime = level.getDayTime();
-                long attemptsPerDay = 24000 / HarderNetherConfig.phantomSpawnAttemptsPerDay;
+            if (level.dimension() != Level.END) return;
+            EndEdgeGatewayManager.checkAndSpawnEdgeGateways(level);
 
-                if (dayTime % attemptsPerDay != 0) return;
+            if (level.getDifficulty() == net.minecraft.world.Difficulty.PEACEFUL) return;
 
-                RandomSource random = level.getRandom();
+            long dayTime = level.getDayTime();
+            long attemptsPerDay = 24000 / HarderNetherConfig.phantomSpawnAttemptsPerDay;
 
-                for (ServerPlayer player : level.players()) {
-                    if (player.isSpectator() || player.isCreative()) continue;
+            if (dayTime % attemptsPerDay != 0) return;
 
-                    if (random.nextFloat() < HarderNetherConfig.phantomSpawnRateFloat) {
-                        BlockPos playerPos = player.blockPosition();
+            RandomSource random = level.getRandom();
 
-                        int spawnY = playerPos.getY() + 20 + random.nextInt(15);
-                        BlockPos spawnPos = new BlockPos(
-                                playerPos.getX() + random.nextInt(10) - 5,
-                                spawnY,
-                                playerPos.getZ() + random.nextInt(10) - 5
-                        );
+            for (ServerPlayer player : level.players()) {
+                if (player.isSpectator() || player.isCreative()) continue;
 
-                        BlockState blockState = level.getBlockState(spawnPos);
+                if (random.nextFloat() < HarderNetherConfig.phantomSpawnRateFloat) {
+                    BlockPos playerPos = player.blockPosition();
 
-                        if (blockState.isAir() && level.getFluidState(spawnPos).isEmpty()) {
-                            int packSize = 2 + random.nextInt(2); // Spawns a pack of 2-3 phantoms
+                    int spawnY = playerPos.getY() + 20 + random.nextInt(15);
+                    BlockPos spawnPos = new BlockPos(
+                            playerPos.getX() + random.nextInt(10) - 5,
+                            spawnY,
+                            playerPos.getZ() + random.nextInt(10) - 5
+                    );
 
-                            for (int i = 0; i < packSize; ++i) {
-                                Phantom phantom = EntityType.PHANTOM.create(level);
-                                if (phantom != null) {
-                                    phantom.moveTo(spawnPos, 0.0F, 0.0F);
-                                    phantom.finalizeSpawn(level, level.getCurrentDifficultyAt(spawnPos), MobSpawnType.NATURAL, null, null);
-                                    level.addFreshEntity(phantom);
-                                }
+                    BlockState blockState = level.getBlockState(spawnPos);
+
+                    if (blockState.isAir() && level.getFluidState(spawnPos).isEmpty()) {
+                        int packSize = 2 + random.nextInt(2); // Spawns a pack of 2-3 phantoms
+
+                        for (int i = 0; i < packSize; ++i) {
+                            Phantom phantom = EntityType.PHANTOM.create(level);
+                            if (phantom != null) {
+                                phantom.moveTo(spawnPos, 0.0F, 0.0F);
+                                phantom.finalizeSpawn(level, level.getCurrentDifficultyAt(spawnPos), MobSpawnType.NATURAL, null, null);
+                                level.addFreshEntity(phantom);
                             }
                         }
                     }

@@ -186,6 +186,6 @@ public class HarderNether implements ModInitializer {
 			}
 		});
 
-		LOGGER.info("Hello Fabric world!");
+		LOGGER.info("this mod does too much stuff man what on earth are we going to name it");
 	}
 }

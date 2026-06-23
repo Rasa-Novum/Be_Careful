@@ -16,9 +16,7 @@
 
 ### Changes:
 
-- Added random end spawning (configurable)
-- Blocked F3 coordinate viewing in end
-- Changed logic of eye of ender to locate the ender dragon fight for the player
+- Added random end gateways at the edge of the void between outer islands and main island that allows for teleportation back to the main island to begin the fight.
 
 ### Notes: 
 
