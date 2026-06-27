@@ -1,0 +1,24 @@
+{
+  "required": true,
+  "package": "net.rasanovum.becareful.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "harder-nether-refmap.json",
+  "mixins": [
+    "FoodEatMixin",
+    "portal.PortalShapeMixin",
+    "DimensionScaleMixin",
+    "difficulty.DifficultyMixin",
+    "difficulty.BedSleepRestrictionMixin",
+    "DebugScreenOverlayMixin",
+    "mobs.WardenMixin",
+    "portal.EndPortalRenderMixin",
+    "DisableStrongholdsMixin",
+    "mobs.PhantomSpawnerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+	}
+}

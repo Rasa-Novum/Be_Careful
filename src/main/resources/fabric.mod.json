@@ -1,28 +1,28 @@
 {
 	"schemaVersion": 1,
-	"id": "harder-nether",
+	"id": "be-careful",
 	"version": "${version}",
-	"name": "Harder Nether",
+	"name": "Be Careful",
 	"description": "A difficulty overhaul mod that alters the progression of the game and makes certain areas of the game world more challenging.",
 	"authors": [
 		"Rasa Novum"
 	],
 	"contact": {
 		"homepage": "https://rasanovum.ca",
-		"sources": "https://github.com/RasaNovum/harder-nether"
+		"sources": "https://github.com/RasaNovum/be-careful"
 	},
 	"license": "RSL-1.0",
-	"icon": "assets/harder-nether/icon.png",
+	"icon": "assets/be-careful/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"net.rasanovum.hardernether.HarderNether"
+          "net.rasanovum.becareful.BeCareful"
 		]
 	},
 	"mixins": [
-		"harder-nether.mixins.json",
+		"be-careful.mixins.json",
 		{
-			"config": "harder-nether.client.mixins.json",
+			"config": "be-careful.client.mixins.json",
 			"environment": "client"
 		}
 	],
