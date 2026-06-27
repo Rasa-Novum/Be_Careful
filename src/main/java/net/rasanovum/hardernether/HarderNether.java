@@ -62,6 +62,7 @@ public class HarderNether implements ModInitializer {
 
 	public static GameRules.Key<GameRules.BooleanValue> RULE_ONLY_RUINED_PORTALS;
 	public static GameRules.Key<GameRules.IntegerValue> RULE_CHUNK_TAME_TIME;
+	public static GameRules.Key<GameRules.BooleanValue> RULE_DO_PORTAL_DEBUG;
 
 	// deep dark
 	public static final int DD_ENTRY_VARIANTS = HarderNetherConfig.deepDarkEntryVariants;
@@ -112,6 +113,12 @@ public class HarderNether implements ModInitializer {
 				"chunkTameTime",
 				GameRules.Category.PLAYER,
 				GameRuleFactory.createIntRule(72000) // 1 hour default
+		);
+
+		RULE_DO_PORTAL_DEBUG = GameRuleRegistry.register(
+				"doPortalDebug",
+				GameRules.Category.PLAYER,
+				GameRuleFactory.createBooleanRule(false)
 		);
 
         DEEP_DARK = new EnvironmentHazard(

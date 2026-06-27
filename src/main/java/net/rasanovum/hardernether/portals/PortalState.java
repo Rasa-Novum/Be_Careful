@@ -10,6 +10,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.rasanovum.hardernether.HarderNether;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,10 +32,14 @@ public class PortalState extends SavedData {
         long checkX = (long) pos.getX();
         long checkZ = (long) pos.getZ();
 
+        boolean portalGameRule = level.getGameRules().getBoolean(HarderNether.RULE_DO_PORTAL_DEBUG);
+
         // debug
         ServerPlayer debugPlayer = (ServerPlayer) level.getNearestPlayer(pos.getX(), pos.getY(), pos.getZ(), 10.0, false);
         if (debugPlayer != null) {
-            debugPlayer.displayClientMessage(Component.literal("Checking Coords: " + checkX + ", " + checkZ).withStyle(ChatFormatting.GRAY), false);
+            if (portalGameRule) {
+                debugPlayer.displayClientMessage(Component.literal("Checking Coords: " + checkX + ", " + checkZ).withStyle(ChatFormatting.GRAY), false);
+            }
         }
 
         for (BlockPos authPos : authorizedPortals) {
@@ -46,7 +52,9 @@ public class PortalState extends SavedData {
             } else {
                 // debug: show where nearest anchor is
                 if (debugPlayer != null) {
-                    debugPlayer.displayClientMessage(Component.literal("Anchor found at " + authPos.getX() + ", " + authPos.getZ() + " (DistSq: " + distSq + ")").withStyle(ChatFormatting.RED), false);
+                    if (portalGameRule) {
+                        debugPlayer.displayClientMessage(Component.literal("Anchor found at " + authPos.getX() + ", " + authPos.getZ() + " (DistSq: " + distSq + ")").withStyle(ChatFormatting.RED), false);
+                    }
                 }
             }
         }
