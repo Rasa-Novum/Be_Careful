@@ -27,14 +27,19 @@ public class DebugScreenOverlayMixin {
             for (int i = 0; i < infoLines.size(); i++) {
                 String line = infoLines.get(i);
 
-                if (line.startsWith("XYZ:") || line.startsWith("Block:")) {
+                if (line.startsWith("XYZ:") || line.startsWith("Block:") || line.startsWith("Chunk") || line.startsWith("Facing:")) {
                     RandomSource random = this.minecraft.level.random;
+                    String corruptedLine;
 
-                    // not sure whether or not it should be random numbers or just ??? for both of the entries
-                    String corruptedLine = line.startsWith("XYZ:")
-                            ? String.format("XYZ: %d / %d / %d", random.nextInt(99), random.nextInt(99), random.nextInt(99))
-                            : "Block: ??? / ??? / ???";
-
+                    if (line.startsWith("XYZ:")) {
+                        corruptedLine = String.format("XYZ: %d / %d / %d", random.nextInt(99), random.nextInt(99), random.nextInt(99));
+                    } else if (line.startsWith("Block:")) {
+                        corruptedLine = "Block: ??? / ??? / ???";
+                    } else if (line.startsWith("Chunk")) {
+                        corruptedLine = "Chunk: ? ? ? in ? ? ?";
+                    } else {
+                        corruptedLine = "Facing: ??? (Towards ???) (?? / ??)";
+                    }
                     infoLines.set(i, corruptedLine);
                 }
             }
