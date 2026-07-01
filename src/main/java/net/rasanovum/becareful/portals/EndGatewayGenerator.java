@@ -5,10 +5,13 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.TheEndGatewayBlockEntity;
+import net.rasanovum.becareful.BeCarefulConfig;
 
 public class EndGatewayGenerator {
 
     public static void spawnReturnGateway(ServerLevel level, BlockPos pos) {
+        if (!BeCarefulConfig.doEndFeatures) return;
+
         level.setBlock(pos, Blocks.END_GATEWAY.defaultBlockState(), 3);
 
         BlockEntity blockEntity = level.getBlockEntity(pos);

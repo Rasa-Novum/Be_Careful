@@ -1,6 +1,7 @@
 package net.rasanovum.becareful.mixin.difficulty;
 
 import net.minecraft.world.DifficultyInstance;
+import net.rasanovum.becareful.BeCarefulConfig;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -12,7 +13,7 @@ public class DifficultyMixin {
     private static long invertInhabitedTime(long inhabitedTime) {
         long maxInhabitedTime = 3600000L;
 
-        if (inhabitedTime < maxInhabitedTime) {
+        if (inhabitedTime < maxInhabitedTime && BeCarefulConfig.doDifficultyFeatures) {
             return maxInhabitedTime - inhabitedTime;
         }
 

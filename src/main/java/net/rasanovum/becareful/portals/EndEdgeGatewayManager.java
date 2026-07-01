@@ -9,10 +9,12 @@ import net.rasanovum.becareful.BeCarefulConfig;
 public class EndEdgeGatewayManager {
 
     private static final int TARGET_GATEWAY_COUNT = BeCarefulConfig.maxEndGateways;
-    private static int generatedCount = 0;
 
     public static void checkAndSpawnEdgeGateways(ServerLevel level) {
-        if (generatedCount >= TARGET_GATEWAY_COUNT) return;
+        if (!BeCarefulConfig.doEndFeatures) return;
+
+        EndGatewaySavedData savedData = EndGatewaySavedData.get(level);
+        if (savedData.getGeneratedCount() >= TARGET_GATEWAY_COUNT) return;
 
         if (level.getRandom().nextFloat() < 0.005F) {
 
@@ -34,7 +36,7 @@ public class EndEdgeGatewayManager {
                 BlockPos gatewayPos = edgePos.above(2);
 
                 EndGatewayGenerator.spawnReturnGateway(level, gatewayPos);
-                generatedCount++;
+                savedData.incrementGeneratedCount();
             }
         }
     }

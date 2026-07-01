@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " S ",
+    "SCS",
+    "BBB"
+  ],
+  "key": {
+    "S": { "item": "minecraft:stick" },
+    "C": { "item": "be-careful:frozen_core" },
+    "B": { "item": "minecraft:snow_block" }
+  },
+  "result": {
+    "item": "be-careful:frozen_campfire",
+    "count": 1
+  }
+}

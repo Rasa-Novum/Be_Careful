@@ -15,6 +15,7 @@ public class EndPhantomSpawner {
 
     public static void register() {
         net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_WORLD_TICK.register(level -> {
+            if (!BeCarefulConfig.doEndFeatures) return;
             if (level.dimension() != Level.END) return;
             EndEdgeGatewayManager.checkAndSpawnEdgeGateways(level);
 

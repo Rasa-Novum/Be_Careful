@@ -8,6 +8,8 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.Level;
 import net.rasanovum.becareful.BeCareful;
+import net.rasanovum.becareful.BeCarefulConfig;
+import net.rasanovum.becareful.client.BeCarefulClient;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -19,7 +21,7 @@ public abstract class FoodEatMixin {
     private void onEat(Level pLevel, ItemStack pStack, CallbackInfoReturnable<ItemStack> cir) {
         LivingEntity entity = (LivingEntity) (Object) this;
 
-        if (!pLevel.isClientSide() && entity instanceof ServerPlayer player) {
+        if (!pLevel.isClientSide() && entity instanceof ServerPlayer player && BeCarefulConfig.doNetherFeatures) {
             if (pStack.is(BeCareful.FIRE_RESISTANT_FOODS)) {
                 player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 300, 0));
                 player.displayClientMessage(Component.literal("The food cools your core...") // need to replace with key

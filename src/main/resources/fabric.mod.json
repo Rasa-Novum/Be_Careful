@@ -17,6 +17,9 @@
 	"entrypoints": {
 		"main": [
           "net.rasanovum.becareful.BeCareful"
+		],
+		"client": [
+			"net.rasanovum.becareful.client.BeCarefulClient"
 		]
 	},
 	"mixins": [

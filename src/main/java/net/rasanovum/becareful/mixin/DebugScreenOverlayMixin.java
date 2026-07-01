@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.DebugScreenOverlay;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
+import net.rasanovum.becareful.BeCarefulConfig;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -22,7 +23,7 @@ public class DebugScreenOverlayMixin {
     private void scrambleEndCoordinates(CallbackInfoReturnable<List<String>> cir) {
         List<String> infoLines = cir.getReturnValue();
 
-        if (this.minecraft.level != null && this.minecraft.level.dimension() == Level.END) {
+        if (this.minecraft.level != null && this.minecraft.level.dimension() == Level.END && BeCarefulConfig.doEndFeatures) {
             for (int i = 0; i < infoLines.size(); i++) {
                 String line = infoLines.get(i);
 

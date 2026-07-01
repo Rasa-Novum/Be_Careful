@@ -4,55 +4,78 @@ import eu.midnightdust.lib.config.MidnightConfig;
 
 public class BeCarefulConfig extends MidnightConfig {
 
+    public static final String NETHER = "Nether";
+    public static final String DEEP_DARK = "Deep Dark";
+    public static final String END = "The End";
+    public static final String FROZEN = "Freezing";
+    public static final String DIFFICULTY = "Difficulty";
+
     // Nether Settings
 
-    @Entry(min = 0)
+    @Entry(category = NETHER)
+    public static boolean doNetherFeatures = true;
+    @Entry(category = NETHER, min = 0)
     public static int netherWarningTicks = 400;
-
-    @Entry(min = 0)
+    @Entry(category = NETHER, min = 0)
     public static int netherDangerTicks = 600;
-
-    @Entry(min = 1)
+    @Entry(category = NETHER,min = 1)
     public static int netherEntryVariants = 3;
-
-    @Entry(min = 1)
+    @Entry(category = NETHER,min = 1)
     public static int netherWarningVariants = 3;
 
 
     // Deep Dark Settings
 
-    @Entry(min = 0)
+    @Entry(category = DEEP_DARK)
+    public static boolean doDeepDarkFeatures =  true;
+    @Entry(category = DEEP_DARK,min = 0)
     public static int deepDarkWarningTicks = 1800;
-
-    @Entry(min = 0)
+    @Entry(category = DEEP_DARK,min = 0)
     public static int deepDarkDangerTicks = 2400;
-
-    @Entry(min = 1)
+    @Entry(category = DEEP_DARK,min = 1)
     public static int deepDarkEntryVariants = 3;
-
-    @Entry(min = 1)
+    @Entry(category = DEEP_DARK,min = 1)
     public static int deepDarkWarningVariants = 3;
-
-    @Entry(min = 1)
+    @Entry(category = DEEP_DARK,min = 1)
     public static int totemVariants = 3;
-
-    @Entry(min = 2)
+    @Entry(category = DEEP_DARK,min = 2)
     public static int wardenHealthValue = 300;
 
     // Regional Difficulty / Chunk Taming
 
-    @Entry(min = 1)
+    @Entry(category = DIFFICULTY)
+    public static boolean doDifficultyFeatures = true;
+    @Entry(category = DIFFICULTY,min = 1)
     public static int chunkTameVariants = 2;
-
-    @Entry(min = 1)
+    @Entry(category = DIFFICULTY,min = 1)
     public static int chunkUnsafeVariants = 2;
+
+    // Frozen
+
+    @Entry(category = FROZEN)
+    public static boolean doFrozenFeatures = true;
+    @Entry(category = FROZEN,min=0)
+    public static int frozenWarningTicks = 2400;
+    @Entry(category = FROZEN,min=0)
+    public static int frozenDangerTicks = 3600;
+    @Entry(category = FROZEN,min=1)
+    public static int heatCheckRadius = 8;
+    @Entry(category = FROZEN,min=1)
+    public static int frozenCampfireRadius = 12;
 
     // End
 
-    @Entry (min = 100) public static int minSpawnRadius = 1000;
-    @Entry (min = 100) public static int maxSpawnRadius = 2000;
-    @Entry (min = 1) public static long phantomSpawnAttemptsPerDay = 8;
-    @Entry (min = 0) public static float phantomSpawnRateFloat = 0.75F;
-    @Entry (min = 0) public static int maxEndGateways = 4;
+    @Entry(category = END)
+    public static boolean doEndFeatures = true;
+    @Entry (category = END, min = 100)
+    public static int minSpawnRadius = 1000;
+    @Entry (category = END,min = 100)
+    public static int maxSpawnRadius = 2000;
+    @Entry (category = END,min = 1)
+    public static long phantomSpawnAttemptsPerDay = 8;
+    @Entry (category = END,min = 0)
+    public static float phantomSpawnRateFloat = 0.75F;
+    @Entry (category = END,min = 0)
+    public static int maxEndGateways = 4;
 
 }

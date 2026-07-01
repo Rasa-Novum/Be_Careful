@@ -15,12 +15,15 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.rasanovum.becareful.BeCareful;
+import net.rasanovum.becareful.BeCarefulConfig;
 
 public class AncientPortalHandler {
 
+    public static final boolean DEEP_DARK_ENABLED = BeCarefulConfig.doDeepDarkFeatures;
+
     public static void registerEvents() {
         ServerEntityCombatEvents.AFTER_KILLED_OTHER_ENTITY.register((world, attacker, killedEntity) -> {
-            if (killedEntity instanceof Warden && !world.isClientSide()) {
+            if (killedEntity instanceof Warden && !world.isClientSide() && DEEP_DARK_ENABLED) {
                 ItemEntity keyDrop = new ItemEntity(
                         world,
                         killedEntity.getX(), killedEntity.getY(), killedEntity.getZ(),
@@ -35,7 +38,7 @@ public class AncientPortalHandler {
             BlockPos clickedPos = hitResult.getBlockPos();
             BlockState state = level.getBlockState(clickedPos);
 
-            if (heldItem.is(BeCareful.LOST_KEY) && state.is(Blocks.REINFORCED_DEEPSLATE)) {
+            if (heldItem.is(BeCareful.LOST_KEY) && state.is(Blocks.REINFORCED_DEEPSLATE) && DEEP_DARK_ENABLED) {
 
                 if (!level.isClientSide()) {
                     ServerLevel serverLevel = (ServerLevel) level;
@@ -60,7 +63,7 @@ public class AncientPortalHandler {
     }
     private static void ignitePortalGateway(ServerLevel level, BlockPos framePos) {
         BlockPos innerStart = findInnerPortalAir(level, framePos);
-        if (innerStart == null) return;
+        if (innerStart == null && !DEEP_DARK_ENABLED) return;
 
         int minX = innerStart.getX(), maxX = innerStart.getX();
         int minY = innerStart.getY(), maxY = innerStart.getY();

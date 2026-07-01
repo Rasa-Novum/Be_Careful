@@ -9,6 +9,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.TheEndPortalBlockEntity;
+import net.rasanovum.becareful.BeCarefulConfig;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -24,7 +25,7 @@ public class EndPortalRenderMixin {
         Level level = blockEntity.getLevel();
         BlockPos pos = blockEntity.getBlockPos();
 
-        if (level != null && level.getBiome(pos).is(Biomes.DEEP_DARK)) {
+        if (level != null && level.getBiome(pos).is(Biomes.DEEP_DARK) && BeCarefulConfig.doDeepDarkFeatures) {
             poseStack.translate(0.5D, 0.5D, 0.5D);  // shift pivot point to centre for proper rotation
 
             boolean runsAlongX = level.getBlockState(pos.east()).is(Blocks.END_PORTAL) ||

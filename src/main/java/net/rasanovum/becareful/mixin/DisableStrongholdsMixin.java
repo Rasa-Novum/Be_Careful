@@ -1,6 +1,7 @@
 package net.rasanovum.becareful.mixin;
 
 import net.minecraft.world.level.levelgen.structure.Structure;
+import net.rasanovum.becareful.BeCarefulConfig;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -19,7 +20,7 @@ public class DisableStrongholdsMixin {
     private void blockStrongholdAnchorPoints(Structure.GenerationContext context, CallbackInfoReturnable<Optional<Structure.GenerationStub>> cir) {
         Structure structureInstance = (Structure) (Object) this;
 
-        if (structureInstance.type() != null) {
+        if (structureInstance.type() != null && BeCarefulConfig.doDeepDarkFeatures) {
             var registryKey = net.minecraft.core.registries.BuiltInRegistries.STRUCTURE_TYPE.getKey(structureInstance.type());
 
             if (registryKey != null && registryKey.getPath().equals("stronghold")) {

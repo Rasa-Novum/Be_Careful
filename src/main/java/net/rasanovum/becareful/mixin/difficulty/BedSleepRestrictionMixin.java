@@ -22,7 +22,7 @@ public class BedSleepRestrictionMixin {
 
     @Inject(method = "use", at = @At("HEAD"), cancellable = true)
     private void restrictSleep(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit, CallbackInfoReturnable<InteractionResult> cir) {
-        if (!level.isClientSide && level instanceof ServerLevel serverLevel) {
+        if (!level.isClientSide && level instanceof ServerLevel serverLevel && BeCarefulConfig.doDifficultyFeatures) {
 
             int CHUNK_UNSAFE_VARIANTS = BeCarefulConfig.chunkUnsafeVariants;
             int requiredTicks = serverLevel.getGameRules().getInt(BeCareful.RULE_CHUNK_TAME_TIME);

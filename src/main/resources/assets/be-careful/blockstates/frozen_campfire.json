@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=east":  { "model": "minecraft:block/campfire", "y": 90 },
+    "facing=north": { "model": "minecraft:block/campfire" },
+    "facing=south": { "model": "minecraft:block/campfire", "y": 180 },
+    "facing=west":  { "model": "minecraft:block/campfire", "y": 270 }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "I S I",
+    "S D S",
+    "I S I"
+  ],
+  "key": {
+    "D": { "item": "minecraft:diamond" },
+    "I": { "item": "minecraft:packed_ice" },
+    "S": { "item": "minecraft:snow_block" }
+  },
+  "result": {
+    "item": "be-careful:frozen_core",
+    "count": 1
+  }
+}

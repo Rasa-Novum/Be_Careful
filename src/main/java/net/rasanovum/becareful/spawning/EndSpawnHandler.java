@@ -22,10 +22,12 @@ import java.util.Random;
 
 public class EndSpawnHandler {
 
+    public static final boolean END_FEATURES_ENABLED = BeCarefulConfig.doEndFeatures;
+
     public static InteractionResultHolder<ItemStack> onUseEnderEye(Player player, Level level, InteractionHand hand) {
         ItemStack itemStack = player.getItemInHand(hand);
 
-        if (itemStack.is(Items.ENDER_EYE) && level.dimension() == Level.END) {
+        if (itemStack.is(Items.ENDER_EYE) && level.dimension() == Level.END && END_FEATURES_ENABLED) {
             if (!player.getAbilities().instabuild) {
                 itemStack.shrink(1);
             }
@@ -51,7 +53,7 @@ public class EndSpawnHandler {
     }
 
     public static void onPlayerEnterEnd(ServerPlayer player, ServerLevel originWorld, ServerLevel targetWorld) {
-        if (targetWorld.dimension() == Level.END) {
+        if (targetWorld.dimension() == Level.END && END_FEATURES_ENABLED) {
             BlockPos safeSpawn = findSafeEndIslandLocation(targetWorld);
 
             generateSafetyPlatform(targetWorld, safeSpawn);
