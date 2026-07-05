@@ -38,14 +38,7 @@ public class ClientBreathController {
 
             BlockPos pos = player.blockPosition();
 
-            boolean isNearFrozenCampfire = false;
-            int r = 8;
-            for (BlockPos targetPos : BlockPos.betweenClosed(pos.offset(-r, -2, -r), pos.offset(r, 2, r))) {
-                if (level.getBlockState(targetPos).getBlock() instanceof net.rasanovum.becareful.blocks.FrozenCampfireBlock) {
-                    isNearFrozenCampfire = true;
-                    break;
-                }
-            }
+            boolean isNearFrozenCampfire = net.rasanovum.becareful.blocks.FrozenCampfireBlock.PLAYERS_NEAR_COLD_FIRE.contains(player.getUUID());
 
             if (isNearFrozenCampfire) {
                 breathBurstEndTick = time + 6;

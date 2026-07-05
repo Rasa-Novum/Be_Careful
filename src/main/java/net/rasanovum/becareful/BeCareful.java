@@ -22,6 +22,7 @@ import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.GameRules;
@@ -98,9 +99,9 @@ public class BeCareful implements ModInitializer {
 		TOTEM_OF_LIGHT = new TotemOfLight(new FabricItemSettings().maxCount(1));
 		ECHO_SHARD_DUST = new Item(new FabricItemSettings());
 		LOST_KEY = new Item(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
-		FROZEN_CAMPFIRE_ITEM = new Item(new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON));
+		FROZEN_CORE = new Item(new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON));
 		FROZEN_CAMPFIRE = new FrozenCampfireBlock(FabricBlockSettings.copyOf(Blocks.CAMPFIRE));
-		FROZEN_CORE = new Item(new Item.Properties().stacksTo(16).rarity(Rarity.RARE));
+		FROZEN_CAMPFIRE_ITEM = new BlockItem(FROZEN_CAMPFIRE, new Item.Properties().stacksTo(16).rarity(Rarity.RARE));
 
 		Registry.register(BuiltInRegistries.MOB_EFFECT, new ResourceLocation(MOD_ID, "corruption"), CORRUPTION);
 		Registry.register(BuiltInRegistries.ITEM, new ResourceLocation(MOD_ID, "totem_of_light"), TOTEM_OF_LIGHT);
