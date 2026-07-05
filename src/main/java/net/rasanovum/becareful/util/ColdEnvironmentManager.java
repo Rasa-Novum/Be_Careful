@@ -35,7 +35,7 @@ public class ColdEnvironmentManager {
                 BlockPos playerPos = player.blockPosition();
                 int currentTime = playerColdTimers.getOrDefault(uuid, 0);
 
-                if (isHoldingTorch(player) || isNearHeatSource(level, playerPos)) {
+                if (isHoldingTorch(player) || isNearHeatSource(level, playerPos) || isNearTorchHeat(level, playerPos)) {
                     if (currentTime > 0) {
                         playerColdTimers.put(uuid, Math.max(0, currentTime - 10));
                         player.setTicksFrozen(Math.max(0, player.getTicksFrozen() - 10));
@@ -80,10 +80,10 @@ public class ColdEnvironmentManager {
         return torchInHand;
     }
 
-    private static boolean isNearHeatSource(ServerLevel level, BlockPos playerPos) {
+    private static boolean isNearHeatSource(ServerLevel level, BlockPos pos) {
         for (BlockPos targetPos : BlockPos.betweenClosed(
-                playerPos.offset(-HEAT_CHECK_RADIUS, -2, -HEAT_CHECK_RADIUS),
-                playerPos.offset(HEAT_CHECK_RADIUS, 2, HEAT_CHECK_RADIUS))) {
+                pos.offset(-HEAT_CHECK_RADIUS, -2, -HEAT_CHECK_RADIUS),
+                pos.offset(HEAT_CHECK_RADIUS, 2, HEAT_CHECK_RADIUS))) {
 
             BlockState state = level.getBlockState(targetPos);
             if (state.is(Blocks.CAMPFIRE) || state.is(Blocks.SOUL_CAMPFIRE)) {
@@ -93,6 +93,22 @@ public class ColdEnvironmentManager {
                 if (state.getValue(FurnaceBlock.LIT)) return true;
             }
         }
+        return false;
+    }
+
+    public static boolean isNearTorchHeat(ServerLevel level, BlockPos pos) {
+        int torchRadius = Math.max(1, BeCarefulConfig.frozenCampfireRadius / 4);
+
+        for (BlockPos targetPos : BlockPos.betweenClosed(
+                pos.offset(-torchRadius, -1, -torchRadius),
+                pos.offset(torchRadius, 2, torchRadius))) {
+
+            BlockState state = level.getBlockState(targetPos);
+            if (state.is(Blocks.TORCH) || state.is(Blocks.WALL_TORCH)) {
+                return true;
+            }
+        }
+
         return false;
     }
 }

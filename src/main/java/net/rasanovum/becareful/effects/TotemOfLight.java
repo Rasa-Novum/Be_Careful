@@ -46,7 +46,7 @@ public class TotemOfLight extends Item {
 
             for (Player target : playersInRange) {
                 target.removeEffect(BeCareful.CORRUPTION);
-                BeCareful.deepDarkTimers.put(target.getUUID(), 0);
+                BeCareful.DEEP_DARK_TIMERS.put(target.getUUID(), 0);
 
                 target.displayClientMessage(
                         Component.literal("The light cleanses the smothering darkness...")

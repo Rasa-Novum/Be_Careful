@@ -3,15 +3,26 @@ package net.rasanovum.becareful.blocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.Containers;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.CampfireBlock;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.rasanovum.becareful.BeCareful;
 import net.rasanovum.becareful.BeCarefulConfig;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,11 +30,13 @@ import java.util.UUID;
 
 public class FrozenCampfireBlock extends CampfireBlock {
 
+    public static BlockEntityType<FrozenCampfireBlockEntity> FROZEN_CAMPFIRE_ENTITY_TYPE;
     private static final int AURA_RADIUS = BeCarefulConfig.frozenCampfireRadius;
     public static final Set<UUID> PLAYERS_NEAR_COLD_FIRE = new HashSet<>();
 
     public FrozenCampfireBlock(BlockBehaviour.Properties properties) {
         super(false, 2, properties);
+        this.registerDefaultState(this.stateDefinition.any().setValue(LIT, false).setValue(SIGNAL_FIRE, false).setValue(WATERLOGGED, false));
     }
 
     @Override
@@ -35,9 +48,68 @@ public class FrozenCampfireBlock extends CampfireBlock {
     }
 
     @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+        if (!state.is(newState.getBlock())) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof FrozenCampfireBlockEntity frozenFire) {
+
+                for (int i = 0; i < frozenFire.getContainerSize(); i++) {
+                    if (frozenFire.getItem(i).getCount() > 0) {
+                        frozenFire.setItem(i, ItemStack.EMPTY);
+                        break;
+                    }
+                }
+
+                Containers.dropContents(level, pos, frozenFire);
+                level.updateNeighbourForOutputSignal(pos, this);
+            }
+            super.onRemove(state, level, pos, newState, isMoving);
+        }
+    }
+
+    @Override
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof FrozenCampfireBlockEntity frozenFire) {
+            ItemStack heldItem = player.getItemInHand(hand);
+
+            if (FrozenCampfireBlockEntity.getFuelBurnTime(heldItem.getItem()) > 0) {
+                if (!level.isClientSide()) {
+                    if (frozenFire.placeFuel(heldItem)) {
+                        if (!state.getValue(LIT)) {
+                            level.setBlock(pos, state.setValue(LIT, true), 3);
+                        }
+                        return InteractionResult.SUCCESS;
+                    }
+                } else {
+                    return InteractionResult.CONSUME;
+                }
+            }
+        }
+        return InteractionResult.PASS;
+    }
+
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new FrozenCampfireBlockEntity(pos, state);
+    }
+
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        return createTickerHelper(type, BeCareful.FROZEN_CAMPFIRE_ENTITY_TYPE, FrozenCampfireBlockEntity::serverTick);
+    }
+
+    @Override
     public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
 
         if (!BeCarefulConfig.doFrozenFeatures) {
+            level.scheduleTick(pos, this, 20);
+            return;
+        }
+
+        if (!state.getValue(LIT)) {
             level.scheduleTick(pos, this, 20);
             return;
         }
@@ -51,5 +123,10 @@ public class FrozenCampfireBlock extends CampfireBlock {
         }
 
         level.scheduleTick(pos, this, 20);
+    }
+
+    @Override
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.MODEL;
     }
 }

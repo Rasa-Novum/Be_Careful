@@ -1,6 +1,7 @@
 package net.rasanovum.becareful;
 
 import eu.midnightdust.lib.config.MidnightConfig;
+
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -9,6 +10,8 @@ import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -29,16 +32,20 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+
 import net.rasanovum.becareful.blocks.FrozenCampfireBlock;
+import net.rasanovum.becareful.blocks.FrozenCampfireBlockEntity;
 import net.rasanovum.becareful.effects.CorruptionEffect;
 import net.rasanovum.becareful.effects.TotemOfLight;
 import net.rasanovum.becareful.spawning.EndPhantomSpawner;
 import net.rasanovum.becareful.spawning.EndSpawnHandler;
 import net.rasanovum.becareful.portals.AncientPortalHandler;
 import net.rasanovum.becareful.util.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -50,13 +57,15 @@ public class BeCareful implements ModInitializer {
 	public static Item TOTEM_OF_LIGHT;
 	public static Item ECHO_SHARD_DUST;
 	public static Item LOST_KEY;
+	public static BlockEntityType<FrozenCampfireBlockEntity> FROZEN_CAMPFIRE_ENTITY_TYPE;
 	public static FrozenCampfireBlock FROZEN_CAMPFIRE;
-	public static Item FROZEN_CAMPFIRE_ITEM;
+	public static BlockItem FROZEN_CAMPFIRE_ITEM;
 	public static Item FROZEN_CORE;
 
-	public static final Map<UUID, Integer> deepDarkTimers = new HashMap<>();
-	public static final Map<UUID, Integer> netherTimers = new HashMap<>();
-	public static final Map<UUID, Integer> messageSchedule = new HashMap<>();
+
+	public static final Map<UUID, Integer> DEEP_DARK_TIMERS = new HashMap<>();
+	public static final Map<UUID, Integer> NETHER_TIMERS = new HashMap<>();
+	public static final Map<UUID, Integer> MESSAGE_SCHEDULE = new HashMap<>();
 
 	public static final ResourceKey<DamageType> CORRUPTION_DAMAGE_TYPE =
 			ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MOD_ID, "corruption"));
@@ -100,8 +109,22 @@ public class BeCareful implements ModInitializer {
 		ECHO_SHARD_DUST = new Item(new FabricItemSettings());
 		LOST_KEY = new Item(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
 		FROZEN_CORE = new Item(new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON));
-		FROZEN_CAMPFIRE = new FrozenCampfireBlock(FabricBlockSettings.copyOf(Blocks.CAMPFIRE));
+		FROZEN_CAMPFIRE = new FrozenCampfireBlock(
+				FabricBlockSettings.create()
+						.mapColor(net.minecraft.world.level.material.MapColor.PODZOL)
+						.strength(2.0F)
+						.sound(net.minecraft.world.level.block.SoundType.WOOD)
+						.ignitedByLava()
+						.noOcclusion()
+						.requiresCorrectToolForDrops()
+		);
 		FROZEN_CAMPFIRE_ITEM = new BlockItem(FROZEN_CAMPFIRE, new Item.Properties().stacksTo(16).rarity(Rarity.RARE));
+
+		FROZEN_CAMPFIRE_ENTITY_TYPE = Registry.register(
+				BuiltInRegistries.BLOCK_ENTITY_TYPE,
+				new ResourceLocation(MOD_ID, "frozen_campfire_be"),
+				FabricBlockEntityTypeBuilder.create(FrozenCampfireBlockEntity::new, FROZEN_CAMPFIRE).build()
+		);
 
 		Registry.register(BuiltInRegistries.MOB_EFFECT, new ResourceLocation(MOD_ID, "corruption"), CORRUPTION);
 		Registry.register(BuiltInRegistries.ITEM, new ResourceLocation(MOD_ID, "totem_of_light"), TOTEM_OF_LIGHT);
@@ -149,7 +172,7 @@ public class BeCareful implements ModInitializer {
 					"message.be-careful.deep_dark_warning", DD_WARN_VARIANTS,
 					DD_WARN_TICKS, DD_DANGER_TICKS,
 					player -> {
-						int playerTime = BeCareful.deepDarkTimers.getOrDefault(player.getUUID(), 0);
+						int playerTime = BeCareful.DEEP_DARK_TIMERS.getOrDefault(player.getUUID(), 0);
 						int heartbeatRate = (playerTime > 550) ? 10 : 20;
 						if ((player.level().getGameTime() % heartbeatRate) == 0) {
 							player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
@@ -174,7 +197,6 @@ public class BeCareful implements ModInitializer {
 					},
 					player -> {
 						player.setSecondsOnFire(2);
-						player.causeFoodExhaustion(0.05f);
 					}
 			);
 		}
@@ -196,24 +218,24 @@ public class BeCareful implements ModInitializer {
 				}
 
 				UUID uuid = player.getUUID();
-				if (messageSchedule.containsKey(uuid)) {
-					if (currentTick >= messageSchedule.get(uuid)) {
+				if (MESSAGE_SCHEDULE.containsKey(uuid)) {
+					if (currentTick >= MESSAGE_SCHEDULE.get(uuid)) {
 						player.displayClientMessage(MessageManager.getRandomTranslatable("message.be-careful.totem_cleanse", TOTEM_VARIANTS).copy().withStyle(ChatFormatting.GREEN), true);
-						messageSchedule.remove(uuid);
+						MESSAGE_SCHEDULE.remove(uuid);
 					}
 				}
 
 				if (player.level().getBiome(player.blockPosition()).is(Biomes.DEEP_DARK) && BeCarefulConfig.doDeepDarkFeatures) {
-					int time = deepDarkTimers.getOrDefault(player.getUUID(), 0) + 1;
-					deepDarkTimers.put(player.getUUID(), time);
+					int time = DEEP_DARK_TIMERS.getOrDefault(player.getUUID(), 0) + 1;
+					DEEP_DARK_TIMERS.put(player.getUUID(), time);
 					DEEP_DARK.tick(player, time);
 				} else {
-					deepDarkTimers.remove(player.getUUID());
+					DEEP_DARK_TIMERS.remove(player.getUUID());
 				}
 
 				if (player.level().dimension().equals(Level.NETHER) && BeCarefulConfig.doNetherFeatures) {
-					int time = netherTimers.getOrDefault(player.getUUID(), 0) + 1;
-					netherTimers.put(player.getUUID(), time);
+					int time = NETHER_TIMERS.getOrDefault(player.getUUID(), 0) + 1;
+					NETHER_TIMERS.put(player.getUUID(), time);
 					NETHER.tick(player, time);
 				}
 			}
