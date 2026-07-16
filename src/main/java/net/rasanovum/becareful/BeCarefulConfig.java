@@ -45,6 +45,8 @@ public class BeCarefulConfig extends MidnightConfig {
 
     @Entry(category = DIFFICULTY)
     public static boolean doDifficultyFeatures = true;
+    @Entry(category = DIFFICULTY)
+    public static boolean doChunkTameAcceleration = true;
     @Entry(category = DIFFICULTY,min = 1)
     public static int chunkTameVariants = 2;
     @Entry(category = DIFFICULTY,min = 1)

@@ -209,7 +209,10 @@ public class BeCareful implements ModInitializer {
 			for (ServerPlayer player : server.getPlayerList().getPlayers()) {
 				int requiredTicks = player.serverLevel().getGameRules().getInt(RULE_CHUNK_TAME_TIME);
 				long inhabitedTime = player.serverLevel().getChunkAt(player.blockPosition()).getInhabitedTime();
-				if (inhabitedTime == requiredTicks && BeCarefulConfig.doDifficultyFeatures) {
+				int effectiveRequiredTicks = ChunkTameManager.getEffectiveTameTime(
+						player.serverLevel(), player.blockPosition(), requiredTicks
+				);
+				if (inhabitedTime == effectiveRequiredTicks && BeCarefulConfig.doDifficultyFeatures) {
 					player.displayClientMessage(
 							MessageManager.getRandomTranslatable("message.be-careful.chunk_tamed", CHUNK_TAME_VARIANTS)
 									.copy().withStyle(ChatFormatting.GOLD),

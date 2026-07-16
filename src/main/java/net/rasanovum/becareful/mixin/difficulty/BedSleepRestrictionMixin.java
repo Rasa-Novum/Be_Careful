@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.rasanovum.becareful.BeCareful;
 import net.rasanovum.becareful.BeCarefulConfig;
+import net.rasanovum.becareful.util.ChunkTameManager;
 import net.rasanovum.becareful.util.MessageManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,8 +28,9 @@ public class BedSleepRestrictionMixin {
             int CHUNK_UNSAFE_VARIANTS = BeCarefulConfig.chunkUnsafeVariants;
             int requiredTicks = serverLevel.getGameRules().getInt(BeCareful.RULE_CHUNK_TAME_TIME);
             long inhabitedTime = serverLevel.getChunkAt(pos).getInhabitedTime();
+            int effectiveRequiredTicks = ChunkTameManager.getEffectiveTameTime(serverLevel, pos, requiredTicks);
 
-            if (inhabitedTime < requiredTicks) {
+            if (inhabitedTime < effectiveRequiredTicks) {
                 player.displayClientMessage(
                         MessageManager.getRandomTranslatable("message.be-careful.bed_unsafe", CHUNK_UNSAFE_VARIANTS),
                         true
