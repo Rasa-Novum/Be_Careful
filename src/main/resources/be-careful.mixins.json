@@ -10,9 +10,7 @@
     "difficulty.DifficultyMixin",
     "difficulty.BedSleepRestrictionMixin",
     "difficulty.LevelSetBlockMixin",
-    "DebugScreenOverlayMixin",
     "mobs.WardenMixin",
-    "portal.EndPortalRenderMixin",
     "DisableStrongholdsMixin",
     "mobs.PhantomSpawnerMixin"
   ],

@@ -2,6 +2,9 @@ package net.rasanovum.becareful.blocks;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
+/*? if >=1.21 {*/
+import net.minecraft.core.HolderLookup;
+/*?}*/
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -30,15 +33,17 @@ public class FrozenCampfireBlockEntity extends BlockEntity implements Container 
         boolean isLit = state.getValue(CampfireBlock.LIT);
         boolean inventoryChanged = false;
 
-        if (isLit && blockEntity.burnTimeRemaining > 0) {
-            blockEntity.burnTimeRemaining--;
-            inventoryChanged = true;
+        if (isLit) {
+            if (blockEntity.burnTimeRemaining <= 0 && !blockEntity.consumeNextFuelItem()) {
+                level.setBlock(pos, state.setValue(CampfireBlock.LIT, false), 3);
+                inventoryChanged = true;
+            } else if (blockEntity.burnTimeRemaining > 0) {
+                blockEntity.burnTimeRemaining--;
+                inventoryChanged = true;
 
-            if (blockEntity.burnTimeRemaining <= 0) {
-                if (!blockEntity.consumeNextFuelItem()) {
+                if (blockEntity.burnTimeRemaining <= 0 && !blockEntity.consumeNextFuelItem()) {
                     level.setBlock(pos, state.setValue(CampfireBlock.LIT, false), 3);
                 }
-                inventoryChanged = true;
             }
         }
 
@@ -98,11 +103,21 @@ public class FrozenCampfireBlockEntity extends BlockEntity implements Container 
         return 0;
     }
 
-    @Override
+    /*? if <1.21 {*/
+    /*@Override
     public void load(CompoundTag nbt) {
         super.load(nbt);
+    *//*?} else {*/
+    @Override
+    protected void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.loadAdditional(nbt, registries);
+    /*?}*/
         this.items.clear();
-        ContainerHelper.loadAllItems(nbt, this.items);
+        /*? if <1.21 {*/
+        /*ContainerHelper.loadAllItems(nbt, this.items);
+        *//*?} else {*/
+        ContainerHelper.loadAllItems(nbt, this.items, registries);
+        /*?}*/
         this.burnTimeRemaining = nbt.getInt("BurnTimeRemaining");
 
         if (this.level != null && this.level.isClientSide()) {
@@ -110,14 +125,25 @@ public class FrozenCampfireBlockEntity extends BlockEntity implements Container 
         }
     }
 
-    @Override
+    /*? if <1.21 {*/
+    /*@Override
     protected void saveAdditional(CompoundTag nbt) {
         super.saveAdditional(nbt);
-        ContainerHelper.saveAllItems(nbt, this.items);
+    *//*?} else {*/
+    @Override
+    protected void saveAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.saveAdditional(nbt, registries);
+    /*?}*/
+        /*? if <1.21 {*/
+        /*ContainerHelper.saveAllItems(nbt, this.items);
+        *//*?} else {*/
+        ContainerHelper.saveAllItems(nbt, this.items, registries);
+        /*?}*/
         nbt.putInt("BurnTimeRemaining", this.burnTimeRemaining);
     }
 
-    @Override
+    /*? if <1.21 {*/
+    /*@Override
     public CompoundTag getUpdateTag() {
         CompoundTag tag = new CompoundTag();
         this.saveAdditional(tag);
@@ -127,6 +153,14 @@ public class FrozenCampfireBlockEntity extends BlockEntity implements Container 
     public void handleUpdateTag(CompoundTag tag) {
         if (tag != null) this.load(tag);
     }
+    *//*?} else {*/
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        CompoundTag tag = new CompoundTag();
+        this.saveAdditional(tag, registries);
+        return tag;
+    }
+    /*?}*/
 
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {

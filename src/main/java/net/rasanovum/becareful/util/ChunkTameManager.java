@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.rasanovum.becareful.BeCareful;
+import net.rasanovum.rosetta.util.RegistryCompat;
 import net.rasanovum.becareful.BeCarefulConfig;
 
 import java.util.HashMap;
@@ -21,11 +22,11 @@ public final class ChunkTameManager {
     private static final Map<ServerLevel, Map<Long, SettlementProfile>> PROFILES = new WeakHashMap<>();
 
     public static final TagKey<Block> CHUNK_TAME_CRAFTING_TABLES =
-            TagKey.create(Registries.BLOCK, new ResourceLocation(BeCareful.MOD_ID, "chunk_tame_crafting_tables"));
+            TagKey.create(Registries.BLOCK, RegistryCompat.getLocation(BeCareful.MOD_ID, "chunk_tame_crafting_tables"));
     public static final TagKey<Block> CHUNK_TAME_FURNACES =
-            TagKey.create(Registries.BLOCK, new ResourceLocation(BeCareful.MOD_ID, "chunk_tame_furnaces"));
+            TagKey.create(Registries.BLOCK, RegistryCompat.getLocation(BeCareful.MOD_ID, "chunk_tame_furnaces"));
     public static final TagKey<Block> CHUNK_TAME_STORAGE =
-            TagKey.create(Registries.BLOCK, new ResourceLocation(BeCareful.MOD_ID, "chunk_tame_storage"));
+            TagKey.create(Registries.BLOCK, RegistryCompat.getLocation(BeCareful.MOD_ID, "chunk_tame_storage"));
 
     private ChunkTameManager() {
     }

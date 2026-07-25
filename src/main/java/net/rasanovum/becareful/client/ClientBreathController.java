@@ -1,7 +1,7 @@
 package net.rasanovum.becareful.client;
 
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
@@ -16,51 +16,49 @@ public class ClientBreathController {
     private static long nextBurstEmitTick = 0L;
     private static long nextBreathTick = 0L;
 
-    public static void register() {
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (client.isPaused()) return;
+    public static void tick(Minecraft client) {
+        if (client.isPaused()) return;
 
-            ClientLevel level = client.level;
-            Player player = client.player;
-            if (level == null || player == null || player.isSpectator() || player.isCreative()) return;
+        ClientLevel level = client.level;
+        Player player = client.player;
+        if (level == null || player == null || player.isSpectator() || player.isCreative()) return;
 
-            long time = ++internalTick;
+        long time = ++internalTick;
 
-            if (time < breathBurstEndTick) {
-                if (time >= nextBurstEmitTick) {
-                    ClientBreathSpawner.spawnBreath(client, level, player);
-                    nextBurstEmitTick = time + 3;
-                }
-                return;
+        if (time < breathBurstEndTick) {
+            if (time >= nextBurstEmitTick) {
+                ClientBreathSpawner.spawnBreath(client, level, player);
+                nextBurstEmitTick = time + 3;
             }
+            return;
+        }
 
-            if (time < nextBreathTick) return;
+        if (time < nextBreathTick) return;
 
-            BlockPos pos = player.blockPosition();
+        BlockPos pos = player.blockPosition();
 
-            boolean isNearFrozenCampfire = net.rasanovum.becareful.blocks.FrozenCampfireBlock.PLAYERS_NEAR_COLD_FIRE.contains(player.getUUID());
+        boolean isNearFrozenCampfire = net.rasanovum.becareful.blocks.FrozenCampfireBlock.PLAYERS_NEAR_COLD_FIRE.contains(player.getUUID());
 
-            if (isNearFrozenCampfire) {
-                breathBurstEndTick = time + 6;
-                nextBurstEmitTick = time;
-                nextBreathTick = time + 60;
-                return;
-            }
+        if (isNearFrozenCampfire) {
+            breathBurstEndTick = time + 6;
+            nextBurstEmitTick = time;
+            nextBreathTick = time + 60;
+            return;
+        }
 
-            if (player.getOffhandItem().is(Items.TORCH) || isNearHeatSource(level, pos)) {
-                nextBreathTick = time + 40;
-                return;
-            }
+        if (player.getOffhandItem().is(Items.TORCH) || isNearHeatSource(level, pos)) {
+            nextBreathTick = time + 40;
+            return;
+        }
 
-            if (level.getBiome(pos).value().coldEnoughToSnow(pos)) {
-                breathBurstEndTick = time + 6;
-                nextBurstEmitTick = time;
+        if (level.getBiome(pos).value().coldEnoughToSnow(pos)) {
+            breathBurstEndTick = time + 6;
+            nextBurstEmitTick = time;
 
-                nextBreathTick = time + 60;
-            } else {
-                nextBreathTick = time + 40;
-            }
-        });
+            nextBreathTick = time + 60;
+        } else {
+            nextBreathTick = time + 40;
+        }
     }
 
     private static boolean isNearHeatSource(ClientLevel level, BlockPos pos) {

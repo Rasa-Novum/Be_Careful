@@ -20,10 +20,17 @@ public class TotemOfLight extends Item {
         super(pProperties);
     }
 
-    @Override
+    /*? if <1.21 {*/
+    /*@Override
     public int getUseDuration(ItemStack pStack) {
         return 30;
     }
+    *//*?} else {*/
+    @Override
+    public int getUseDuration(ItemStack pStack, LivingEntity entity) {
+        return 30;
+    }
+    /*?}*/
 
     @Override
     public UseAnim getUseAnimation(ItemStack pStack) {
@@ -45,7 +52,11 @@ public class TotemOfLight extends Item {
             List<Player> playersInRange = pLevel.getEntitiesOfClass(Player.class, area);
 
             for (Player target : playersInRange) {
-                target.removeEffect(BeCareful.CORRUPTION);
+                /*? if <1.21 {*/
+                /*target.removeEffect(BeCareful.CORRUPTION);
+                *//*?} else {*/
+                target.removeEffect(BeCareful.CORRUPTION_HOLDER);
+                /*?}*/
                 BeCareful.DEEP_DARK_TIMERS.put(target.getUUID(), 0);
 
                 target.displayClientMessage(

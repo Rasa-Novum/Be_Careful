@@ -1,10 +1,12 @@
 {
   "required": true,
-  "package": "net.rasanovum.becareful.mixin.client",
+  "package": "net.rasanovum.becareful.mixin",
   "compatibilityLevel": "JAVA_17",
   "refmap": "be-careful-refmap.json",
   "mixins": [
-    "OnFireEntityMixin"
+    "client.OnFireEntityMixin",
+    "DebugScreenOverlayMixin",
+    "portal.EndPortalRenderMixin"
   ],
   "injectors": {
     "defaultRequire": 1

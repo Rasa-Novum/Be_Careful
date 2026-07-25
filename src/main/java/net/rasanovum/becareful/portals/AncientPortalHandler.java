@@ -1,7 +1,9 @@
 package net.rasanovum.becareful.portals;
 
+/*? if fabric {*/
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityCombatEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+/*?}*/
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -21,19 +23,25 @@ public class AncientPortalHandler {
 
     public static final boolean DEEP_DARK_ENABLED = BeCarefulConfig.doDeepDarkFeatures;
 
+    /*? if fabric {*/
     public static void registerEvents() {
-        ServerEntityCombatEvents.AFTER_KILLED_OTHER_ENTITY.register((world, attacker, killedEntity) -> {
-            if (killedEntity instanceof Warden && !world.isClientSide() && DEEP_DARK_ENABLED) {
-                ItemEntity keyDrop = new ItemEntity(
-                        world,
-                        killedEntity.getX(), killedEntity.getY(), killedEntity.getZ(),
-                        new ItemStack(BeCareful.LOST_KEY)
-                );
-                world.addFreshEntity(keyDrop);
-            }
-        });
+        ServerEntityCombatEvents.AFTER_KILLED_OTHER_ENTITY.register(
+                (world, attacker, killedEntity) -> onKilledOtherEntity(world, killedEntity));
+        UseBlockCallback.EVENT.register(AncientPortalHandler::useBlock);
+    }
+    /*?}*/
 
-        UseBlockCallback.EVENT.register((player, level, hand, hitResult) -> {
+    public static void onKilledOtherEntity(Level world, net.minecraft.world.entity.Entity killedEntity) {
+        if (killedEntity instanceof Warden && !world.isClientSide() && DEEP_DARK_ENABLED) {
+            ItemEntity keyDrop = new ItemEntity(world, killedEntity.getX(), killedEntity.getY(), killedEntity.getZ(),
+                    new ItemStack(BeCareful.LOST_KEY));
+            world.addFreshEntity(keyDrop);
+        }
+    }
+
+    public static InteractionResult useBlock(net.minecraft.world.entity.player.Player player, Level level,
+                                              net.minecraft.world.InteractionHand hand,
+                                              net.minecraft.world.phys.BlockHitResult hitResult) {
             ItemStack heldItem = player.getItemInHand(hand);
             BlockPos clickedPos = hitResult.getBlockPos();
             BlockState state = level.getBlockState(clickedPos);
@@ -59,7 +67,6 @@ public class AncientPortalHandler {
             }
 
             return InteractionResult.PASS;
-        });
     }
     private static void ignitePortalGateway(ServerLevel level, BlockPos framePos) {
         BlockPos innerStart = findInnerPortalAir(level, framePos);

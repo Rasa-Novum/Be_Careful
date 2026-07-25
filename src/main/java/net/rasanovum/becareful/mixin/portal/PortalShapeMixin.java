@@ -16,6 +16,8 @@ import net.minecraft.world.level.portal.PortalShape;
 import net.rasanovum.becareful.BeCareful;
 import net.rasanovum.becareful.util.MessageManager;
 import net.rasanovum.becareful.portals.PortalState;
+import net.rasanovum.rosetta.util.GameRuleCompat;
+import net.rasanovum.rosetta.util.RegistryCompat;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -27,7 +29,7 @@ import java.util.Optional;
 public class PortalShapeMixin {
 
     private static final TagKey<Structure> RUINED_PORTALS =
-            TagKey.create(Registries.STRUCTURE, new ResourceLocation("minecraft", "ruined_portal"));
+            TagKey.create(Registries.STRUCTURE, RegistryCompat.getLocation("minecraft", "ruined_portal"));
 
     @Inject(method = "findEmptyPortalShape", at = @At("RETURN"), cancellable = true)
     private static void validatePortalLocation(LevelAccessor level, BlockPos pos, Direction.Axis axis, CallbackInfoReturnable<Optional<PortalShape>> cir) {
@@ -37,7 +39,7 @@ public class PortalShapeMixin {
         }
 
         if (level instanceof ServerLevel serverLevel) {
-            if (serverLevel.getGameRules().getBoolean(BeCareful.RULE_ONLY_RUINED_PORTALS)) {
+            if (GameRuleCompat.get(serverLevel, BeCareful.RULE_ONLY_RUINED_PORTALS)) {
 
                 PortalState state = PortalState.get(serverLevel);
                 boolean isNether = serverLevel.dimension().equals(net.minecraft.world.level.Level.NETHER);

@@ -1,6 +1,8 @@
 package net.rasanovum.becareful.util;
 
+/*? if fabric {*/
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+/*?}*/
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,8 +24,13 @@ public class ColdEnvironmentManager {
 
     private static final HashMap<UUID, Integer> playerColdTimers = new HashMap<>();
 
+    /*? if fabric {*/
     public static void register() {
-        ServerTickEvents.END_WORLD_TICK.register(level -> {
+        ServerTickEvents.END_WORLD_TICK.register(ColdEnvironmentManager::tick);
+    }
+    /*?}*/
+
+    public static void tick(ServerLevel level) {
             if (level.getGameTime() % 20 == 0) {
                 FrozenCampfireBlock.PLAYERS_NEAR_COLD_FIRE.clear();
             }
@@ -67,7 +74,6 @@ public class ColdEnvironmentManager {
                     }
                 }
             }
-        });
     }
 
     private static boolean isHoldingTorch(ServerPlayer player) {

@@ -1,0 +1,44 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="RSL-1.0"
+issueTrackerURL="https://github.com/RasaNovum/be-careful/issues"
+
+[[mods]]
+modId="be_careful"
+version="${version}"
+displayName="Be Careful"
+authors="Rasa Novum"
+description='''A difficulty overhaul mod that alters progression and makes dangerous regions more challenging.'''
+displayURL="https://rasanovum.ca"
+logoFile="assets/be-careful/icon.png"
+
+[[mixins]]
+config="be-careful.mixins.json"
+
+[[dependencies.be_careful]]
+modId="neoforge"
+type="required"
+versionRange="[${neoforge_version},)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.be_careful]]
+modId="minecraft"
+type="required"
+versionRange="[${minecraft_version},1.21.2)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.be_careful]]
+modId="rosetta_library"
+type="required"
+versionRange="[0.1.0,)"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.be_careful]]
+modId="midnightlib"
+type="required"
+versionRange="[1.9.1,)"
+ordering="AFTER"
+side="BOTH"

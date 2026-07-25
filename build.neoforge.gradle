@@ -1,0 +1,123 @@
+plugins {
+	id 'net.neoforged.moddev'
+	id 'maven-publish'
+}
+
+version = "${project.mod_version}+${project.minecraft_version}-neoforge"
+group = project.maven_group
+def targetJavaVersion = Integer.parseInt(project.java_version as String)
+
+base {
+	archivesName = 'be-careful'
+}
+
+sourceSets.main.java.exclude '**/loaders/fabric/**'
+sourceSets.main.java.srcDir rootProject.file('versions/1.21.1-fabric/build/generated/stonecutter/client/java')
+sourceSets.main.java.exclude '**/client/BeCarefulClient.java'
+sourceSets.main.resources.srcDir rootProject.file('src/client/resources')
+
+repositories {
+	maven {
+		name = 'Modrinth'
+		url = 'https://api.modrinth.com/maven'
+		content { includeGroup 'maven.modrinth' }
+	}
+	mavenCentral()
+}
+
+def patchedRosettaJar = tasks.register('patchRosettaJar', Zip) {
+	archiveFileName = 'Rosetta-0.1.0-1.21.1-neoforge-runtime.jar'
+	destinationDirectory = layout.buildDirectory.dir('patched-dependencies')
+	from(zipTree(file(project.rosetta_jar))) {
+		exclude 'META-INF/neoforge.mods.toml'
+	}
+	from(zipTree(file(project.rosetta_jar))) {
+		include 'META-INF/neoforge.mods.toml'
+		filter { line -> line.replace('loaderVersion="[21.1,)"', 'loaderVersion="[4,)"') }
+	}
+}
+
+neoForge {
+	version = project.neoforge_version
+	runs {
+		register('client') {
+			client()
+			ideName = 'Be Careful 1.21.1 NeoForge Client'
+		}
+		register('server') {
+			server()
+			ideName = 'Be Careful 1.21.1 NeoForge Server'
+		}
+	}
+	mods {
+		register('be_careful') { sourceSet sourceSets.main }
+	}
+}
+
+dependencies {
+	implementation "maven.modrinth:midnightlib:${project.midnightlib_version}"
+	implementation files(patchedRosettaJar)
+}
+
+tasks.withType(JavaCompile).configureEach {
+	dependsOn project(':1.21.1-fabric').tasks.named('stonecutterGenerateClient')
+	options.release = targetJavaVersion
+}
+
+tasks.withType(Jar).configureEach {
+	if (name == 'sourcesJar') dependsOn project(':1.21.1-fabric').tasks.named('stonecutterGenerateClient')
+}
+
+tasks.withType(JavaExec).configureEach {
+	javaLauncher = javaToolchains.launcherFor {
+		languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+	}
+}
+
+processResources {
+	def modVersion = project.version
+	inputs.properties 'version': modVersion, 'minecraft_version': project.minecraft_version,
+			'neoforge_version': project.neoforge_version, 'java_version': project.java_version
+	filesMatching('META-INF/neoforge.mods.toml') {
+		expand 'version': modVersion, 'minecraft_version': project.minecraft_version,
+				'neoforge_version': project.neoforge_version, 'java_version': project.java_version
+	}
+	filesMatching('be-careful*.mixins.json') {
+		filter { line -> line.replace('"compatibilityLevel": "JAVA_17"', '"compatibilityLevel": "JAVA_21"') }
+	}
+	eachFile { details ->
+		details.path = details.path
+				.replace('/recipes/', '/recipe/')
+				.replace('/loot_tables/', '/loot_table/')
+				.replace('/tags/items/', '/tags/item/')
+				.replace('/tags/blocks/', '/tags/block/')
+	}
+	filesMatching('data/**/recipes/*.json') {
+		def inResult = false
+		filter { line ->
+			if (line.contains('"result"')) inResult = true
+			if (inResult && line.contains('"item":')) {
+				inResult = false
+				return line.replace('"item":', '"id":')
+			}
+			line
+		}
+	}
+	exclude 'fabric.mod.json'
+}
+
+java {
+	withSourcesJar()
+	sourceCompatibility = JavaVersion.toVersion(targetJavaVersion)
+	targetCompatibility = JavaVersion.toVersion(targetJavaVersion)
+}
+
+jar {
+	from('LICENSE.md') { rename { "${it}_be-careful" } }
+}
+
+publishing {
+	publications {
+		create('mavenJava', MavenPublication) { from components.java }
+	}
+}
