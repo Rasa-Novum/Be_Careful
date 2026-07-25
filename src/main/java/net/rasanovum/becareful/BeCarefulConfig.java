@@ -4,11 +4,11 @@ import eu.midnightdust.lib.config.MidnightConfig;
 
 public class BeCarefulConfig extends MidnightConfig {
 
-    public static final String NETHER = "Nether";
-    public static final String DEEP_DARK = "Deep Dark";
-    public static final String END = "The End";
-    public static final String FROZEN = "Freezing";
-    public static final String DIFFICULTY = "Difficulty";
+    public static final String NETHER = "nether";
+    public static final String DEEP_DARK = "deepDark";
+    public static final String END = "theEnd";
+    public static final String FROZEN = "freezing";
+    public static final String DIFFICULTY = "difficulty";
 
     // Nether Settings
 

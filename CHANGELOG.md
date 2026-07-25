@@ -1,4 +1,4 @@
-# Harder Nether 0.5.2 Changelog:
+# Harder Nether 0.5.3 Changelog:
 
 ### Features:
 
@@ -29,6 +29,7 @@
 - Made entire mod configurable by section of content such that the player can disable or enable what they want.
 - removed nether hunger drain effect
 - added accelerated chunk taming based off boolean checks for certain blocks in a chunk
+- updated lang file to have keys for config entries
 
 ### Notes: 
 

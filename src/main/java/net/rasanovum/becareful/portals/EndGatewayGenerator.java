@@ -25,7 +25,25 @@ public class EndGatewayGenerator {
     }
 
     private static void generateGatewayShell(ServerLevel level, BlockPos corePos) {
-        level.setBlock(corePos.above(), Blocks.OBSIDIAN.defaultBlockState(), 3);
-        level.setBlock(corePos.below(), Blocks.OBSIDIAN.defaultBlockState(), 3);
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -2; dy <= 2; dy++) {
+                for (int dz = -1; dz <= 1; dz++) {
+                    if (dx == 0 && dy == 0 && dz == 0) {
+                        continue;
+                    }
+
+                    BlockPos shellPos = corePos.offset(dx, dy, dz);
+                    boolean isMiddleLayer = dy == 0;
+                    boolean isOuterCenter = Math.abs(dy) == 2 && dx == 0 && dz == 0;
+                    boolean isOpenSpace = isMiddleLayer || (Math.abs(dy) == 2 && !isOuterCenter);
+
+                    if (isOpenSpace) {
+                        level.setBlock(shellPos, Blocks.AIR.defaultBlockState(), 3);
+                    } else {
+                        level.setBlock(shellPos, Blocks.OBSIDIAN.defaultBlockState(), 3);
+                    }
+                }
+            }
+        }
     }
 }
