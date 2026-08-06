@@ -15,6 +15,9 @@ logoFile="assets/be-careful/icon.png"
 [[mixins]]
 config="be-careful.mixins.json"
 
+[[mixins]]
+config="be-careful.client.mixins.json"
+
 [[dependencies.be_careful]]
 modId="neoforge"
 type="required"

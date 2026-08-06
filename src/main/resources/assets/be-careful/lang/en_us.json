@@ -5,6 +5,8 @@
   "item.be-careful.echo_shard_dust": "Echo Shard Dust",
   "item.be-careful.lost_key": "Lost Key",
   "block.be-careful.frozen_campfire": "Frozen Campfire",
+  "advancement.be-careful.eyes_up_guardian.title": "Eyes up, Guardian",
+  "advancement.be-careful.eyes_up_guardian.description": "Use a Totem of Light to drive back the darkness",
   "message.be-careful.nether_entry.1": "The air here is blistering...",
   "message.be-careful.nether_entry.2": "You notice the temperature rising...",
   "message.be-careful.nether_entry.3": "The heat begins to build...",

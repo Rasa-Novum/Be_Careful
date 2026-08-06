@@ -23,9 +23,12 @@ public class CorruptionEffect extends MobEffect {
     public static final ResourceKey<DamageType> CORRUPTION_DAMAGE =
             ResourceKey.create(Registries.DAMAGE_TYPE, RegistryCompat.getLocation(MOD_ID, "corruption"));
 
+    @Override
     /*? if <1.21 {*/
-    /*@Override
-    public boolean isDurationEffectTick(int pDuration, int pAmplifier) {
+    /*public boolean isDurationEffectTick(int pDuration, int pAmplifier) {
+    *//*?} else {*/
+    public boolean shouldApplyEffectTickThisTick(int pDuration, int pAmplifier) {
+    /*?}*/
         int k = 20 >> pAmplifier;
         if (k > 0) {
             return pDuration % k == 0;
@@ -33,7 +36,6 @@ public class CorruptionEffect extends MobEffect {
             return true;
         }
     }
-    *//*?}*/
 
     /*? if <1.21 {*/
     /*@Override
@@ -45,9 +47,6 @@ public class CorruptionEffect extends MobEffect {
         Level level = entity.level();
         if (!level.isClientSide()) {
             entity.hurt(level.damageSources().source(CORRUPTION_DAMAGE), 2.0f);
-
-        } else {
-            entity.hurt(entity.damageSources().magic(), 1.0f + amplifier);
         }
 
         entity.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 100, 0));

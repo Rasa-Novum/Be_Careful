@@ -88,6 +88,7 @@ processResources {
 	eachFile { details ->
 		details.path = details.path
 				.replace('/recipes/', '/recipe/')
+				.replace('/advancements/', '/advancement/')
 				.replace('/loot_tables/', '/loot_table/')
 				.replace('/tags/items/', '/tags/item/')
 				.replace('/tags/blocks/', '/tags/block/')
@@ -98,6 +99,17 @@ processResources {
 			if (line.contains('"result"')) inResult = true
 			if (inResult && line.contains('"item":')) {
 				inResult = false
+				return line.replace('"item":', '"id":')
+			}
+			line
+		}
+	}
+	filesMatching('data/**/advancements/**/*.json') {
+		def inIcon = false
+		filter { line ->
+			if (line.contains('"icon"')) inIcon = true
+			if (inIcon && line.contains('"item":')) {
+				inIcon = false
 				return line.replace('"item":', '"id":')
 			}
 			line

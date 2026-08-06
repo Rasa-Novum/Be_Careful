@@ -39,7 +39,10 @@ sourceSets.main.java.exclude '**/client/**'
 sourceSets.main.java.exclude '**/mixin/client/**'
 sourceSets.main.java.exclude '**/mixin/DebugScreenOverlayMixin.java'
 sourceSets.main.java.exclude '**/mixin/portal/EndPortalRenderMixin.java'
-sourceSets.client.java.srcDir rootProject.file('src/main/java')
+def activeStonecutterTarget = (rootProject.file('stonecutter.gradle').text =~ /stonecutter\.active '([^']+)'/)[0][1]
+sourceSets.client.java.srcDir(project.name == activeStonecutterTarget
+		? rootProject.file('src/main/java')
+		: layout.buildDirectory.dir('generated/stonecutter/main/java'))
 sourceSets.client.java.include '**/client/**'
 sourceSets.client.java.include '**/mixin/client/**'
 sourceSets.client.java.include '**/mixin/DebugScreenOverlayMixin.java'
@@ -82,6 +85,7 @@ processResources {
 		eachFile { details ->
 			details.path = details.path
 					.replace('/recipes/', '/recipe/')
+					.replace('/advancements/', '/advancement/')
 					.replace('/loot_tables/', '/loot_table/')
 					.replace('/tags/items/', '/tags/item/')
 					.replace('/tags/blocks/', '/tags/block/')
@@ -93,6 +97,17 @@ processResources {
 				if (line.contains('"result"')) inResult = true
 				if (inResult && line.contains('"item":')) {
 					inResult = false
+					return line.replace('"item":', '"id":')
+				}
+				line
+			}
+		}
+		filesMatching('data/**/advancements/**/*.json') {
+			def inIcon = false
+			filter { line ->
+				if (line.contains('"icon"')) inIcon = true
+				if (inIcon && line.contains('"item":')) {
+					inIcon = false
 					return line.replace('"item":', '"id":')
 				}
 				line

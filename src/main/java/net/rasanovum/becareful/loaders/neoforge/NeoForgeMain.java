@@ -34,6 +34,7 @@ import net.rasanovum.becareful.BeCarefulConfig;
 import net.rasanovum.becareful.blocks.FrozenCampfireBlock;
 import net.rasanovum.becareful.blocks.FrozenCampfireBlockEntity;
 import net.rasanovum.becareful.client.ClientBreathController;
+import net.rasanovum.becareful.client.AncientEndPortalRenderer;
 import net.rasanovum.becareful.client.FrozenCampfireRenderer;
 import net.rasanovum.becareful.effects.CorruptionEffect;
 import net.rasanovum.becareful.effects.TotemOfLight;
@@ -43,7 +44,6 @@ import net.rasanovum.becareful.portals.PortalState;
 import net.rasanovum.becareful.spawning.EndPhantomSpawner;
 import net.rasanovum.becareful.spawning.EndSpawnHandler;
 import net.rasanovum.becareful.util.ColdEnvironmentManager;
-import org.spongepowered.asm.mixin.Mixins;
 
 @Mod("be_careful")
 public final class NeoForgeMain {
@@ -78,6 +78,7 @@ public final class NeoForgeMain {
     public NeoForgeMain(IEventBus modEventBus) {
         EndGatewaySavedData.bootstrap();
         PortalState.bootstrap();
+        BeCareful.registerGameRules();
         BLOCKS.register(modEventBus);
         ITEMS.register(modEventBus);
         EFFECTS.register(modEventBus);
@@ -85,7 +86,6 @@ public final class NeoForgeMain {
         modEventBus.addListener(NeoForgeMain::commonSetup);
 
         if (FMLEnvironment.dist == Dist.CLIENT) {
-            Mixins.addConfiguration("be-careful.client.mixins.json");
             modEventBus.addListener(NeoForgeMain::clientSetup);
             modEventBus.addListener(NeoForgeMain::registerRenderers);
             NeoForge.EVENT_BUS.addListener(NeoForgeMain::clientTick);
@@ -112,6 +112,7 @@ public final class NeoForgeMain {
     }
 
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerBlockEntityRenderer(BlockEntityType.END_PORTAL, AncientEndPortalRenderer::new);
         event.registerBlockEntityRenderer(FROZEN_CAMPFIRE_ENTITY.get(), FrozenCampfireRenderer::new);
     }
 

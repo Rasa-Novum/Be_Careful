@@ -69,6 +69,8 @@ public class BeCarefulConfig extends MidnightConfig {
 
     @Entry(category = END)
     public static boolean doEndFeatures = true;
+    @Entry(category = END)
+    public static boolean spawnElytra = false;
     @Entry (category = END, min = 100)
     public static int minSpawnRadius = 1000;
     @Entry (category = END,min = 100)

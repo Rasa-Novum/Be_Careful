@@ -17,6 +17,7 @@ import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.rasanovum.becareful.BeCarefulConfig;
+import net.rasanovum.becareful.util.AdvancementManager;
 
 import java.util.Random;
 
@@ -35,6 +36,9 @@ public class EndSpawnHandler {
             player.swing(hand);
 
             if (!level.isClientSide()) {
+                if (player instanceof ServerPlayer serverPlayer) {
+                    AdvancementManager.award(serverPlayer, AdvancementManager.ENDER_EYE_USED_IN_END);
+                }
                 EyeOfEnder eyeOfEnder = new EyeOfEnder(level, player.getX(), player.getY(0.5D), player.getZ());
 
                 BlockPos targetPos = new BlockPos(0, 75, 0);

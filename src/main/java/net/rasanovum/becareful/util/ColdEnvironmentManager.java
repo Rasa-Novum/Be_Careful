@@ -41,6 +41,11 @@ public class ColdEnvironmentManager {
                 UUID uuid = player.getUUID();
                 BlockPos playerPos = player.blockPosition();
                 int currentTime = playerColdTimers.getOrDefault(uuid, 0);
+                boolean coldBiome = level.getBiome(playerPos).value().coldEnoughToSnow(playerPos);
+
+                if (coldBiome) {
+                    AdvancementManager.award(player, AdvancementManager.COLD_BIOME_ENTERED);
+                }
 
                 if (isHoldingTorch(player) || isNearHeatSource(level, playerPos) || isNearTorchHeat(level, playerPos)) {
                     if (currentTime > 0) {
@@ -50,7 +55,7 @@ public class ColdEnvironmentManager {
                     continue;
                 }
 
-                if (level.getBiome(playerPos).value().coldEnoughToSnow(playerPos)) {
+                if (coldBiome) {
                     currentTime++;
                     playerColdTimers.put(uuid, currentTime);
 

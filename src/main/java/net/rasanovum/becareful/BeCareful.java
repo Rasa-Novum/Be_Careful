@@ -82,6 +82,7 @@ public class BeCareful /*? if fabric {*/ implements ModInitializer /*?}*/ {
 	public static EnvironmentHazard NETHER;
 
 	private static final GameRuleCompat GAME_RULES = new GameRuleCompat(MOD_ID);
+	private static boolean gameRulesRegistered;
 	public static GameRuleCompat.Key<Boolean> RULE_ONLY_RUINED_PORTALS;
 	public static GameRuleCompat.Key<Integer> RULE_CHUNK_TAME_TIME;
 	public static GameRuleCompat.Key<Boolean> RULE_DO_PORTAL_DEBUG;
@@ -178,9 +179,7 @@ public class BeCareful /*? if fabric {*/ implements ModInitializer /*?}*/ {
 		}
 		/*?}*/
 
-		RULE_ONLY_RUINED_PORTALS = GAME_RULES.registerBool("onlyRuinedPortals", GameRuleCompat.Category.PLAYER, true);
-		RULE_CHUNK_TAME_TIME = GAME_RULES.registerInt("chunkTameTime", GameRuleCompat.Category.PLAYER, 72000);
-		RULE_DO_PORTAL_DEBUG = GAME_RULES.registerBool("doPortalDebug", GameRuleCompat.Category.PLAYER, false);
+		registerGameRules();
 
 
 		if (BeCarefulConfig.doDeepDarkFeatures) {
@@ -231,7 +230,7 @@ public class BeCareful /*? if fabric {*/ implements ModInitializer /*?}*/ {
 		/*? if fabric {*/
 		ServerTickEvents.START_SERVER_TICK.register(BeCareful::onServerTick);
 		/*?}*/
-		LOGGER.info("this mod does too much stuff man what on earth are we going to name it");
+		LOGGER.info("Be Careful out there!");
 	}
 
 	public static void onServerTick(net.minecraft.server.MinecraftServer server) {
@@ -243,11 +242,16 @@ public class BeCareful /*? if fabric {*/ implements ModInitializer /*?}*/ {
 						player.serverLevel(), player.blockPosition(), requiredTicks
 				);
 				if (inhabitedTime == effectiveRequiredTicks && BeCarefulConfig.doDifficultyFeatures) {
+					AdvancementManager.award(player, AdvancementManager.CHUNK_TAMED);
 					EntityCompat.displayClientMessage(player,
 							MessageManager.getRandomTranslatable("message.be-careful.chunk_tamed", CHUNK_TAME_VARIANTS)
 									.copy().withStyle(ChatFormatting.GOLD),
 							false
 					);
+				}
+
+				if (currentTick % 20 == 0) {
+					AdvancementManager.checkRuinedPortal(player);
 				}
 
 				UUID uuid = player.getUUID();
@@ -272,5 +276,13 @@ public class BeCareful /*? if fabric {*/ implements ModInitializer /*?}*/ {
 					NETHER.tick(player, time);
 				}
 			}
+	}
+
+	public static synchronized void registerGameRules() {
+		if (gameRulesRegistered) return;
+		RULE_ONLY_RUINED_PORTALS = GAME_RULES.registerBool("onlyRuinedPortals", GameRuleCompat.Category.PLAYER, true);
+		RULE_CHUNK_TAME_TIME = GAME_RULES.registerInt("chunkTameTime", GameRuleCompat.Category.PLAYER, 72000);
+		RULE_DO_PORTAL_DEBUG = GAME_RULES.registerBool("doPortalDebug", GameRuleCompat.Category.PLAYER, false);
+		gameRulesRegistered = true;
 	}
 }

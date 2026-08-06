@@ -2,6 +2,7 @@ package net.rasanovum.becareful.effects;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
@@ -12,6 +13,7 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.rasanovum.becareful.BeCareful;
+import net.rasanovum.becareful.util.AdvancementManager;
 
 import java.util.List;
 
@@ -46,6 +48,9 @@ public class TotemOfLight extends Item {
     @Override
     public ItemStack finishUsingItem(ItemStack pStack, Level pLevel, LivingEntity pLivingEntity) {
         if (!pLevel.isClientSide() && pLivingEntity instanceof Player player) {
+            if (player instanceof ServerPlayer serverPlayer) {
+                AdvancementManager.award(serverPlayer, AdvancementManager.EYES_UP_GUARDIAN);
+            }
 
             double radius = 10.0;
             AABB area = player.getBoundingBox().inflate(radius);
