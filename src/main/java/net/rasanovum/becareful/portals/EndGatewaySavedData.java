@@ -1,45 +1,33 @@
 package net.rasanovum.becareful.portals;
 
-import net.minecraft.nbt.CompoundTag;
+import com.mojang.serialization.Codec;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraft.world.level.storage.DimensionDataStorage;
+import net.rasanovum.becareful.BeCareful;
+import net.rasanovum.rosetta.attachment.LevelAttachmentKey;
+import net.rasanovum.rosetta.attachment.RosettaAttachments;
 
-public class EndGatewaySavedData extends SavedData {
+public final class EndGatewaySavedData {
+    private static final LevelAttachmentKey<Integer> GENERATED_COUNT =
+            RosettaAttachments.level(BeCareful.MOD_ID).persistent("end_gateway_count", () -> 0, Codec.INT);
 
-    private static final String DATA_NAME = "becareful_end_gateways";
-    private int generatedCount = 0;
+    private final ServerLevel level;
 
-    public EndGatewaySavedData() {}
-
-    public static EndGatewaySavedData load(CompoundTag nbt) {
-        EndGatewaySavedData data = new EndGatewaySavedData();
-        data.generatedCount = nbt.getInt("GeneratedCount");
-        return data;
+    private EndGatewaySavedData(ServerLevel level) {
+        this.level = level;
     }
 
-    @Override
-    public CompoundTag save(CompoundTag nbt) {
-        nbt.putInt("GeneratedCount", this.generatedCount);
-        return nbt;
+    public static void bootstrap() {
     }
 
     public int getGeneratedCount() {
-        return this.generatedCount;
+        return GENERATED_COUNT.getOrCreate(level);
     }
 
     public void incrementGeneratedCount() {
-        this.generatedCount++;
-        this.setDirty();
+        GENERATED_COUNT.set(level, getGeneratedCount() + 1);
     }
 
     public static EndGatewaySavedData get(ServerLevel level) {
-        DimensionDataStorage storage = level.getServer().overworld().getDataStorage();
-
-        return storage.computeIfAbsent(
-                EndGatewaySavedData::load,
-                EndGatewaySavedData::new,
-                DATA_NAME
-        );
+        return new EndGatewaySavedData(level.getServer().overworld());
     }
 }

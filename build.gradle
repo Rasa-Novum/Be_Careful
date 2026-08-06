@@ -1,87 +1,134 @@
 plugins {
-	id 'fabric-loom' version '1.6-SNAPSHOT'
+	id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
 	id 'maven-publish'
 }
 
-version = project.mod_version
+version = "${project.mod_version}+${project.minecraft_version}-fabric"
 group = project.maven_group
+def targetJavaVersion = Integer.parseInt(project.java_version as String)
+
+base {
+	archivesName = 'be-careful'
+}
 
 repositories {
 	maven {
-		name = "Modrinth"
-		url = "https://api.modrinth.com/maven"
-		content {
-			includeGroup "maven.modrinth"
-		}
+		name = 'Modrinth'
+		url = 'https://api.modrinth.com/maven'
+		content { includeGroup 'maven.modrinth' }
 	}
-	maven { url "https://jitpack.io" }
-}
-
-dependencies {
-	minecraft "com.mojang:minecraft:1.20.1"
-	mappings loom.layered() {
-		officialMojangMappings()
-	}
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-	modImplementation "maven.modrinth:midnightlib:1.4.1-fabric"
-	include "maven.modrinth:midnightlib:1.4.1-fabric"
-}
-
-tasks.withType(JavaCompile).configureEach {
-	it.options.release = 17
-	// This line tells the compiler to use the Minecraft Jar as a "source" for the Mixin AP
-	it.options.compilerArgs << "-Aproject=${project.group}:${project.name}"
+	maven { url = 'https://jitpack.io' }
 }
 
 loom {
+	splitEnvironmentSourceSets()
+	mods {
+		'be-careful' {
+			sourceSet sourceSets.main
+			sourceSet sourceSets.client
+		}
+	}
 	mixin {
-		defaultRefmapName = "be-careful-refmap.json"
+		defaultRefmapName = 'be-careful-refmap.json'
+	}
+}
+
+sourceSets.main.java.exclude '**/loaders/neoforge/**'
+sourceSets.client.java.exclude '**/loaders/neoforge/**'
+sourceSets.main.java.exclude '**/client/**'
+sourceSets.main.java.exclude '**/mixin/client/**'
+sourceSets.main.java.exclude '**/mixin/DebugScreenOverlayMixin.java'
+sourceSets.main.java.exclude '**/mixin/portal/EndPortalRenderMixin.java'
+def activeStonecutterTarget = (rootProject.file('stonecutter.gradle').text =~ /stonecutter\.active '([^']+)'/)[0][1]
+sourceSets.client.java.srcDir(project.name == activeStonecutterTarget
+		? rootProject.file('src/main/java')
+		: layout.buildDirectory.dir('generated/stonecutter/main/java'))
+sourceSets.client.java.include '**/client/**'
+sourceSets.client.java.include '**/mixin/client/**'
+sourceSets.client.java.include '**/mixin/DebugScreenOverlayMixin.java'
+sourceSets.client.java.include '**/mixin/portal/EndPortalRenderMixin.java'
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings loom.officialMojangMappings()
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	modImplementation "maven.modrinth:midnightlib:${project.midnightlib_version}"
+	include "maven.modrinth:midnightlib:${project.midnightlib_version}"
+	modImplementation files(project.rosetta_jar)
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.release = targetJavaVersion
+	options.compilerArgs << "-Aproject=${project.group}:${project.name}"
+}
+
+tasks.withType(JavaExec).configureEach {
+	javaLauncher = javaToolchains.launcherFor {
+		languageVersion = JavaLanguageVersion.of(targetJavaVersion)
 	}
 }
 
 processResources {
-	inputs.property "version", project.version
-
-	filesMatching("fabric.mod.json") {
-		expand "version": project.version
+	def modVersion = project.version
+	inputs.properties 'version': modVersion, 'minecraft_version': project.minecraft_version,
+			'loader_version': project.fabric_loader_min_version, 'java_version': project.java_version
+	filesMatching('fabric.mod.json') {
+		expand 'version': modVersion, 'minecraft_version': project.minecraft_version,
+				'loader_version': project.fabric_loader_min_version, 'java_version': project.java_version
 	}
-
-	// FIX: This solves the "duplicate but no duplicate handling strategy" error
-	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+	filesMatching('be-careful*.mixins.json') {
+		filter { line -> line.replace('"compatibilityLevel": "JAVA_17"',
+				"\"compatibilityLevel\": \"JAVA_${project.java_version}\"") }
+	}
+	if (project.minecraft_version == '1.21.1') {
+		eachFile { details ->
+			details.path = details.path
+					.replace('/recipes/', '/recipe/')
+					.replace('/advancements/', '/advancement/')
+					.replace('/loot_tables/', '/loot_table/')
+					.replace('/tags/items/', '/tags/item/')
+					.replace('/tags/blocks/', '/tags/block/')
+					.replace('/tags/damage_type/', '/tags/damage_type/')
+		}
+		filesMatching('data/**/recipes/*.json') {
+			def inResult = false
+			filter { line ->
+				if (line.contains('"result"')) inResult = true
+				if (inResult && line.contains('"item":')) {
+					inResult = false
+					return line.replace('"item":', '"id":')
+				}
+				line
+			}
+		}
+		filesMatching('data/**/advancements/**/*.json') {
+			def inIcon = false
+			filter { line ->
+				if (line.contains('"icon"')) inIcon = true
+				if (inIcon && line.contains('"item":')) {
+					inIcon = false
+					return line.replace('"item":', '"id":')
+				}
+				line
+			}
+		}
+	}
+	exclude 'META-INF/neoforge.mods.toml'
 }
 
 java {
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-	// if it is present.
-	// If you remove this line, sources will not be generated.
 	withSourcesJar()
-
-	sourceCompatibility = JavaVersion.VERSION_17
-	targetCompatibility = JavaVersion.VERSION_17
+	sourceCompatibility = JavaVersion.toVersion(targetJavaVersion)
+	targetCompatibility = JavaVersion.toVersion(targetJavaVersion)
 }
 
 jar {
-	inputs.property "projectName", project.name
-
-	from("LICENSE") {
-		rename { "${it}_${project.name}"}
-	}
+	from('LICENSE.md') { rename { "${it}_${project.name}" } }
 }
 
-// configure the maven publication
 publishing {
 	publications {
-		create("mavenJava", MavenPublication) {
-			from components.java
-		}
-	}
-
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
+		create('mavenJava', MavenPublication) { from components.java }
 	}
 }

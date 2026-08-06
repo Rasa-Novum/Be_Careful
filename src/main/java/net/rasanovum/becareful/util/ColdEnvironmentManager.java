@@ -1,6 +1,8 @@
 package net.rasanovum.becareful.util;
 
+/*? if fabric {*/
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+/*?}*/
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,8 +24,13 @@ public class ColdEnvironmentManager {
 
     private static final HashMap<UUID, Integer> playerColdTimers = new HashMap<>();
 
+    /*? if fabric {*/
     public static void register() {
-        ServerTickEvents.END_WORLD_TICK.register(level -> {
+        ServerTickEvents.END_WORLD_TICK.register(ColdEnvironmentManager::tick);
+    }
+    /*?}*/
+
+    public static void tick(ServerLevel level) {
             if (level.getGameTime() % 20 == 0) {
                 FrozenCampfireBlock.PLAYERS_NEAR_COLD_FIRE.clear();
             }
@@ -34,6 +41,11 @@ public class ColdEnvironmentManager {
                 UUID uuid = player.getUUID();
                 BlockPos playerPos = player.blockPosition();
                 int currentTime = playerColdTimers.getOrDefault(uuid, 0);
+                boolean coldBiome = level.getBiome(playerPos).value().coldEnoughToSnow(playerPos);
+
+                if (coldBiome) {
+                    AdvancementManager.award(player, AdvancementManager.COLD_BIOME_ENTERED);
+                }
 
                 if (isHoldingTorch(player) || isNearHeatSource(level, playerPos) || isNearTorchHeat(level, playerPos)) {
                     if (currentTime > 0) {
@@ -43,7 +55,7 @@ public class ColdEnvironmentManager {
                     continue;
                 }
 
-                if (level.getBiome(playerPos).value().coldEnoughToSnow(playerPos)) {
+                if (coldBiome) {
                     currentTime++;
                     playerColdTimers.put(uuid, currentTime);
 
@@ -67,7 +79,6 @@ public class ColdEnvironmentManager {
                     }
                 }
             }
-        });
     }
 
     private static boolean isHoldingTorch(ServerPlayer player) {

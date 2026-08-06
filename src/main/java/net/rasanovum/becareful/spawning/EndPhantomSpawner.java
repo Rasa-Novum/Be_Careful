@@ -13,8 +13,13 @@ import net.rasanovum.becareful.portals.EndEdgeGatewayManager;
 
 public class EndPhantomSpawner {
 
+    /*? if fabric {*/
     public static void register() {
-        net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_WORLD_TICK.register(level -> {
+        net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_WORLD_TICK.register(EndPhantomSpawner::tick);
+    }
+    /*?}*/
+
+    public static void tick(net.minecraft.server.level.ServerLevel level) {
             if (!BeCarefulConfig.doEndFeatures) return;
             if (level.dimension() != Level.END) return;
             EndEdgeGatewayManager.checkAndSpawnEdgeGateways(level);
@@ -50,13 +55,16 @@ public class EndPhantomSpawner {
                             Phantom phantom = EntityType.PHANTOM.create(level);
                             if (phantom != null) {
                                 phantom.moveTo(spawnPos, 0.0F, 0.0F);
-                                phantom.finalizeSpawn(level, level.getCurrentDifficultyAt(spawnPos), MobSpawnType.NATURAL, null, null);
+                                /*? if <1.21 {*/
+                                /*phantom.finalizeSpawn(level, level.getCurrentDifficultyAt(spawnPos), MobSpawnType.NATURAL, null, null);
+                                *//*?} else {*/
+                                phantom.finalizeSpawn(level, level.getCurrentDifficultyAt(spawnPos), MobSpawnType.NATURAL, null);
+                                /*?}*/
                                 level.addFreshEntity(phantom);
                             }
                         }
                     }
                 }
             }
-        });
     }
 }

@@ -1,0 +1,31 @@
+{
+  "parent": "minecraft:adventure/root",
+  "criteria": {
+    "used_totem_of_light": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancement.be-careful.eyes_up_guardian.description"
+    },
+    "frame": "challenge",
+    "hidden": false,
+    "icon": {
+      "item": "be-careful:totem_of_light"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancement.be-careful.eyes_up_guardian.title"
+    }
+  },
+  "requirements": [
+    [
+      "used_totem_of_light"
+    ]
+  ],
+  "rewards": {
+    "experience": 100
+  }
+}

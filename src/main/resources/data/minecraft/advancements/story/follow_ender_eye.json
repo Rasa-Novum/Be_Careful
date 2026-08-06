@@ -1,0 +1,29 @@
+{
+  "parent": "minecraft:story/enter_the_nether",
+  "criteria": {
+    "ancient_portal_ignited": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.story.follow_ender_eye.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "minecraft:ender_eye"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.story.follow_ender_eye.title"
+    }
+  },
+  "requirements": [
+    [
+      "ancient_portal_ignited"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -2,6 +2,7 @@ package net.rasanovum.becareful.effects;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
@@ -12,6 +13,7 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.rasanovum.becareful.BeCareful;
+import net.rasanovum.becareful.util.AdvancementManager;
 
 import java.util.List;
 
@@ -20,10 +22,17 @@ public class TotemOfLight extends Item {
         super(pProperties);
     }
 
-    @Override
+    /*? if <1.21 {*/
+    /*@Override
     public int getUseDuration(ItemStack pStack) {
         return 30;
     }
+    *//*?} else {*/
+    @Override
+    public int getUseDuration(ItemStack pStack, LivingEntity entity) {
+        return 30;
+    }
+    /*?}*/
 
     @Override
     public UseAnim getUseAnimation(ItemStack pStack) {
@@ -39,13 +48,20 @@ public class TotemOfLight extends Item {
     @Override
     public ItemStack finishUsingItem(ItemStack pStack, Level pLevel, LivingEntity pLivingEntity) {
         if (!pLevel.isClientSide() && pLivingEntity instanceof Player player) {
+            if (player instanceof ServerPlayer serverPlayer) {
+                AdvancementManager.award(serverPlayer, AdvancementManager.EYES_UP_GUARDIAN);
+            }
 
             double radius = 10.0;
             AABB area = player.getBoundingBox().inflate(radius);
             List<Player> playersInRange = pLevel.getEntitiesOfClass(Player.class, area);
 
             for (Player target : playersInRange) {
-                target.removeEffect(BeCareful.CORRUPTION);
+                /*? if <1.21 {*/
+                /*target.removeEffect(BeCareful.CORRUPTION);
+                *//*?} else {*/
+                target.removeEffect(BeCareful.CORRUPTION_HOLDER);
+                /*?}*/
                 BeCareful.DEEP_DARK_TIMERS.put(target.getUUID(), 0);
 
                 target.displayClientMessage(

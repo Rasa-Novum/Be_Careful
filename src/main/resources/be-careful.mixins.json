@@ -5,14 +5,15 @@
   "refmap": "be-careful-refmap.json",
   "mixins": [
     "FoodEatMixin",
+    "EndShipElytraMixin",
+    "RuinedPortalStructureMixin",
     "portal.PortalShapeMixin",
+    "portal.EndPortalBlockMixin",
     "DimensionScaleMixin",
     "difficulty.DifficultyMixin",
     "difficulty.BedSleepRestrictionMixin",
     "difficulty.LevelSetBlockMixin",
-    "DebugScreenOverlayMixin",
     "mobs.WardenMixin",
-    "portal.EndPortalRenderMixin",
     "DisableStrongholdsMixin",
     "mobs.PhantomSpawnerMixin"
   ],

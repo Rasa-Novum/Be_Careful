@@ -1,0 +1,12 @@
+plugins {
+	id 'dev.kikugie.stonecutter'
+	id 'net.neoforged.moddev' version '2.0.102' apply false
+}
+
+stonecutter.active '1.21.1-fabric' /* [SC] DO NOT EDIT */
+
+stonecutter {
+	parameters { params ->
+		params.constants.match(params.node.metadata.project.substring(params.node.metadata.project.lastIndexOf('-') + 1), 'fabric', 'neoforge')
+	}
+}
