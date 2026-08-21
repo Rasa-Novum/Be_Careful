@@ -40,6 +40,16 @@ public class BeCarefulConfig extends MidnightConfig {
     public static int totemVariants = 3;
     @Entry(category = DEEP_DARK,min = 2)
     public static int wardenHealthValue = 300;
+    @Entry(category = DEEP_DARK, min = 1)
+    public static int lightFieldRadius = 5;
+    @Entry(category = DEEP_DARK, min = 1)
+    public static int lightFieldDurationTicks = 600;
+    @Entry(category = DEEP_DARK, min = 0)
+    public static int lightFieldTimerDecrement = 2;
+    @Entry(category = DEEP_DARK, min = 1)
+    public static int corruptionDamageIntervalTicks = 40;
+    @Entry(category = DEEP_DARK)
+    public static boolean lightFieldDebugParticles = true;
 
     // Regional Difficulty / Chunk Taming
 

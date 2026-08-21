@@ -3,6 +3,7 @@ package net.rasanovum.becareful.effects;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
@@ -11,12 +12,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
-import net.rasanovum.becareful.BeCareful;
-import net.rasanovum.becareful.BeCarefulHooks;
+import net.rasanovum.becareful.light.LightField;
+import net.rasanovum.becareful.light.LightFieldManager;
 import net.rasanovum.becareful.util.AdvancementManager;
-
-import java.util.List;
 
 public class TotemOfLight extends Item {
     public TotemOfLight(Properties pProperties) {
@@ -53,18 +51,8 @@ public class TotemOfLight extends Item {
                 AdvancementManager.award(serverPlayer, AdvancementManager.EYES_UP_GUARDIAN);
             }
 
-            double radius = 10.0;
-            AABB area = player.getBoundingBox().inflate(radius);
-            List<Player> playersInRange = pLevel.getEntitiesOfClass(Player.class, area);
-
-            for (Player target : playersInRange) {
-                /*? if <1.21 {*/
-                /*target.removeEffect(BeCareful.CORRUPTION);
-                *//*?} else {*/
-                target.removeEffect(BeCareful.CORRUPTION_HOLDER);
-                /*?}*/
-                BeCarefulHooks.resetDeepDarkTimer(target.getUUID());
-
+            LightField field = LightFieldManager.create((ServerLevel) pLevel, player);
+            for (ServerPlayer target : LightFieldManager.playersInside((ServerLevel) pLevel, field)) {
                 target.displayClientMessage(
                         Component.literal("The light cleanses the smothering darkness...")
                                 .withStyle(ChatFormatting.GOLD),

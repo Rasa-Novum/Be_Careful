@@ -22,6 +22,7 @@ import net.rasanovum.becareful.BeCarefulConfig;
 import net.rasanovum.becareful.client.AncientEndPortalRenderer;
 import net.rasanovum.becareful.client.BeCarefulClientHooks;
 import net.rasanovum.becareful.client.FrozenCampfireRenderer;
+import net.rasanovum.becareful.light.LightFieldManager;
 import net.rasanovum.becareful.portals.AncientPortalHandler;
 import net.rasanovum.becareful.portals.EndGatewaySavedData;
 import net.rasanovum.becareful.portals.PortalState;
@@ -33,6 +34,7 @@ public final class NeoForgeMain {
     public NeoForgeMain(IEventBus modEventBus) {
         EndGatewaySavedData.bootstrap();
         PortalState.bootstrap();
+        LightFieldManager.bootstrap();
         BeCarefulContent.REGISTRAR.register(RegistrationContext.create(modEventBus));
         modEventBus.addListener(NeoForgeMain::commonSetup);
 

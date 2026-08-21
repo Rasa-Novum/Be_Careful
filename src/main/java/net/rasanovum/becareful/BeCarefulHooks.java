@@ -5,6 +5,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biomes;
 import net.rasanovum.becareful.spawning.EndPhantomSpawner;
+import net.rasanovum.becareful.corruption.CorruptionManager;
+import net.rasanovum.becareful.light.LightFieldManager;
+import net.rasanovum.becareful.light.LightFieldNetworking;
 import net.rasanovum.becareful.util.AdvancementManager;
 import net.rasanovum.becareful.util.ChunkTameManager;
 import net.rasanovum.becareful.util.ColdEnvironmentManager;
@@ -39,12 +42,25 @@ public final class BeCarefulHooks {
             public void onPlayerLeave(ServerPlayer player) {
                 clearPlayerState(player.getUUID());
             }
+
+            @Override
+            public void onPlayerJoin(ServerPlayer player) {
+                LightFieldNetworking.syncPlayer(player);
+                CorruptionManager.sync(player);
+            }
+
+            @Override
+            public void onPlayerChangedDimension(ServerPlayer player) {
+                LightFieldNetworking.syncPlayer(player);
+                CorruptionManager.sync(player);
+            }
+
+            @Override
+            public void onDataPackReload(net.minecraft.server.MinecraftServer server) {
+                BeCareful.reloadConfig();
+            }
         });
         registered = true;
-    }
-
-    public static void resetDeepDarkTimer(UUID playerId) {
-        DEEP_DARK_TIMERS.put(playerId, 0);
     }
 
     public static int deepDarkTime(UUID playerId) {
@@ -53,6 +69,8 @@ public final class BeCarefulHooks {
 
     private static void tickLevel(ServerLevel level) {
         int currentTick = level.getServer().getTickCount();
+
+        LightFieldManager.tick(level);
 
         for (ServerPlayer player : level.players()) {
             tickPlayer(level, player, currentTick);
@@ -96,18 +114,38 @@ public final class BeCarefulHooks {
             MESSAGE_SCHEDULE.remove(uuid);
         }
 
-        tickDeepDark(player);
+        tickDeepDark(player, currentTick);
         tickNether(player);
     }
 
-    private static void tickDeepDark(ServerPlayer player) {
-        if (player.level().getBiome(player.blockPosition()).is(Biomes.DEEP_DARK)
-                && BeCarefulConfig.doDeepDarkFeatures) {
+    private static void tickDeepDark(ServerPlayer player, int currentTick) {
+        ServerLevel level = player.serverLevel();
+        boolean inDeepDark = level.getBiome(player.blockPosition()).is(Biomes.DEEP_DARK)
+                && BeCarefulConfig.doDeepDarkFeatures;
+        boolean protectedByLight = LightFieldManager.contains(level, player);
+
+        if (inDeepDark && !protectedByLight) {
             int time = DEEP_DARK_TIMERS.getOrDefault(player.getUUID(), 0) + 1;
             DEEP_DARK_TIMERS.put(player.getUUID(), time);
             BeCareful.DEEP_DARK.tick(player, time);
+        } else if (inDeepDark) {
+            int decrement = Math.max(0, BeCarefulConfig.lightFieldTimerDecrement);
+            int time = decrement == 0
+                    ? 0
+                    : Math.max(0, DEEP_DARK_TIMERS.getOrDefault(player.getUUID(), 0) - decrement);
+            DEEP_DARK_TIMERS.put(player.getUUID(), time);
         } else {
             DEEP_DARK_TIMERS.remove(player.getUUID());
+        }
+
+        CorruptionManager.tick(
+                player,
+                inDeepDark,
+                DEEP_DARK_TIMERS.getOrDefault(player.getUUID(), 0),
+                inDeepDark && !protectedByLight
+        );
+        if (currentTick % 20 == 0) {
+            CorruptionManager.logState(player, protectedByLight, inDeepDark);
         }
     }
 
@@ -123,5 +161,6 @@ public final class BeCarefulHooks {
         DEEP_DARK_TIMERS.remove(playerId);
         NETHER_TIMERS.remove(playerId);
         MESSAGE_SCHEDULE.remove(playerId);
+        CorruptionManager.clear(playerId);
     }
 }

@@ -5,14 +5,14 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageType;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.level.Level;
+import net.rasanovum.becareful.corruption.CorruptionManager;
+import net.rasanovum.becareful.BeCarefulConfig;
 import static net.rasanovum.becareful.BeCareful.MOD_ID;
 import net.rasanovum.rosetta.util.RegistryCompat;
 
@@ -29,7 +29,7 @@ public class CorruptionEffect extends MobEffect {
     *//*?} else {*/
     public boolean shouldApplyEffectTickThisTick(int pDuration, int pAmplifier) {
     /*?}*/
-        int k = 20 >> pAmplifier;
+        int k = Math.max(1, BeCarefulConfig.corruptionDamageIntervalTicks) >> pAmplifier;
         if (k > 0) {
             return pDuration % k == 0;
         } else {
@@ -43,13 +43,16 @@ public class CorruptionEffect extends MobEffect {
     *//*?} else {*/
     @Override
     public boolean applyEffectTick(LivingEntity entity, int amplifier) {
-    /*?}*/
+        /*?}*/
         Level level = entity.level();
+        float corruption = CorruptionManager.get(entity);
         if (!level.isClientSide()) {
-            entity.hurt(level.damageSources().source(CORRUPTION_DAMAGE), 2.0f);
+            net.minecraft.world.phys.Vec3 velocity = entity.getDeltaMovement();
+            if (entity.hurt(level.damageSources().source(CORRUPTION_DAMAGE), 2.0f * corruption)) {
+                entity.setDeltaMovement(velocity);
+            }
         }
 
-        entity.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 100, 0));
         /*? if >=1.21 {*/
         return true;
         /*?}*/

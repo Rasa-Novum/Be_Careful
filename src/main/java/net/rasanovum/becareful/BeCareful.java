@@ -16,14 +16,14 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import net.rasanovum.becareful.blocks.FrozenCampfireBlock;
 import net.rasanovum.becareful.blocks.FrozenCampfireBlockEntity;
+import net.rasanovum.becareful.corruption.CorruptionManager;
+import net.rasanovum.becareful.light.LightFieldNetworking;
 import net.rasanovum.becareful.portals.AncientPortalHandler;
 import net.rasanovum.becareful.spawning.EndSpawnHandler;
 import net.rasanovum.becareful.util.EnvironmentHazard;
@@ -64,20 +64,20 @@ public class BeCareful /*? if fabric {*/ implements ModInitializer /*?}*/ {
 	public static GameRuleCompat.Key<Boolean> RULE_DO_PORTAL_DEBUG;
 
 	// deep dark
-	public static final int DD_ENTRY_VARIANTS = BeCarefulConfig.deepDarkEntryVariants;
-	public static final int DD_WARN_TICKS = BeCarefulConfig.deepDarkWarningTicks;
-	public static final int DD_WARN_VARIANTS = BeCarefulConfig.deepDarkWarningVariants;
-	public static final int DD_DANGER_TICKS = BeCarefulConfig.deepDarkDangerTicks;
-	public static final int TOTEM_VARIANTS = BeCarefulConfig.totemVariants;
+	public static int DD_ENTRY_VARIANTS;
+	public static int DD_WARN_TICKS;
+	public static int DD_WARN_VARIANTS;
+	public static int DD_DANGER_TICKS;
+	public static int TOTEM_VARIANTS;
 
 	// nether
-	public static final int N_ENTRY_VARIANTS = BeCarefulConfig.netherEntryVariants;
-	public static final int N_WARN_VARIANTS = BeCarefulConfig.netherWarningVariants;
-	public static final int N_WARN_TICKS = BeCarefulConfig.netherWarningTicks;
-	public static final int N_DANGER_TICKS = BeCarefulConfig.netherDangerTicks;
+	public static int N_ENTRY_VARIANTS;
+	public static int N_WARN_VARIANTS;
+	public static int N_WARN_TICKS;
+	public static int N_DANGER_TICKS;
 
 	// chunk tame
-	public static final int CHUNK_TAME_VARIANTS = BeCarefulConfig.chunkTameVariants;
+	public static int CHUNK_TAME_VARIANTS;
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
@@ -93,6 +93,7 @@ public class BeCareful /*? if fabric {*/ implements ModInitializer /*?}*/ {
 
 	public static void initializeCommon() {
 		MidnightConfig.init(MOD_ID, BeCarefulConfig.class);
+		refreshConfigValues();
 
 		CORRUPTION = BeCarefulContent.CORRUPTION.get();
 		TOTEM_OF_LIGHT = BeCarefulContent.TOTEM_OF_LIGHT.get();
@@ -117,8 +118,30 @@ public class BeCareful /*? if fabric {*/ implements ModInitializer /*?}*/ {
 		/*?}*/
 
 		registerGameRules();
+		LightFieldNetworking.register();
 		BeCarefulHooks.register();
+		initializeHazards();
 
+
+		LOGGER.info("Be Careful out there!");
+	}
+
+	public static void reloadConfig() {
+		/*? if <1.21 {*/
+		MidnightConfig.init(MOD_ID, BeCarefulConfig.class);
+		/*?} else {*/
+		MidnightConfig config = MidnightConfig.configInstances.get(MOD_ID);
+		if (config != null) {
+			config.loadValuesFromJson();
+		}
+		/*?}*/
+		refreshConfigValues();
+		initializeHazards();
+	}
+
+	private static void initializeHazards() {
+		DEEP_DARK = null;
+		NETHER = null;
 
 		if (BeCarefulConfig.doDeepDarkFeatures) {
 			DEEP_DARK = new EnvironmentHazard(
@@ -134,14 +157,7 @@ public class BeCareful /*? if fabric {*/ implements ModInitializer /*?}*/ {
 									SoundEvents.WARDEN_HEARTBEAT, SoundSource.PLAYERS, 1.5f, 1.0f);
 						}
 					},
-					player -> {
-						/*? if <1.21 {*/
-						/*player.addEffect(new MobEffectInstance(BeCareful.CORRUPTION, 40, 0, false, false));
-						*//*?} else {*/
-						player.addEffect(new MobEffectInstance(BeCareful.CORRUPTION_HOLDER, 40, 0, false, false));
-						/*?}*/
-						player.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 40, 0, false, false));
-					}
+					CorruptionManager::expose
 			);
 		}
 
@@ -161,11 +177,21 @@ public class BeCareful /*? if fabric {*/ implements ModInitializer /*?}*/ {
 						player.igniteForSeconds(2);
 						/*?}*/
 					}
-			);
+				);
 		}
+	}
 
-
-		LOGGER.info("Be Careful out there!");
+	private static void refreshConfigValues() {
+		DD_ENTRY_VARIANTS = BeCarefulConfig.deepDarkEntryVariants;
+		DD_WARN_TICKS = BeCarefulConfig.deepDarkWarningTicks;
+		DD_WARN_VARIANTS = BeCarefulConfig.deepDarkWarningVariants;
+		DD_DANGER_TICKS = BeCarefulConfig.deepDarkDangerTicks;
+		TOTEM_VARIANTS = BeCarefulConfig.totemVariants;
+		N_ENTRY_VARIANTS = BeCarefulConfig.netherEntryVariants;
+		N_WARN_VARIANTS = BeCarefulConfig.netherWarningVariants;
+		N_WARN_TICKS = BeCarefulConfig.netherWarningTicks;
+		N_DANGER_TICKS = BeCarefulConfig.netherDangerTicks;
+		CHUNK_TAME_VARIANTS = BeCarefulConfig.chunkTameVariants;
 	}
 
 	public static synchronized void registerGameRules() {
