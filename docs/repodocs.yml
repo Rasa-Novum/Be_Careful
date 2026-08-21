@@ -1,0 +1,21 @@
+rootREADME: true
+summary: A completely configurable difficulty and progression overhaul that alters the way you interact with the normal gameplay loop of Minecraft.
+platforms:
+  primary: modrinth
+  modrinth:
+    id: be-careful
+  curseforge:
+    id: be-careful
+gameVersions:
+  - "1.20.1"
+  - "1.21.1"
+loaders:
+  - fabric
+  - neoforge
+type: minecraft
+category: mod
+modId: be_careful
+licenses:
+  project:
+    id: RSL
+    url: https://github.com/RasaNovum/Via_Romana/blob/main/LICENSE.md
