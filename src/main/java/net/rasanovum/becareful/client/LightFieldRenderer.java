@@ -12,8 +12,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.culling.Frustum;
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.entity.player.Player;
@@ -25,8 +27,8 @@ import net.rasanovum.becareful.light.LightField;
 import org.joml.Matrix4f;
 
 public final class LightFieldRenderer {
-    private static final int SHELL_RINGS = 12;
-    private static final int SHELL_SEGMENTS = 24;
+    private static final int SHELL_RINGS = 24;
+    private static final int SHELL_SEGMENTS = 48;
     private static final float SHELL_ALPHA = 0.10F;
     private static final float LIGHT_R = 1.0F;
     private static final float LIGHT_G = 0.78F;
@@ -45,26 +47,37 @@ public final class LightFieldRenderer {
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableCull();
         RenderSystem.depthMask(false);
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+
+        boolean useContactShader = canRenderContactGlow();
+        if (!useContactShader) {
+            RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        }
 
         poseStack.pushPose();
         poseStack.translate(-camera.x, -camera.y, -camera.z);
 
-        for (LightField field : ClientLightFieldState.get()) {
-            if (field.expiresAt() <= gameTime) continue;
+        if (!useContactShader) {
+            for (LightField field : ClientLightFieldState.get()) {
+                if (field.expiresAt() <= gameTime) continue;
 
-            Vec3 center = Vec3.atCenterOf(field.center());
-            float radius = field.radius();
-            AABB bounds = new AABB(
-                    center.x - radius, center.y - radius, center.z - radius,
-                    center.x + radius, center.y + radius, center.z + radius
-            );
-            if (frustum != null && !frustum.isVisible(bounds)) continue;
+                Vec3 center = Vec3.atCenterOf(field.center());
+                float radius = field.radius();
+                AABB bounds = new AABB(
+                        center.x - radius, center.y - radius, center.z - radius,
+                        center.x + radius, center.y + radius, center.z + radius
+                );
+                if (frustum != null && !frustum.isVisible(bounds)) continue;
 
-            poseStack.pushPose();
-            poseStack.translate(center.x, center.y, center.z);
-            drawSphere(poseStack, radius, SHELL_RINGS, SHELL_SEGMENTS, SHELL_ALPHA);
-            poseStack.popPose();
+                poseStack.pushPose();
+                poseStack.translate(center.x, center.y, center.z);
+                drawSphere(poseStack, radius, SHELL_RINGS, SHELL_SEGMENTS, SHELL_ALPHA);
+                poseStack.popPose();
+            }
+        }
+
+        if (useContactShader) {
+            renderNoisyShell(poseStack, level, camera, gameTime, tickDelta, frustum);
+            renderContactGlow(poseStack, level, camera, gameTime, tickDelta, frustum);
         }
 
         RenderSystem.depthMask(true);
@@ -104,6 +117,98 @@ public final class LightFieldRenderer {
         RenderSystem.depthMask(true);
         RenderSystem.enableCull();
         RenderSystem.disableBlend();
+    }
+
+    private static void renderNoisyShell(
+            PoseStack poseStack, ClientLevel level, Vec3 camera, long gameTime, float tickDelta, Frustum frustum
+    ) {
+        ShaderInstance shader = LightFieldShader.get();
+        shader.getUniform("RenderMode").set(0.0F);
+        shader.getUniform("CameraPosition").set(
+                (float) camera.x, (float) camera.y, (float) camera.z
+        );
+        shader.getUniform("Time").set((gameTime + tickDelta) / 20.0F);
+
+        RenderSystem.setShader(() -> shader);
+        RenderSystem.enableDepthTest();
+        RenderSystem.defaultBlendFunc();
+
+        for (LightField field : ClientLightFieldState.get()) {
+            if (field.expiresAt() <= gameTime) continue;
+
+            Vec3 center = Vec3.atCenterOf(field.center());
+            float radius = field.radius();
+            AABB bounds = new AABB(
+                    center.x - radius, center.y - radius, center.z - radius,
+                    center.x + radius, center.y + radius, center.z + radius
+            );
+            if (frustum != null && !frustum.isVisible(bounds)) continue;
+
+            poseStack.pushPose();
+            poseStack.translate(center.x, center.y, center.z);
+            drawSphere(poseStack, radius, SHELL_RINGS, SHELL_SEGMENTS, 1.0F);
+            poseStack.popPose();
+        }
+    }
+
+    private static void renderContactGlow(
+            PoseStack poseStack, ClientLevel level, Vec3 camera, long gameTime, float tickDelta, Frustum frustum
+    ) {
+        ShaderInstance shader = LightFieldShader.get();
+        RenderTarget mainTarget = Minecraft.getInstance().getMainRenderTarget();
+
+        Matrix4f inverseViewProjection = new Matrix4f(RenderSystem.getProjectionMatrix())
+                .mul(RenderSystem.getModelViewMatrix())
+                .invert();
+        shader.setSampler("SceneDepth", mainTarget.getDepthTextureId());
+        shader.getUniform("InverseViewProjection").set(inverseViewProjection);
+        shader.getUniform("ScreenSize").set((float) mainTarget.width, (float) mainTarget.height);
+        shader.getUniform("ContactWidth").set(0.08F);
+        shader.getUniform("RenderMode").set(1.0F);
+        shader.getUniform("CameraPosition").set(
+                (float) camera.x, (float) camera.y, (float) camera.z
+        );
+        shader.getUniform("Time").set((gameTime + tickDelta) / 20.0F);
+
+        RenderSystem.setShader(() -> shader);
+        RenderSystem.disableDepthTest();
+        RenderSystem.blendFunc(
+                com.mojang.blaze3d.platform.GlStateManager.SourceFactor.SRC_ALPHA,
+                com.mojang.blaze3d.platform.GlStateManager.DestFactor.ONE
+        );
+
+        for (LightField field : ClientLightFieldState.get()) {
+            if (field.expiresAt() <= gameTime) continue;
+
+            Vec3 center = Vec3.atCenterOf(field.center());
+            float radius = field.radius();
+            AABB bounds = new AABB(
+                    center.x - radius, center.y - radius, center.z - radius,
+                    center.x + radius, center.y + radius, center.z + radius
+            );
+            if (frustum != null && !frustum.isVisible(bounds)) continue;
+
+            shader.getUniform("FieldCenter").set(
+                    (float) (center.x - camera.x),
+                    (float) (center.y - camera.y),
+                    (float) (center.z - camera.z)
+            );
+            shader.getUniform("FieldRadius").set(radius);
+
+            poseStack.pushPose();
+            poseStack.translate(center.x, center.y, center.z);
+            drawSphere(poseStack, radius, SHELL_RINGS, SHELL_SEGMENTS, 1.0F);
+            poseStack.popPose();
+        }
+
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.enableDepthTest();
+    }
+
+    private static boolean canRenderContactGlow() {
+        return LightFieldShader.get() != null
+                && Minecraft.getInstance().getMainRenderTarget().getDepthTextureId() > 0
+                && !IrisCompat.isShaderPackInUse();
     }
 
     private static void drawSphere(PoseStack poseStack, float radius, int rings, int segments, float alpha) {

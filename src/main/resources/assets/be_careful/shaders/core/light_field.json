@@ -1,0 +1,23 @@
+{
+  "blend": {
+    "func": "add",
+    "srcrgb": "src_alpha",
+    "dstrgb": "one"
+  },
+  "vertex": "be_careful:light_field",
+  "fragment": "be_careful:light_field",
+  "attributes": ["Position", "Color"],
+  "samplers": [{ "name": "SceneDepth" }],
+  "uniforms": [
+    { "name": "ModelViewMat", "type": "matrix4x4", "count": 16, "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0] },
+    { "name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0] },
+    { "name": "InverseViewProjection", "type": "matrix4x4", "count": 16, "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0] },
+    { "name": "FieldCenter", "type": "float", "count": 3, "values": [0.0, 0.0, 0.0] },
+    { "name": "FieldRadius", "type": "float", "count": 1, "values": [5.0] },
+    { "name": "ContactWidth", "type": "float", "count": 1, "values": [0.08] },
+    { "name": "Time", "type": "float", "count": 1, "values": [0.0] },
+    { "name": "RenderMode", "type": "float", "count": 1, "values": [0.0] },
+    { "name": "CameraPosition", "type": "float", "count": 3, "values": [0.0, 0.0, 0.0] },
+    { "name": "ScreenSize", "type": "float", "count": 2, "values": [1920.0, 1080.0] }
+  ]
+}

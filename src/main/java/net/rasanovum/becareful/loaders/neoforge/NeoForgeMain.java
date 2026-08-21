@@ -3,6 +3,8 @@ package net.rasanovum.becareful.loaders.neoforge;
 /*? if neoforge {*/
 /*import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.ShaderInstance;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.api.distmarker.Dist;
@@ -12,6 +14,7 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -22,6 +25,7 @@ import net.rasanovum.becareful.BeCarefulConfig;
 import net.rasanovum.becareful.client.AncientEndPortalRenderer;
 import net.rasanovum.becareful.client.BeCarefulClientHooks;
 import net.rasanovum.becareful.client.FrozenCampfireRenderer;
+import net.rasanovum.becareful.client.LightFieldShader;
 import net.rasanovum.becareful.light.LightFieldManager;
 import net.rasanovum.becareful.portals.AncientPortalHandler;
 import net.rasanovum.becareful.portals.EndGatewaySavedData;
@@ -41,6 +45,7 @@ public final class NeoForgeMain {
         if (FMLEnvironment.dist == Dist.CLIENT) {
             modEventBus.addListener(NeoForgeMain::clientSetup);
             modEventBus.addListener(NeoForgeMain::registerRenderers);
+            modEventBus.addListener(NeoForgeMain::registerShaders);
         }
 
         NeoForge.EVENT_BUS.addListener(NeoForgeMain::rightClickItem);
@@ -63,6 +68,21 @@ public final class NeoForgeMain {
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(BlockEntityType.END_PORTAL, AncientEndPortalRenderer::new);
         event.registerBlockEntityRenderer(BeCarefulContent.FROZEN_CAMPFIRE_ENTITY.get(), FrozenCampfireRenderer::new);
+    }
+
+    private static void registerShaders(RegisterShadersEvent event) {
+        try {
+            event.registerShader(
+                    new ShaderInstance(
+                            event.getResourceProvider(),
+                            "be_careful:light_field",
+                            DefaultVertexFormat.POSITION_COLOR
+                    ),
+                    LightFieldShader::set
+            );
+        } catch (java.io.IOException exception) {
+            throw new RuntimeException("Failed to register Be Careful light field shader", exception);
+        }
     }
 
     private static void rightClickItem(PlayerInteractEvent.RightClickItem event) {
