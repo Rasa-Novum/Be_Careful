@@ -13,6 +13,7 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.rasanovum.becareful.BeCareful;
+import net.rasanovum.becareful.BeCarefulHooks;
 import net.rasanovum.becareful.util.AdvancementManager;
 
 import java.util.List;
@@ -62,7 +63,7 @@ public class TotemOfLight extends Item {
                 *//*?} else {*/
                 target.removeEffect(BeCareful.CORRUPTION_HOLDER);
                 /*?}*/
-                BeCareful.DEEP_DARK_TIMERS.put(target.getUUID(), 0);
+                BeCarefulHooks.resetDeepDarkTimer(target.getUUID());
 
                 target.displayClientMessage(
                         Component.literal("The light cleanses the smothering darkness...")

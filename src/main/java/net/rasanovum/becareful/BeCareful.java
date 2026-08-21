@@ -5,18 +5,12 @@ import eu.midnightdust.lib.config.MidnightConfig;
 /*? if fabric {*/
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 /*?}*/
 
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
@@ -26,32 +20,19 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Rarity;
-import net.minecraft.world.level.GameRules;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.biome.Biomes;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import net.rasanovum.becareful.blocks.FrozenCampfireBlock;
 import net.rasanovum.becareful.blocks.FrozenCampfireBlockEntity;
-import net.rasanovum.becareful.effects.CorruptionEffect;
-import net.rasanovum.becareful.effects.TotemOfLight;
-import net.rasanovum.becareful.spawning.EndPhantomSpawner;
-import net.rasanovum.becareful.spawning.EndSpawnHandler;
 import net.rasanovum.becareful.portals.AncientPortalHandler;
-import net.rasanovum.becareful.util.*;
-import net.rasanovum.rosetta.util.EntityCompat;
+import net.rasanovum.becareful.spawning.EndSpawnHandler;
+import net.rasanovum.becareful.util.EnvironmentHazard;
+import net.rasanovum.rosetta.registry.RegistrationContext;
 import net.rasanovum.rosetta.util.GameRuleCompat;
 import net.rasanovum.rosetta.util.RegistryCompat;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 
 public class BeCareful /*? if fabric {*/ implements ModInitializer /*?}*/ {
 	public static final String MOD_ID = "be_careful";
@@ -66,11 +47,6 @@ public class BeCareful /*? if fabric {*/ implements ModInitializer /*?}*/ {
 	public static FrozenCampfireBlock FROZEN_CAMPFIRE;
 	public static BlockItem FROZEN_CAMPFIRE_ITEM;
 	public static Item FROZEN_CORE;
-
-
-	public static final Map<UUID, Integer> DEEP_DARK_TIMERS = new HashMap<>();
-	public static final Map<UUID, Integer> NETHER_TIMERS = new HashMap<>();
-	public static final Map<UUID, Integer> MESSAGE_SCHEDULE = new HashMap<>();
 
 	public static final ResourceKey<DamageType> CORRUPTION_DAMAGE_TYPE =
 			ResourceKey.create(Registries.DAMAGE_TYPE, RegistryCompat.getLocation(MOD_ID, "corruption"));
@@ -105,81 +81,43 @@ public class BeCareful /*? if fabric {*/ implements ModInitializer /*?}*/ {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-	public static void setRegistrations(MobEffect corruption, Item totemOfLight, Item echoShardDust,
-										Item lostKey, Item frozenCore, FrozenCampfireBlock frozenCampfire,
-										BlockItem frozenCampfireItem,
-										BlockEntityType<FrozenCampfireBlockEntity> frozenCampfireEntityType) {
-		CORRUPTION = corruption;
-		TOTEM_OF_LIGHT = totemOfLight;
-		ECHO_SHARD_DUST = echoShardDust;
-		LOST_KEY = lostKey;
-		FROZEN_CORE = frozenCore;
-		FROZEN_CAMPFIRE = frozenCampfire;
-		FROZEN_CAMPFIRE_ITEM = frozenCampfireItem;
-		FROZEN_CAMPFIRE_ENTITY_TYPE = frozenCampfireEntityType;
-		/*? if >=1.21 {*/
-		CORRUPTION_HOLDER = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(CORRUPTION);
-		/*?}*/
-	}
-
 	/*? if fabric {*/
 	@Override
 	/*?}*/
 	public void onInitialize() {
+		/*? if fabric {*/
+		BeCarefulContent.REGISTRAR.register(RegistrationContext.create());
+		/*?}*/
+		initializeCommon();
+	}
 
+	public static void initializeCommon() {
 		MidnightConfig.init(MOD_ID, BeCarefulConfig.class);
 
-		/*? if fabric {*/
-		CORRUPTION = new CorruptionEffect();
-		TOTEM_OF_LIGHT = new TotemOfLight(new Item.Properties().stacksTo(1));
-		ECHO_SHARD_DUST = new Item(new Item.Properties());
-		LOST_KEY = new Item(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
-		FROZEN_CORE = new Item(new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON));
-		FROZEN_CAMPFIRE = new FrozenCampfireBlock(
-				FabricBlockSettings.create()
-						.mapColor(net.minecraft.world.level.material.MapColor.PODZOL)
-						.strength(2.0F)
-						.sound(net.minecraft.world.level.block.SoundType.WOOD)
-						.lightLevel(state -> state.getValue(net.minecraft.world.level.block.CampfireBlock.LIT) ? 15 : 0)
-						.ignitedByLava()
-						.noOcclusion()
-						.requiresCorrectToolForDrops()
-		);
-		FROZEN_CAMPFIRE_ITEM = new BlockItem(FROZEN_CAMPFIRE, new Item.Properties().stacksTo(16).rarity(Rarity.RARE));
-
-		FROZEN_CAMPFIRE_ENTITY_TYPE = Registry.register(
-				BuiltInRegistries.BLOCK_ENTITY_TYPE,
-				RegistryCompat.getLocation(MOD_ID, "frozen_campfire_be"),
-				FabricBlockEntityTypeBuilder.create(FrozenCampfireBlockEntity::new, FROZEN_CAMPFIRE).build()
-		);
-
-		Registry.register(BuiltInRegistries.MOB_EFFECT, RegistryCompat.getLocation(MOD_ID, "corruption"), CORRUPTION);
+		CORRUPTION = BeCarefulContent.CORRUPTION.get();
+		TOTEM_OF_LIGHT = BeCarefulContent.TOTEM_OF_LIGHT.get();
+		ECHO_SHARD_DUST = BeCarefulContent.ECHO_SHARD_DUST.get();
+		LOST_KEY = BeCarefulContent.LOST_KEY.get();
+		FROZEN_CORE = BeCarefulContent.FROZEN_CORE.get();
+		FROZEN_CAMPFIRE = BeCarefulContent.FROZEN_CAMPFIRE.block().get();
+		FROZEN_CAMPFIRE_ITEM = BeCarefulContent.FROZEN_CAMPFIRE.item().get();
+		FROZEN_CAMPFIRE_ENTITY_TYPE = BeCarefulContent.FROZEN_CAMPFIRE_ENTITY.get();
 		/*? if >=1.21 {*/
 		CORRUPTION_HOLDER = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(CORRUPTION);
-		/*?}*/
-		Registry.register(BuiltInRegistries.ITEM, RegistryCompat.getLocation(MOD_ID, "totem_of_light"), TOTEM_OF_LIGHT);
-		Registry.register(BuiltInRegistries.ITEM, RegistryCompat.getLocation(MOD_ID, "echo_shard_dust"), ECHO_SHARD_DUST);
-		Registry.register(BuiltInRegistries.ITEM, RegistryCompat.getLocation(MOD_ID, "lost_key"), LOST_KEY);
-		Registry.register(BuiltInRegistries.ITEM, RegistryCompat.getLocation(MOD_ID, "frozen_core"), FROZEN_CORE);
-		Registry.register(BuiltInRegistries.ITEM, RegistryCompat.getLocation(MOD_ID, "frozen_campfire"), FROZEN_CAMPFIRE_ITEM);
-		Registry.register(BuiltInRegistries.BLOCK, RegistryCompat.getLocation(MOD_ID, "frozen_campfire"), FROZEN_CAMPFIRE);
 		/*?}*/
 
 		/*? if fabric {*/
 		UseItemCallback.EVENT.register(EndSpawnHandler::onUseEnderEye);
 		ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register(EndSpawnHandler::onPlayerEnterEnd);
-		EndPhantomSpawner.register();
 
 		if (BeCarefulConfig.doEndFeatures) {
 			AncientPortalHandler.registerEvents();
 		}
 
-		if (BeCarefulConfig.doFrozenFeatures) {
-			ColdEnvironmentManager.register();
-		}
 		/*?}*/
 
 		registerGameRules();
+		BeCarefulHooks.register();
 
 
 		if (BeCarefulConfig.doDeepDarkFeatures) {
@@ -189,7 +127,7 @@ public class BeCareful /*? if fabric {*/ implements ModInitializer /*?}*/ {
 					"message.be_careful.deep_dark_warning", DD_WARN_VARIANTS,
 					DD_WARN_TICKS, DD_DANGER_TICKS,
 					player -> {
-						int playerTime = BeCareful.DEEP_DARK_TIMERS.getOrDefault(player.getUUID(), 0);
+						int playerTime = BeCarefulHooks.deepDarkTime(player.getUUID());
 						int heartbeatRate = (playerTime > 550) ? 10 : 20;
 						if ((player.level().getGameTime() % heartbeatRate) == 0) {
 							player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
@@ -227,55 +165,7 @@ public class BeCareful /*? if fabric {*/ implements ModInitializer /*?}*/ {
 		}
 
 
-		/*? if fabric {*/
-		ServerTickEvents.START_SERVER_TICK.register(BeCareful::onServerTick);
-		/*?}*/
 		LOGGER.info("Be Careful out there!");
-	}
-
-	public static void onServerTick(net.minecraft.server.MinecraftServer server) {
-			int currentTick = server.getTickCount();
-			for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-				int requiredTicks = GameRuleCompat.get(player.serverLevel(), RULE_CHUNK_TAME_TIME);
-				long inhabitedTime = player.serverLevel().getChunkAt(player.blockPosition()).getInhabitedTime();
-				int effectiveRequiredTicks = ChunkTameManager.getEffectiveTameTime(
-						player.serverLevel(), player.blockPosition(), requiredTicks
-				);
-				if (inhabitedTime == effectiveRequiredTicks && BeCarefulConfig.doDifficultyFeatures) {
-					AdvancementManager.award(player, AdvancementManager.CHUNK_TAMED);
-					EntityCompat.displayClientMessage(player,
-							MessageManager.getRandomTranslatable("message.be_careful.chunk_tamed", CHUNK_TAME_VARIANTS)
-									.copy().withStyle(ChatFormatting.GOLD),
-							false
-					);
-				}
-
-				if (currentTick % 20 == 0) {
-					AdvancementManager.checkRuinedPortal(player);
-				}
-
-				UUID uuid = player.getUUID();
-				if (MESSAGE_SCHEDULE.containsKey(uuid)) {
-					if (currentTick >= MESSAGE_SCHEDULE.get(uuid)) {
-						EntityCompat.displayClientMessage(player, MessageManager.getRandomTranslatable("message.be_careful.totem_cleanse", TOTEM_VARIANTS).copy().withStyle(ChatFormatting.GREEN), true);
-						MESSAGE_SCHEDULE.remove(uuid);
-					}
-				}
-
-				if (player.level().getBiome(player.blockPosition()).is(Biomes.DEEP_DARK) && BeCarefulConfig.doDeepDarkFeatures) {
-					int time = DEEP_DARK_TIMERS.getOrDefault(player.getUUID(), 0) + 1;
-					DEEP_DARK_TIMERS.put(player.getUUID(), time);
-					DEEP_DARK.tick(player, time);
-				} else {
-					DEEP_DARK_TIMERS.remove(player.getUUID());
-				}
-
-				if (player.level().dimension().equals(Level.NETHER) && BeCarefulConfig.doNetherFeatures) {
-					int time = NETHER_TIMERS.getOrDefault(player.getUUID(), 0) + 1;
-					NETHER_TIMERS.put(player.getUUID(), time);
-					NETHER.tick(player, time);
-				}
-			}
 	}
 
 	public static synchronized void registerGameRules() {

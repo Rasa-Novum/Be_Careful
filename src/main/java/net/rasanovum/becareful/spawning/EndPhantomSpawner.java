@@ -13,12 +13,6 @@ import net.rasanovum.becareful.portals.EndEdgeGatewayManager;
 
 public class EndPhantomSpawner {
 
-    /*? if fabric {*/
-    public static void register() {
-        net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_WORLD_TICK.register(EndPhantomSpawner::tick);
-    }
-    /*?}*/
-
     public static void tick(net.minecraft.server.level.ServerLevel level) {
             if (!BeCarefulConfig.doEndFeatures) return;
             if (level.dimension() != Level.END) return;
