@@ -48,8 +48,6 @@ public class BeCarefulConfig extends MidnightConfig {
     public static int lightFieldTimerDecrement = 2;
     @Entry(category = DEEP_DARK, min = 1)
     public static int corruptionDamageIntervalTicks = 40;
-    @Entry(category = DEEP_DARK)
-    public static boolean lightFieldDebugParticles = true;
 
     // Regional Difficulty / Chunk Taming
 

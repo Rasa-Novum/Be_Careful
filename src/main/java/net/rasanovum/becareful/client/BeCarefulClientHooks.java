@@ -1,6 +1,9 @@
 package net.rasanovum.becareful.client;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.culling.Frustum;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.rasanovum.becareful.BeCarefulConfig;
 import net.rasanovum.becareful.corruption.ClientCorruptionState;
 import net.rasanovum.becareful.light.ClientLightFieldState;
@@ -35,6 +38,12 @@ public final class BeCarefulClientHooks {
             }
         });
         ClientRenderHooks.register(new ClientRenderHooks.Callbacks() {
+            @Override
+            public void renderWorld(PoseStack poseStack, ClientLevel level, net.minecraft.world.entity.player.Player player,
+                                    float tickDelta, Frustum frustum) {
+                LightFieldRenderer.render(poseStack, level, player, tickDelta, frustum);
+            }
+
             @Override
             public void renderHud(net.minecraft.client.gui.GuiGraphics graphics, float tickDelta) {
                 CorruptionOverlay.render(graphics, tickDelta);

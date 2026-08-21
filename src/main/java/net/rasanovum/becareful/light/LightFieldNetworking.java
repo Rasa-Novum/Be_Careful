@@ -57,6 +57,7 @@ public final class LightFieldNetworking {
                 buffer.writeBlockPos(field.center());
                 buffer.writeVarInt(field.radius());
                 buffer.writeVarLong(field.expiresAt());
+                buffer.writeBoolean(field.lightSourcePlaced());
             }
         }
 
@@ -65,7 +66,8 @@ public final class LightFieldNetworking {
             java.util.ArrayList<LightField> fields = new java.util.ArrayList<>(count);
             for (int i = 0; i < count; i++) {
                 fields.add(new LightField(
-                        buffer.readUUID(), buffer.readBlockPos(), buffer.readVarInt(), buffer.readVarLong()
+                        buffer.readUUID(), buffer.readBlockPos(), buffer.readVarInt(), buffer.readVarLong(),
+                        buffer.readBoolean()
                 ));
             }
             return new LightFieldSnapshotPacket(fields);

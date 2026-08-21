@@ -1,13 +1,11 @@
 package net.rasanovum.becareful.light;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Vector3f;
 import net.rasanovum.becareful.BeCareful;
 import net.rasanovum.becareful.BeCarefulConfig;
 import net.rasanovum.rosetta.attachment.LevelAttachmentKey;
@@ -21,20 +19,19 @@ public final class LightFieldManager {
             RosettaAttachments.level(BeCareful.MOD_ID).persistent(
                     "light_fields", () -> new LightFieldStore(List.of()), LightFieldStore.CODEC
             );
-    private static final DustParticleOptions DEBUG_PARTICLE =
-            new DustParticleOptions(new Vector3f(1.0F, 1.0F, 0.0F), 1.0F);
-
     private LightFieldManager() {}
 
     /** Forces the persistent attachment key to be registered during loader bootstrap. */
     public static void bootstrap() {}
 
     public static LightField create(ServerLevel level, Player source) {
+        BlockPos center = BlockPos.containing(source.getEyePosition());
         LightField field = new LightField(
                 UUID.randomUUID(),
-                BlockPos.containing(source.getEyePosition()),
+                center,
                 Math.max(1, BeCarefulConfig.lightFieldRadius),
-                level.getGameTime() + Math.max(1, BeCarefulConfig.lightFieldDurationTicks)
+                level.getGameTime() + Math.max(1, BeCarefulConfig.lightFieldDurationTicks),
+                placeLightSource(level, center)
         );
         List<LightField> fields = FIELDS.getOrCreate(level).fields();
         fields.add(field);
@@ -46,17 +43,18 @@ public final class LightFieldManager {
     public static void tick(ServerLevel level) {
         List<LightField> fields = FIELDS.getOrCreate(level).fields();
         long gameTime = level.getGameTime();
+        List<LightField> expired = fields.stream()
+                .filter(field -> field.expiresAt() <= gameTime)
+                .toList();
         boolean changed = fields.removeIf(field -> field.expiresAt() <= gameTime);
+        for (LightField field : expired) {
+            removeLightSourceIfUnused(level, field, fields);
+        }
         if (changed) {
             FIELDS.markDirty(level);
             LightFieldNetworking.sync(level);
         }
 
-        if (BeCarefulConfig.lightFieldDebugParticles) {
-            for (LightField field : fields) {
-                spawnBoundaryParticles(level, field);
-            }
-        }
     }
 
     public static boolean contains(ServerLevel level, Player player) {
@@ -82,19 +80,25 @@ public final class LightFieldManager {
                 .toList();
     }
 
-    private static void spawnBoundaryParticles(ServerLevel level, LightField field) {
-        RandomSource random = level.random;
-        Vec3 center = Vec3.atCenterOf(field.center());
-        int count = 8;
-        for (int i = 0; i < count; i++) {
-            double theta = random.nextDouble() * Math.PI * 2.0;
-            double z = random.nextDouble() * 2.0 - 1.0;
-            double radial = Math.sqrt(Math.max(0.0, 1.0 - z * z));
-            double distance = field.radius() + 0.15;
-            double x = center.x + radial * Math.cos(theta) * distance;
-            double y = center.y + z * distance;
-            double particleZ = center.z + radial * Math.sin(theta) * distance;
-            level.sendParticles(DEBUG_PARTICLE, x, y, particleZ, 1, 0.0, 0.0, 0.0, 0.0);
+    private static boolean placeLightSource(ServerLevel level, BlockPos pos) {
+        if (!level.getBlockState(pos).isAir()) return false;
+        return level.setBlockAndUpdate(pos, Blocks.LIGHT.defaultBlockState());
+    }
+
+    private static void removeLightSourceIfUnused(ServerLevel level, LightField expired, List<LightField> remaining) {
+        if (!expired.lightSourcePlaced()) return;
+        for (int i = 0; i < remaining.size(); i++) {
+            LightField field = remaining.get(i);
+            if (field.center().equals(expired.center())) {
+                remaining.set(i, new LightField(
+                        field.id(), field.center(), field.radius(), field.expiresAt(), true
+                ));
+                return;
+            }
+        }
+        if (level.getBlockState(expired.center()).is(Blocks.LIGHT)) {
+            level.removeBlock(expired.center(), false);
         }
     }
+
 }

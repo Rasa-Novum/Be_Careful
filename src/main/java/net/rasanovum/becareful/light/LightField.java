@@ -8,14 +8,15 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.UUID;
 
-public record LightField(UUID id, BlockPos center, int radius, long expiresAt) {
+public record LightField(UUID id, BlockPos center, int radius, long expiresAt, boolean lightSourcePlaced) {
     private static final Codec<UUID> UUID_CODEC = Codec.STRING.xmap(UUID::fromString, UUID::toString);
 
     public static final Codec<LightField> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             UUID_CODEC.fieldOf("id").forGetter(LightField::id),
             BlockPos.CODEC.fieldOf("center").forGetter(LightField::center),
             Codec.INT.fieldOf("radius").forGetter(LightField::radius),
-            Codec.LONG.fieldOf("expires_at").forGetter(LightField::expiresAt)
+            Codec.LONG.fieldOf("expires_at").forGetter(LightField::expiresAt),
+            Codec.BOOL.optionalFieldOf("light_source_placed", false).forGetter(LightField::lightSourcePlaced)
     ).apply(instance, LightField::new));
 
     public boolean contains(Player player) {
