@@ -54,7 +54,7 @@ import java.util.UUID;
 
 
 public class BeCareful /*? if fabric {*/ implements ModInitializer /*?}*/ {
-	public static final String MOD_ID = "be-careful";
+	public static final String MOD_ID = "be_careful";
 	public static MobEffect CORRUPTION;
 	/*? if >=1.21 {*/
 	public static net.minecraft.core.Holder<MobEffect> CORRUPTION_HOLDER;
@@ -184,9 +184,9 @@ public class BeCareful /*? if fabric {*/ implements ModInitializer /*?}*/ {
 
 		if (BeCarefulConfig.doDeepDarkFeatures) {
 			DEEP_DARK = new EnvironmentHazard(
-					"message.be-careful.deep_dark_entry",
+					"message.be_careful.deep_dark_entry",
 					DD_ENTRY_VARIANTS,
-					"message.be-careful.deep_dark_warning", DD_WARN_VARIANTS,
+					"message.be_careful.deep_dark_warning", DD_WARN_VARIANTS,
 					DD_WARN_TICKS, DD_DANGER_TICKS,
 					player -> {
 						int playerTime = BeCareful.DEEP_DARK_TIMERS.getOrDefault(player.getUUID(), 0);
@@ -209,9 +209,9 @@ public class BeCareful /*? if fabric {*/ implements ModInitializer /*?}*/ {
 
 		if (BeCarefulConfig.doNetherFeatures) {
 			NETHER = new EnvironmentHazard(
-					"message.be-careful.nether_entry",
+					"message.be_careful.nether_entry",
 					N_ENTRY_VARIANTS,
-					"message.be-careful.nether_warning", N_WARN_VARIANTS,
+					"message.be_careful.nether_warning", N_WARN_VARIANTS,
 					N_WARN_TICKS, N_DANGER_TICKS,
 					player -> {
 						// empty, no sound plays
@@ -244,7 +244,7 @@ public class BeCareful /*? if fabric {*/ implements ModInitializer /*?}*/ {
 				if (inhabitedTime == effectiveRequiredTicks && BeCarefulConfig.doDifficultyFeatures) {
 					AdvancementManager.award(player, AdvancementManager.CHUNK_TAMED);
 					EntityCompat.displayClientMessage(player,
-							MessageManager.getRandomTranslatable("message.be-careful.chunk_tamed", CHUNK_TAME_VARIANTS)
+							MessageManager.getRandomTranslatable("message.be_careful.chunk_tamed", CHUNK_TAME_VARIANTS)
 									.copy().withStyle(ChatFormatting.GOLD),
 							false
 					);
@@ -257,7 +257,7 @@ public class BeCareful /*? if fabric {*/ implements ModInitializer /*?}*/ {
 				UUID uuid = player.getUUID();
 				if (MESSAGE_SCHEDULE.containsKey(uuid)) {
 					if (currentTick >= MESSAGE_SCHEDULE.get(uuid)) {
-						EntityCompat.displayClientMessage(player, MessageManager.getRandomTranslatable("message.be-careful.totem_cleanse", TOTEM_VARIANTS).copy().withStyle(ChatFormatting.GREEN), true);
+						EntityCompat.displayClientMessage(player, MessageManager.getRandomTranslatable("message.be_careful.totem_cleanse", TOTEM_VARIANTS).copy().withStyle(ChatFormatting.GREEN), true);
 						MESSAGE_SCHEDULE.remove(uuid);
 					}
 				}

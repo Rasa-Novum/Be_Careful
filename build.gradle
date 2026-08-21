@@ -8,7 +8,7 @@ group = project.maven_group
 def targetJavaVersion = Integer.parseInt(project.java_version as String)
 
 base {
-	archivesName = 'be-careful'
+	archivesName = 'be_careful'
 }
 
 repositories {
@@ -28,13 +28,13 @@ repositories {
 loom {
 	splitEnvironmentSourceSets()
 	mods {
-		'be-careful' {
+		'be_careful' {
 			sourceSet sourceSets.main
 			sourceSet sourceSets.client
 		}
 	}
 	mixin {
-		defaultRefmapName = 'be-careful-refmap.json'
+		defaultRefmapName = 'be_careful-refmap.json'
 	}
 }
 
@@ -82,7 +82,7 @@ processResources {
 		expand 'version': modVersion, 'minecraft_version': project.minecraft_version,
 				'loader_version': project.fabric_loader_min_version, 'java_version': project.java_version
 	}
-	filesMatching('be-careful*.mixins.json') {
+	filesMatching('be_careful*.mixins.json') {
 		filter { line -> line.replace('"compatibilityLevel": "JAVA_17"',
 				"\"compatibilityLevel\": \"JAVA_${project.java_version}\"") }
 	}

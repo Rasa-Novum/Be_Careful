@@ -8,7 +8,7 @@ group = project.maven_group
 def targetJavaVersion = Integer.parseInt(project.java_version as String)
 
 base {
-	archivesName = 'be-careful'
+	archivesName = 'be_careful'
 }
 
 sourceSets.main.java.exclude '**/loaders/fabric/**'
@@ -75,7 +75,7 @@ processResources {
 		expand 'version': modVersion, 'minecraft_version': project.minecraft_version,
 				'neoforge_version': project.neoforge_version, 'java_version': project.java_version
 	}
-	filesMatching('be-careful*.mixins.json') {
+	filesMatching('be_careful*.mixins.json') {
 		filter { line -> line.replace('"compatibilityLevel": "JAVA_17"', '"compatibilityLevel": "JAVA_21"') }
 	}
 	eachFile { details ->
@@ -118,7 +118,7 @@ java {
 }
 
 jar {
-	from('LICENSE.md') { rename { "${it}_be-careful" } }
+	from('LICENSE.md') { rename { "${it}_be_careful" } }
 }
 
 publishing {

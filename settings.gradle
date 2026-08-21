@@ -35,4 +35,4 @@ stonecutter {
 	}
 }
 
-rootProject.name = 'be-careful'
+rootProject.name = 'be_careful'

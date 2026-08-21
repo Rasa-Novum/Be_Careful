@@ -7,7 +7,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "be-careful:frozen_campfire"
+          "name": "be_careful:frozen_campfire"
         }
       ]
     }

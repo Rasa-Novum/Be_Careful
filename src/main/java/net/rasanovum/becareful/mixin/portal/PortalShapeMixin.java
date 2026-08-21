@@ -46,7 +46,7 @@ public class PortalShapeMixin {
 
                 if (isNether) {
                     if (!state.isAuthorized(pos, serverLevel)) {
-                        Component msg = MessageManager.getRandomTranslatable("message.be-careful.no_overworld_anchor", 3);
+                        Component msg = MessageManager.getRandomTranslatable("message.be_careful.no_overworld_anchor", 3);
                         sendFailure(serverLevel, pos, msg);
                         cir.setReturnValue(Optional.empty());
                     }
@@ -57,7 +57,7 @@ public class PortalShapeMixin {
                         state.addPortal(pos);
                         return;
                     }
-                    Component msg = MessageManager.getRandomTranslatable("message.be-careful.not_ruined_portal", 3);
+                    Component msg = MessageManager.getRandomTranslatable("message.be_careful.not_ruined_portal", 3);
                     sendFailure(serverLevel, pos, msg);
                     cir.setReturnValue(Optional.empty());
                 }

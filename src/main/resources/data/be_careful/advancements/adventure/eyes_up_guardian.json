@@ -8,16 +8,16 @@
   "display": {
     "announce_to_chat": true,
     "description": {
-      "translate": "advancement.be-careful.eyes_up_guardian.description"
+      "translate": "advancement.be_careful.eyes_up_guardian.description"
     },
     "frame": "challenge",
     "hidden": false,
     "icon": {
-      "item": "be-careful:totem_of_light"
+      "item": "be_careful:totem_of_light"
     },
     "show_toast": true,
     "title": {
-      "translate": "advancement.be-careful.eyes_up_guardian.title"
+      "translate": "advancement.be_careful.eyes_up_guardian.title"
     }
   },
   "requirements": [

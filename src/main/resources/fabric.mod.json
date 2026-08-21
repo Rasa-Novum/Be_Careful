@@ -1,6 +1,6 @@
 {
 	"schemaVersion": 1,
-	"id": "be-careful",
+	"id": "be_careful",
 	"version": "${version}",
 	"name": "Be Careful",
 	"description": "A difficulty overhaul mod that alters the progression of the game and makes certain areas of the game world more challenging.",
@@ -9,10 +9,10 @@
 	],
 	"contact": {
 		"homepage": "https://rasanovum.ca",
-		"sources": "https://github.com/RasaNovum/be-careful"
+		"sources": "https://github.com/RasaNovum/be_careful"
 	},
 	"license": "RSL-1.0",
-	"icon": "assets/be-careful/icon.png",
+	"icon": "assets/be_careful/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
@@ -23,9 +23,9 @@
 		]
 	},
 	"mixins": [
-		"be-careful.mixins.json",
+		"be_careful.mixins.json",
 		{
-			"config": "be-careful.client.mixins.json",
+			"config": "be_careful.client.mixins.json",
 			"environment": "client"
 		}
 	],

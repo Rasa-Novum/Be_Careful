@@ -10,7 +10,7 @@
     "S": { "item": "minecraft:snow_block" }
   },
   "result": {
-    "item": "be-careful:frozen_core",
+    "item": "be_careful:frozen_core",
     "count": 1
   }
 }

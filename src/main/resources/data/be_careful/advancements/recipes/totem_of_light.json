@@ -2,7 +2,7 @@
   "parent": "minecraft:recipes/root",
   "rewards": {
     "recipes": [
-      "be-careful:totem_of_light"
+      "be_careful:totem_of_light"
     ]
   },
   "criteria": {

@@ -38,7 +38,7 @@ public class BedSleepRestrictionMixin {
 
             if (inhabitedTime < effectiveRequiredTicks) {
                 player.displayClientMessage(
-                        MessageManager.getRandomTranslatable("message.be-careful.bed_unsafe", CHUNK_UNSAFE_VARIANTS),
+                        MessageManager.getRandomTranslatable("message.be_careful.bed_unsafe", CHUNK_UNSAFE_VARIANTS),
                         true
                 );
 

@@ -7,11 +7,11 @@
   ],
   "key": {
     "S": { "item": "minecraft:stick" },
-    "C": { "item": "be-careful:frozen_core" },
+    "C": { "item": "be_careful:frozen_core" },
     "B": { "item": "minecraft:snow_block" }
   },
   "result": {
-    "item": "be-careful:frozen_campfire",
+    "item": "be_careful:frozen_campfire",
     "count": 1
   }
 }

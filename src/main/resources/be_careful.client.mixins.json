@@ -2,7 +2,7 @@
   "required": true,
   "package": "net.rasanovum.becareful.mixin",
   "compatibilityLevel": "JAVA_17",
-  "refmap": "be-careful-refmap.json",
+  "refmap": "be_careful-refmap.json",
   "client": [
     "client.OnFireEntityMixin",
     "DebugScreenOverlayMixin"

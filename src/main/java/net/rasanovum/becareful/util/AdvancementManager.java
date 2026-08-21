@@ -9,11 +9,11 @@ import net.rasanovum.rosetta.util.EntityCompat;
 import net.rasanovum.rosetta.util.RegistryCompat;
 
 public final class AdvancementManager {
-    public static final String EYES_UP_GUARDIAN = "be-careful:adventure/eyes_up_guardian";
-    public static final String CHUNK_TAMED = "be-careful:backend/chunk_tamed";
-    public static final String RUINED_PORTAL_VISITED = "be-careful:backend/ruined_portal_visited";
-    public static final String ENDER_EYE_USED_IN_END = "be-careful:backend/ender_eye_used_in_end";
-    public static final String COLD_BIOME_ENTERED = "be-careful:backend/cold_biome_entered";
+    public static final String EYES_UP_GUARDIAN = "be_careful:adventure/eyes_up_guardian";
+    public static final String CHUNK_TAMED = "be_careful:backend/chunk_tamed";
+    public static final String RUINED_PORTAL_VISITED = "be_careful:backend/ruined_portal_visited";
+    public static final String ENDER_EYE_USED_IN_END = "be_careful:backend/ender_eye_used_in_end";
+    public static final String COLD_BIOME_ENTERED = "be_careful:backend/cold_biome_entered";
     public static final String FOLLOW_ENDER_EYE = "minecraft:story/follow_ender_eye";
 
     private static final TagKey<Structure> RUINED_PORTALS =
