@@ -35,6 +35,6 @@
 		"java": ">=${java_version}",
 		"fabric-api": "*",
 		"midnightlib": "*",
-		"rosetta_library": ">=0.1.0"
+		"rosetta_library": ">=0.1.1"
 	}
 }

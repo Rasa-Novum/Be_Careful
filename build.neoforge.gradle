@@ -22,19 +22,12 @@ repositories {
 		url = 'https://api.modrinth.com/maven'
 		content { includeGroup 'maven.modrinth' }
 	}
+	maven {
+		name = 'Rosetta'
+		url = 'https://raw.githubusercontent.com/Rasa-Novum/Rosetta_Library/maven/'
+		content { includeGroup 'com.rasanovum.rosetta' }
+	}
 	mavenCentral()
-}
-
-def patchedRosettaJar = tasks.register('patchRosettaJar', Zip) {
-	archiveFileName = 'Rosetta-0.1.0-1.21.1-neoforge-runtime.jar'
-	destinationDirectory = layout.buildDirectory.dir('patched-dependencies')
-	from(zipTree(file(project.rosetta_jar))) {
-		exclude 'META-INF/neoforge.mods.toml'
-	}
-	from(zipTree(file(project.rosetta_jar))) {
-		include 'META-INF/neoforge.mods.toml'
-		filter { line -> line.replace('loaderVersion="[21.1,)"', 'loaderVersion="[4,)"') }
-	}
 }
 
 neoForge {
@@ -56,7 +49,7 @@ neoForge {
 
 dependencies {
 	implementation "maven.modrinth:midnightlib:${project.midnightlib_version}"
-	implementation files(patchedRosettaJar)
+	implementation "com.rasanovum.rosetta:rosetta-${project.minecraft_version}-neoforge:${project.rosetta_version}"
 }
 
 tasks.withType(JavaCompile).configureEach {

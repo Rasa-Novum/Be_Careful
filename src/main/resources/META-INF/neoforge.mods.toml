@@ -35,7 +35,7 @@ side="BOTH"
 [[dependencies.be_careful]]
 modId="rosetta_library"
 type="required"
-versionRange="[0.1.0,)"
+versionRange="[0.1.1,)"
 ordering="AFTER"
 side="BOTH"
 

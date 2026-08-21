@@ -17,6 +17,11 @@ repositories {
 		url = 'https://api.modrinth.com/maven'
 		content { includeGroup 'maven.modrinth' }
 	}
+	maven {
+		name = 'Rosetta'
+		url = 'https://raw.githubusercontent.com/Rasa-Novum/Rosetta_Library/maven/'
+		content { includeGroup 'com.rasanovum.rosetta' }
+	}
 	maven { url = 'https://jitpack.io' }
 }
 
@@ -55,7 +60,7 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 	modImplementation "maven.modrinth:midnightlib:${project.midnightlib_version}"
 	include "maven.modrinth:midnightlib:${project.midnightlib_version}"
-	modImplementation files(project.rosetta_jar)
+	modImplementation "com.rasanovum.rosetta:rosetta-${project.minecraft_version}-fabric:${project.rosetta_version}"
 }
 
 tasks.withType(JavaCompile).configureEach {
