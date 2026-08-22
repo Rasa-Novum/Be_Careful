@@ -5,6 +5,7 @@
   "refmap": "be_careful-refmap.json",
   "client": [
     "client.OnFireEntityMixin",
+    "client.WardenRendererMixin",
     "DebugScreenOverlayMixin"
   ],
   "injectors": {
