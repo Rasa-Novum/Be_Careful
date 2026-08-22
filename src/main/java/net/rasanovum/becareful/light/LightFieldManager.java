@@ -1,11 +1,15 @@
 package net.rasanovum.becareful.light;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.MultifaceBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LightBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.rasanovum.becareful.BeCareful;
 import net.rasanovum.becareful.BeCarefulConfig;
@@ -56,6 +60,7 @@ public final class LightFieldManager {
         }
         for (LightField field : fields) {
             updateLightSource(level, field, gameTime);
+            cleanseSculk(level, field, gameTime);
         }
         if (changed) {
             FIELDS.markDirty(level);
@@ -102,13 +107,72 @@ public final class LightFieldManager {
         var state = level.getBlockState(lightPos);
         if (!state.is(Blocks.LIGHT)) return;
 
-        int lightLevel = Math.max(0, Math.min(
-                LightBlock.MAX_LEVEL,
-                Math.round(field.stateAt(gameTime).opacity() * LightBlock.MAX_LEVEL)
-        ));
+        int lightLevel = Math.max(0, Math.min(LightBlock.MAX_LEVEL, Math.round(field.stateAt(gameTime).opacity() * LightBlock.MAX_LEVEL)));
         if (state.getValue(LightBlock.LEVEL) != lightLevel) {
             level.setBlockAndUpdate(lightPos, state.setValue(LightBlock.LEVEL, lightLevel));
         }
+    }
+
+    private static void cleanseSculk(ServerLevel level, LightField field, long gameTime) {
+        if (!BeCarefulConfig.replaceSculkInLightFields) return;
+
+        LightField.FieldState state = field.stateAt(gameTime);
+        float replacementChance = state.opacity();
+        if (replacementChance <= 0.0F) return;
+
+        Vec3 center = field.center();
+        float radius = state.radius();
+        double radiusSqr = (double) radius * radius;
+        int minX = Mth.floor(center.x() - radius);
+        int maxX = Mth.floor(center.x() + radius);
+        int minY = Mth.floor(center.y() - radius);
+        int maxY = Mth.floor(center.y() + radius);
+        int minZ = Mth.floor(center.z() - radius);
+        int maxZ = Mth.floor(center.z() + radius);
+
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    BlockPos pos = new BlockPos(x, y, z);
+                    if (distanceToBlockSqr(center, pos) > radiusSqr || !level.hasChunkAt(pos)) continue;
+
+                    BlockState replacement = replacementFor(level.getBlockState(pos));
+                    if (replacement != null && level.random.nextFloat() < replacementChance) {
+                        level.setBlockAndUpdate(pos, replacement);
+                    }
+                }
+            }
+        }
+    }
+
+    private static double distanceToBlockSqr(Vec3 point, BlockPos block) {
+        double x = distanceToRange(point.x(), block.getX(), block.getX() + 1.0D);
+        double y = distanceToRange(point.y(), block.getY(), block.getY() + 1.0D);
+        double z = distanceToRange(point.z(), block.getZ(), block.getZ() + 1.0D);
+        return x * x + y * y + z * z;
+    }
+
+    private static double distanceToRange(double value, double min, double max) {
+        return value < min ? min - value : value > max ? value - max : 0.0D;
+    }
+
+    private static BlockState replacementFor(BlockState state) {
+        if (state.is(Blocks.SCULK)) {
+            return Blocks.COBBLED_DEEPSLATE.defaultBlockState();
+        }
+        if (state.is(Blocks.SCULK_VEIN)) {
+            BlockState glowLichen = Blocks.GLOW_LICHEN.defaultBlockState();
+            for (Direction direction : Direction.values()) {
+                if (MultifaceBlock.hasFace(state, direction)) {
+                    glowLichen = glowLichen.setValue(MultifaceBlock.getFaceProperty(direction), true);
+                }
+            }
+            return glowLichen;
+        }
+        if (state.is(Blocks.SCULK_SENSOR) || state.is(Blocks.CALIBRATED_SCULK_SENSOR) || state.is(Blocks.SCULK_SHRIEKER) || state.is(Blocks.SCULK_CATALYST)) {
+            return Blocks.AIR.defaultBlockState();
+        }
+        return null;
     }
 
     private static void removeLightSourceIfUnused(ServerLevel level, LightField expired, List<LightField> remaining) {
