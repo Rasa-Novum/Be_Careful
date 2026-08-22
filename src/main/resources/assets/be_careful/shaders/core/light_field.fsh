@@ -64,7 +64,7 @@ void main() {
     noiseOpacity = smoothstep(0.18, 0.82, noiseOpacity);
 
     if (RenderMode < 0.5) {
-        float shellAlpha = vertexColor.a * mix(0.035, 0.20, noiseOpacity);
+        float shellAlpha = vertexColor.a * mix(0.06, 0.45, noiseOpacity);
         if (shellAlpha <= 0.001) discard;
         fragColor = vec4(1.0, 0.78, 0.20, shellAlpha);
         return;

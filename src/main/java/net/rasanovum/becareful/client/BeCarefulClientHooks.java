@@ -8,6 +8,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.rasanovum.becareful.BeCarefulConfig;
 import net.rasanovum.becareful.corruption.ClientCorruptionState;
 import net.rasanovum.becareful.light.ClientLightFieldState;
+import net.rasanovum.becareful.light.LightFieldNetworking;
 import net.rasanovum.rosetta.event.ClientHooks;
 import net.rasanovum.rosetta.event.ClientRenderHooks;
 import net.rasanovum.rosetta.event.ClientShaderHooks;
@@ -20,6 +21,7 @@ public final class BeCarefulClientHooks {
 
     public static void register() {
         if (registered) return;
+        LightFieldNetworking.setTotemActivationHandler(ClientTotemActivation::play);
         ClientShaderHooks.register(registrar -> registrar.register(
                 RegistryCompat.getLocation("be_careful", "light_field"),
                 DefaultVertexFormat.POSITION_COLOR,

@@ -7,21 +7,15 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.culling.Frustum;
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.rasanovum.becareful.BeCareful;
 import net.rasanovum.becareful.light.ClientLightFieldState;
 import net.rasanovum.becareful.light.LightField;
 import org.joml.Matrix4f;
@@ -29,10 +23,11 @@ import org.joml.Matrix4f;
 public final class LightFieldRenderer {
     private static final int SHELL_RINGS = 24;
     private static final int SHELL_SEGMENTS = 48;
-    private static final float SHELL_ALPHA = 0.10F;
+    private static final float SHELL_ALPHA = 0.25F;
     private static final float LIGHT_R = 1.0F;
     private static final float LIGHT_G = 0.78F;
     private static final float LIGHT_B = 0.20F;
+    private static final float[] UNIT_SPHERE_VERTICES = createUnitSphereVertices();
 
     private LightFieldRenderer() {}
 
@@ -41,6 +36,12 @@ public final class LightFieldRenderer {
 
         Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         long gameTime = level.getGameTime();
+        //? if <1.21 {
+        /*float frameDelta = Minecraft.getInstance().getFrameTime();
+        *///?} else {
+        float frameDelta = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
+        //?}
+        double renderTime = gameTime + Math.max(0.0, Math.min(1.0, frameDelta));
 
         RenderSystem.enableDepthTest();
         RenderSystem.enableBlend();
@@ -60,8 +61,9 @@ public final class LightFieldRenderer {
             for (LightField field : ClientLightFieldState.get()) {
                 if (field.expiresAt() <= gameTime) continue;
 
-                Vec3 center = Vec3.atCenterOf(field.center());
-                float radius = field.radius();
+                LightField.FieldState state = field.stateAt(renderTime);
+                Vec3 center = field.center();
+                float radius = state.radius();
                 AABB bounds = new AABB(
                         center.x - radius, center.y - radius, center.z - radius,
                         center.x + radius, center.y + radius, center.z + radius
@@ -70,48 +72,18 @@ public final class LightFieldRenderer {
 
                 poseStack.pushPose();
                 poseStack.translate(center.x, center.y, center.z);
-                drawSphere(poseStack, radius, SHELL_RINGS, SHELL_SEGMENTS, SHELL_ALPHA);
+                drawSphere(poseStack, radius, SHELL_ALPHA * state.opacity());
                 poseStack.popPose();
             }
         }
 
         if (useContactShader) {
-            renderNoisyShell(poseStack, level, camera, gameTime, tickDelta, frustum);
-            renderContactGlow(poseStack, level, camera, gameTime, tickDelta, frustum);
+            renderNoisyShell(poseStack, camera, renderTime, gameTime, frustum);
+            renderContactGlow(poseStack, camera, renderTime, gameTime, frustum);
         }
 
         RenderSystem.depthMask(true);
         RenderSystem.defaultBlendFunc();
-        MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-        ItemStack totem = new ItemStack(BeCareful.TOTEM_OF_LIGHT);
-        float rotation = (level.getGameTime() + tickDelta) * 0.025F;
-        for (LightField field : ClientLightFieldState.get()) {
-            if (field.expiresAt() <= gameTime) continue;
-            Vec3 center = Vec3.atCenterOf(field.center());
-            float radius = field.radius();
-            AABB bounds = new AABB(
-                    center.x - radius, center.y - radius, center.z - radius,
-                    center.x + radius, center.y + radius, center.z + radius
-            );
-            if (frustum != null && !frustum.isVisible(bounds)) continue;
-
-            poseStack.pushPose();
-            poseStack.translate(center.x, center.y, center.z);
-            poseStack.mulPose(Axis.YP.rotation(rotation));
-            poseStack.scale(0.65F, 0.65F, 0.65F);
-            Minecraft.getInstance().getItemRenderer().renderStatic(
-                    totem,
-                    ItemDisplayContext.GROUND,
-                    0xF000F0,
-                    OverlayTexture.NO_OVERLAY,
-                    poseStack,
-                    bufferSource,
-                    level,
-                    0
-            );
-            poseStack.popPose();
-        }
-        bufferSource.endBatch();
 
         poseStack.popPose();
         RenderSystem.depthMask(true);
@@ -120,14 +92,14 @@ public final class LightFieldRenderer {
     }
 
     private static void renderNoisyShell(
-            PoseStack poseStack, ClientLevel level, Vec3 camera, long gameTime, float tickDelta, Frustum frustum
+            PoseStack poseStack, Vec3 camera, double renderTime, long gameTime, Frustum frustum
     ) {
         ShaderInstance shader = LightFieldShader.get();
         shader.getUniform("RenderMode").set(0.0F);
         shader.getUniform("CameraPosition").set(
                 (float) camera.x, (float) camera.y, (float) camera.z
         );
-        shader.getUniform("Time").set((gameTime + tickDelta) / 20.0F);
+        shader.getUniform("Time").set((float) (renderTime / 20.0));
 
         RenderSystem.setShader(() -> shader);
         RenderSystem.enableDepthTest();
@@ -136,8 +108,9 @@ public final class LightFieldRenderer {
         for (LightField field : ClientLightFieldState.get()) {
             if (field.expiresAt() <= gameTime) continue;
 
-            Vec3 center = Vec3.atCenterOf(field.center());
-            float radius = field.radius();
+            LightField.FieldState state = field.stateAt(renderTime);
+            Vec3 center = field.center();
+            float radius = state.radius();
             AABB bounds = new AABB(
                     center.x - radius, center.y - radius, center.z - radius,
                     center.x + radius, center.y + radius, center.z + radius
@@ -146,13 +119,13 @@ public final class LightFieldRenderer {
 
             poseStack.pushPose();
             poseStack.translate(center.x, center.y, center.z);
-            drawSphere(poseStack, radius, SHELL_RINGS, SHELL_SEGMENTS, 1.0F);
+            drawSphere(poseStack, radius, state.opacity());
             poseStack.popPose();
         }
     }
 
     private static void renderContactGlow(
-            PoseStack poseStack, ClientLevel level, Vec3 camera, long gameTime, float tickDelta, Frustum frustum
+            PoseStack poseStack, Vec3 camera, double renderTime, long gameTime, Frustum frustum
     ) {
         ShaderInstance shader = LightFieldShader.get();
         RenderTarget mainTarget = Minecraft.getInstance().getMainRenderTarget();
@@ -168,7 +141,7 @@ public final class LightFieldRenderer {
         shader.getUniform("CameraPosition").set(
                 (float) camera.x, (float) camera.y, (float) camera.z
         );
-        shader.getUniform("Time").set((gameTime + tickDelta) / 20.0F);
+        shader.getUniform("Time").set((float) (renderTime / 20.0));
 
         RenderSystem.setShader(() -> shader);
         RenderSystem.disableDepthTest();
@@ -180,8 +153,9 @@ public final class LightFieldRenderer {
         for (LightField field : ClientLightFieldState.get()) {
             if (field.expiresAt() <= gameTime) continue;
 
-            Vec3 center = Vec3.atCenterOf(field.center());
-            float radius = field.radius();
+            LightField.FieldState state = field.stateAt(renderTime);
+            Vec3 center = field.center();
+            float radius = state.radius();
             AABB bounds = new AABB(
                     center.x - radius, center.y - radius, center.z - radius,
                     center.x + radius, center.y + radius, center.z + radius
@@ -197,7 +171,7 @@ public final class LightFieldRenderer {
 
             poseStack.pushPose();
             poseStack.translate(center.x, center.y, center.z);
-            drawSphere(poseStack, radius, SHELL_RINGS, SHELL_SEGMENTS, 1.0F);
+            drawSphere(poseStack, radius, state.opacity());
             poseStack.popPose();
         }
 
@@ -211,7 +185,7 @@ public final class LightFieldRenderer {
                 && !IrisCompat.isShaderPackInUse();
     }
 
-    private static void drawSphere(PoseStack poseStack, float radius, int rings, int segments, float alpha) {
+    private static void drawSphere(PoseStack poseStack, float radius, float alpha) {
         //? if <1.21 {
         /*BufferBuilder builder = Tesselator.getInstance().getBuilder();
         builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
@@ -225,26 +199,14 @@ public final class LightFieldRenderer {
         int blue = (int) (LIGHT_B * 255.0F);
         int alphaByte = (int) (Math.max(0.0F, Math.min(1.0F, alpha)) * 255.0F);
 
-        for (int ring = 0; ring < rings; ring++) {
-            double phi0 = -Math.PI / 2.0 + Math.PI * ring / rings;
-            double phi1 = -Math.PI / 2.0 + Math.PI * (ring + 1) / rings;
-            float y0 = (float) Math.sin(phi0) * radius;
-            float y1 = (float) Math.sin(phi1) * radius;
-            float r0 = (float) Math.cos(phi0) * radius;
-            float r1 = (float) Math.cos(phi1) * radius;
-
-            for (int segment = 0; segment < segments; segment++) {
-                double theta0 = 2.0 * Math.PI * segment / segments;
-                double theta1 = 2.0 * Math.PI * (segment + 1) / segments;
-                addVertex(builder, pose, r0 * (float) Math.cos(theta0), y0,
-                        r0 * (float) Math.sin(theta0), red, green, blue, alphaByte);
-                addVertex(builder, pose, r1 * (float) Math.cos(theta0), y1,
-                        r1 * (float) Math.sin(theta0), red, green, blue, alphaByte);
-                addVertex(builder, pose, r1 * (float) Math.cos(theta1), y1,
-                        r1 * (float) Math.sin(theta1), red, green, blue, alphaByte);
-                addVertex(builder, pose, r0 * (float) Math.cos(theta1), y0,
-                        r0 * (float) Math.sin(theta1), red, green, blue, alphaByte);
-            }
+        for (int i = 0; i < UNIT_SPHERE_VERTICES.length; i += 3) {
+            addVertex(
+                    builder, pose,
+                    UNIT_SPHERE_VERTICES[i] * radius,
+                    UNIT_SPHERE_VERTICES[i + 1] * radius,
+                    UNIT_SPHERE_VERTICES[i + 2] * radius,
+                    red, green, blue, alphaByte
+            );
         }
 
         //? if <1.21 {
@@ -253,6 +215,40 @@ public final class LightFieldRenderer {
         *///?} else {
         BufferUploader.drawWithShader(builder.build());
         //?}
+    }
+
+    private static float[] createUnitSphereVertices() {
+        float[] vertices = new float[SHELL_RINGS * SHELL_SEGMENTS * 4 * 3];
+        int index = 0;
+        for (int ring = 0; ring < SHELL_RINGS; ring++) {
+            double phi0 = -Math.PI / 2.0 + Math.PI * ring / SHELL_RINGS;
+            double phi1 = -Math.PI / 2.0 + Math.PI * (ring + 1) / SHELL_RINGS;
+            float y0 = (float) Math.sin(phi0);
+            float y1 = (float) Math.sin(phi1);
+            float r0 = (float) Math.cos(phi0);
+            float r1 = (float) Math.cos(phi1);
+
+            for (int segment = 0; segment < SHELL_SEGMENTS; segment++) {
+                double theta0 = 2.0 * Math.PI * segment / SHELL_SEGMENTS;
+                double theta1 = 2.0 * Math.PI * (segment + 1) / SHELL_SEGMENTS;
+                index = addUnitVertex(vertices, index, r0 * (float) Math.cos(theta0), y0,
+                        r0 * (float) Math.sin(theta0));
+                index = addUnitVertex(vertices, index, r1 * (float) Math.cos(theta0), y1,
+                        r1 * (float) Math.sin(theta0));
+                index = addUnitVertex(vertices, index, r1 * (float) Math.cos(theta1), y1,
+                        r1 * (float) Math.sin(theta1));
+                index = addUnitVertex(vertices, index, r0 * (float) Math.cos(theta1), y0,
+                        r0 * (float) Math.sin(theta1));
+            }
+        }
+        return vertices;
+    }
+
+    private static int addUnitVertex(float[] vertices, int index, float x, float y, float z) {
+        vertices[index++] = x;
+        vertices[index++] = y;
+        vertices[index++] = z;
+        return index;
     }
 
     private static void addVertex(BufferBuilder builder, Matrix4f pose, float x, float y, float z,

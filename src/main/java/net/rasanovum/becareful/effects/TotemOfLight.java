@@ -12,8 +12,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.rasanovum.becareful.light.LightField;
 import net.rasanovum.becareful.light.LightFieldManager;
+import net.rasanovum.becareful.light.LightFieldNetworking;
 import net.rasanovum.becareful.util.AdvancementManager;
 
 public class TotemOfLight extends Item {
@@ -49,6 +52,7 @@ public class TotemOfLight extends Item {
         if (!pLevel.isClientSide() && pLivingEntity instanceof Player player) {
             if (player instanceof ServerPlayer serverPlayer) {
                 AdvancementManager.award(serverPlayer, AdvancementManager.EYES_UP_GUARDIAN);
+                LightFieldNetworking.playTotemAnimation(serverPlayer);
             }
 
             LightField field = LightFieldManager.create((ServerLevel) pLevel, player);
@@ -60,7 +64,9 @@ public class TotemOfLight extends Item {
                 );
             }
 
-            pLevel.broadcastEntityEvent(player, (byte) 35);
+            pLevel.playSound(
+                    null, player.blockPosition(), SoundEvents.TOTEM_USE, SoundSource.PLAYERS, 1.0F, 1.0F
+            );
 
             if (!player.getAbilities().instabuild) {
                 pStack.shrink(1);

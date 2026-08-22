@@ -3,6 +3,7 @@ package net.rasanovum.becareful.light;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.phys.Vec3;
 import net.rasanovum.becareful.BeCareful;
 import net.rasanovum.becareful.corruption.ClientCorruptionState;
 import net.rasanovum.becareful.corruption.CorruptionUpdatePacket;
@@ -14,6 +15,7 @@ import java.util.List;
 public final class LightFieldNetworking {
     private static final RosettaNetwork.Channel CHANNEL = RosettaNetwork.channel(BeCareful.MOD_ID);
     private static boolean registered;
+    private static Runnable totemActivationHandler = () -> {};
 
     private LightFieldNetworking() {}
 
@@ -28,6 +30,11 @@ public final class LightFieldNetworking {
                 "corruption", CorruptionUpdatePacket.class,
                 CorruptionUpdatePacket::write, CorruptionUpdatePacket::read,
                 (packet, level, player) -> ClientCorruptionState.set(packet.value())
+        );
+        CHANNEL.clientbound(
+                "totem_activation", TotemActivationPacket.class,
+                TotemActivationPacket::write, TotemActivationPacket::read,
+                (packet, level, player) -> totemActivationHandler.run()
         );
         registered = true;
     }
@@ -45,6 +52,22 @@ public final class LightFieldNetworking {
         );
     }
 
+    public static void playTotemAnimation(ServerPlayer player) {
+        RosettaNetwork.sendToPlayer(new TotemActivationPacket(), player);
+    }
+
+    public static void setTotemActivationHandler(Runnable handler) {
+        totemActivationHandler = handler;
+    }
+
+    public record TotemActivationPacket() implements RosettaPacket {
+        public static void write(TotemActivationPacket packet, FriendlyByteBuf buffer) {}
+
+        public static TotemActivationPacket read(FriendlyByteBuf buffer) {
+            return new TotemActivationPacket();
+        }
+    }
+
     public record LightFieldSnapshotPacket(List<LightField> fields) implements RosettaPacket {
         public LightFieldSnapshotPacket {
             fields = List.copyOf(fields);
@@ -54,8 +77,11 @@ public final class LightFieldNetworking {
             buffer.writeVarInt(packet.fields.size());
             for (LightField field : packet.fields) {
                 buffer.writeUUID(field.id());
-                buffer.writeBlockPos(field.center());
+                buffer.writeDouble(field.center().x);
+                buffer.writeDouble(field.center().y);
+                buffer.writeDouble(field.center().z);
                 buffer.writeVarInt(field.radius());
+                buffer.writeVarLong(field.startedAt());
                 buffer.writeVarLong(field.expiresAt());
                 buffer.writeBoolean(field.lightSourcePlaced());
             }
@@ -66,8 +92,10 @@ public final class LightFieldNetworking {
             java.util.ArrayList<LightField> fields = new java.util.ArrayList<>(count);
             for (int i = 0; i < count; i++) {
                 fields.add(new LightField(
-                        buffer.readUUID(), buffer.readBlockPos(), buffer.readVarInt(), buffer.readVarLong(),
-                        buffer.readBoolean()
+                        buffer.readUUID(), new Vec3(
+                                buffer.readDouble(), buffer.readDouble(), buffer.readDouble()
+                        ), buffer.readVarInt(), buffer.readVarLong(),
+                        buffer.readVarLong(), buffer.readBoolean()
                 ));
             }
             return new LightFieldSnapshotPacket(fields);
