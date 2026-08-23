@@ -2,7 +2,11 @@ package net.rasanovum.becareful.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.OutlineBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -37,8 +41,15 @@ public final class WardenKeyLayer extends RenderLayer<Warden, WardenModel<Warden
         poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
         poseStack.scale(0.75F, 0.75F, 0.75F);
 
-        ItemRenderer itemRenderer = net.minecraft.client.Minecraft.getInstance().getItemRenderer();
+        ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
         itemRenderer.renderStatic(warden, KEY, ItemDisplayContext.FIXED, false, poseStack, buffer, warden.level(), packedLight, LivingEntityRenderer.getOverlayCoords(warden, 0.0F), warden.getId());
+
+        OutlineBufferSource outlineSource = Minecraft.getInstance().renderBuffers().outlineBufferSource();
+        outlineSource.setColor(255, 255, 255, 255);
+        poseStack.pushPose();
+        MultiBufferSource outlineOnlyBuffer = renderType -> outlineSource.getBuffer(renderType.outline().orElse(RenderType.outline(TextureAtlas.LOCATION_BLOCKS)));
+        itemRenderer.renderStatic(warden, KEY, ItemDisplayContext.FIXED, false, poseStack, outlineOnlyBuffer, warden.level(), packedLight, LivingEntityRenderer.getOverlayCoords(warden, 0.0F), warden.getId());
+        poseStack.popPose();
         poseStack.popPose();
     }
 }
