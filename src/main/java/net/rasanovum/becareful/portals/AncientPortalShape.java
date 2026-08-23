@@ -6,8 +6,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Blocks;
 
 public final class AncientPortalShape {
-    private AncientPortalShape() {
-    }
+    private AncientPortalShape() {}
 
     public static Direction.Axis getAxis(BlockGetter level, BlockPos pos) {
         if (!level.getBlockState(pos.above()).is(Blocks.END_PORTAL)
@@ -17,7 +16,9 @@ public final class AncientPortalShape {
 
         int xConnections = connectionCount(level, pos.east(), pos.west());
         int zConnections = connectionCount(level, pos.north(), pos.south());
+
         if (xConnections == zConnections) return null;
+
         return xConnections > zConnections ? Direction.Axis.X : Direction.Axis.Z;
     }
 
@@ -29,7 +30,6 @@ public final class AncientPortalShape {
     }
 
     private static boolean isPortalOrFrame(BlockGetter level, BlockPos pos) {
-        return level.getBlockState(pos).is(Blocks.END_PORTAL)
-                || level.getBlockState(pos).is(Blocks.REINFORCED_DEEPSLATE);
+        return level.getBlockState(pos).is(Blocks.END_PORTAL) || level.getBlockState(pos).is(Blocks.REINFORCED_DEEPSLATE);
     }
 }

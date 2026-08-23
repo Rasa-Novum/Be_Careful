@@ -105,16 +105,8 @@ public class AncientPortalHandler {
             for (int x = minX; x <= maxX; x++) {
                 for (int z = minZ; z <= maxZ; z++) {
                     targetPos.set(x, y, z);
-                    BlockState targetState = level.getBlockState(targetPos);
-
-                    if (targetState.isAir() ||
-                            targetState.is(Blocks.SCULK_VEIN) ||
-                            targetState.is(Blocks.SCULK) ||
-                            targetState.is(Blocks.WATER)) {
-
-                        level.setBlock(targetPos, Blocks.END_PORTAL.defaultBlockState(), 3);
-                        ignited = true;
-                    }
+                    level.setBlock(targetPos, Blocks.END_PORTAL.defaultBlockState(), 3);
+                    ignited = true;
                 }
             }
         }
