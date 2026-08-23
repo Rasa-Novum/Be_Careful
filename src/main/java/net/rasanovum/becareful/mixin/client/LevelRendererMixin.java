@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.monster.warden.Warden;
+import net.rasanovum.becareful.warden.WardenStunAccess;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -31,7 +32,8 @@ public abstract class LevelRendererMixin {
             return false;
         }
         for (Entity entity : minecraft.level.entitiesForRendering()) {
-            if (entity instanceof Warden) {
+            if (entity instanceof Warden warden
+                    && ((WardenStunAccess) warden).beCareful$isStunned()) {
                 return true;
             }
         }

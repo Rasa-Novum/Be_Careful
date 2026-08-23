@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.rasanovum.becareful.BeCareful;
 import net.rasanovum.becareful.BeCarefulConfig;
 import net.rasanovum.becareful.util.AdvancementManager;
+import net.rasanovum.becareful.warden.WardenStunAccess;
 
 public class AncientPortalHandler {
 
@@ -34,7 +35,10 @@ public class AncientPortalHandler {
     /*?}*/
 
     public static void onKilledOtherEntity(Level world, net.minecraft.world.entity.Entity killedEntity) {
-        if (killedEntity instanceof Warden && !world.isClientSide() && DEEP_DARK_ENABLED) {
+        if (killedEntity instanceof Warden warden
+                && !world.isClientSide()
+                && DEEP_DARK_ENABLED
+                && !((WardenStunAccess) warden).beCareful$isStunned()) {
             ItemEntity keyDrop = new ItemEntity(world, killedEntity.getX(), killedEntity.getY(), killedEntity.getZ(),
                     new ItemStack(BeCareful.LOST_KEY));
             world.addFreshEntity(keyDrop);

@@ -125,15 +125,23 @@ public final class BeCarefulHooks {
         boolean protectedByLight = LightFieldManager.contains(level, player);
 
         if (inDeepDark && !protectedByLight) {
+            boolean newlyEntered = !DEEP_DARK_TIMERS.containsKey(player.getUUID());
             int time = DEEP_DARK_TIMERS.getOrDefault(player.getUUID(), 0) + 1;
             DEEP_DARK_TIMERS.put(player.getUUID(), time);
+            if (newlyEntered) {
+                AdvancementManager.award(player, AdvancementManager.ENTERED_DEEP_DARK);
+            }
             BeCareful.DEEP_DARK.tick(player, time);
         } else if (inDeepDark) {
+            boolean newlyEntered = !DEEP_DARK_TIMERS.containsKey(player.getUUID());
             int decrement = Math.max(0, BeCarefulConfig.lightFieldTimerDecrement);
             int time = decrement == 0
                     ? 0
                     : Math.max(0, DEEP_DARK_TIMERS.getOrDefault(player.getUUID(), 0) - decrement);
             DEEP_DARK_TIMERS.put(player.getUUID(), time);
+            if (newlyEntered) {
+                AdvancementManager.award(player, AdvancementManager.ENTERED_DEEP_DARK);
+            }
         } else {
             DEEP_DARK_TIMERS.remove(player.getUUID());
         }

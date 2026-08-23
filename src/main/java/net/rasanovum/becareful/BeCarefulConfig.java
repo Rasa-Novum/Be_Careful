@@ -40,6 +40,8 @@ public class BeCarefulConfig extends MidnightConfig {
     public static int totemVariants = 3;
     @Entry(category = DEEP_DARK,min = 2)
     public static int wardenHealthValue = 300;
+    @Entry(category = DEEP_DARK)
+    public static boolean wardenInvulnerable = true;
     @Entry(category = DEEP_DARK, min = 1)
     public static int lightFieldRadius = 5;
     @Entry(category = DEEP_DARK, min = 1)

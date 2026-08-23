@@ -2,6 +2,7 @@ package net.rasanovum.becareful.light;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
@@ -39,6 +40,11 @@ public record LightField(
         double distance = eye.distanceToSqr(center);
         float currentRadius = stateAt(gameTime).radius();
         return distance <= (double) currentRadius * currentRadius;
+    }
+
+    public boolean contains(Entity entity, long gameTime) {
+        float currentRadius = stateAt(gameTime).radius();
+        return entity.getBoundingBox().distanceToSqr(center) <= (double) currentRadius * currentRadius;
     }
 
     public record FieldState(float radius, float opacity) {}

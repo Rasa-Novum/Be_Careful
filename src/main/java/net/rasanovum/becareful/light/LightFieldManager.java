@@ -6,6 +6,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.monster.warden.Warden;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.level.block.MultifaceBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LightBlock;
@@ -13,6 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.rasanovum.becareful.BeCareful;
 import net.rasanovum.becareful.BeCarefulConfig;
+import net.rasanovum.becareful.warden.WardenStunAccess;
 import net.rasanovum.rosetta.attachment.LevelAttachmentKey;
 import net.rasanovum.rosetta.attachment.RosettaAttachments;
 
@@ -61,6 +64,7 @@ public final class LightFieldManager {
         for (LightField field : fields) {
             updateLightSource(level, field, gameTime);
             cleanseSculk(level, field, gameTime);
+            stunChargingWardens(level, field, gameTime);
         }
         if (changed) {
             FIELDS.markDirty(level);
@@ -142,6 +146,23 @@ public final class LightFieldManager {
                     }
                 }
             }
+        }
+    }
+
+    private static void stunChargingWardens(ServerLevel level, LightField field, long gameTime) {
+        float radius = field.stateAt(gameTime).radius();
+        Vec3 center = field.center();
+        AABB bounds = new AABB(
+                center.x() - radius, center.y() - radius, center.z() - radius,
+                center.x() + radius, center.y() + radius, center.z() + radius
+        );
+        for (Warden warden : level.getEntitiesOfClass(
+                Warden.class, bounds,
+                candidate -> !((WardenStunAccess) candidate).beCareful$isStunned()
+                        && candidate.getBrain().hasMemoryValue(
+                        net.minecraft.world.entity.ai.memory.MemoryModuleType.SONIC_BOOM_SOUND_DELAY)
+                        && field.contains(candidate, gameTime))) {
+            ((WardenStunAccess) warden).beCareful$stun();
         }
     }
 

@@ -17,6 +17,7 @@ import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.rasanovum.becareful.BeCareful;
+import net.rasanovum.becareful.warden.WardenStunAccess;
 
 public final class WardenKeyLayer extends RenderLayer<Warden, WardenModel<Warden>> {
     private static final ItemStack KEY = new ItemStack(BeCareful.LOST_KEY);
@@ -44,12 +45,14 @@ public final class WardenKeyLayer extends RenderLayer<Warden, WardenModel<Warden
         ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
         itemRenderer.renderStatic(warden, KEY, ItemDisplayContext.FIXED, false, poseStack, buffer, warden.level(), packedLight, LivingEntityRenderer.getOverlayCoords(warden, 0.0F), warden.getId());
 
-        OutlineBufferSource outlineSource = Minecraft.getInstance().renderBuffers().outlineBufferSource();
-        outlineSource.setColor(255, 255, 255, 255);
-        poseStack.pushPose();
-        MultiBufferSource outlineOnlyBuffer = renderType -> outlineSource.getBuffer(renderType.outline().orElse(RenderType.outline(TextureAtlas.LOCATION_BLOCKS)));
-        itemRenderer.renderStatic(warden, KEY, ItemDisplayContext.FIXED, false, poseStack, outlineOnlyBuffer, warden.level(), packedLight, LivingEntityRenderer.getOverlayCoords(warden, 0.0F), warden.getId());
-        poseStack.popPose();
+        if (((WardenStunAccess) warden).beCareful$isStunned()) {
+            OutlineBufferSource outlineSource = Minecraft.getInstance().renderBuffers().outlineBufferSource();
+            outlineSource.setColor(255, 255, 255, 255);
+            poseStack.pushPose();
+            MultiBufferSource outlineOnlyBuffer = renderType -> outlineSource.getBuffer(renderType.outline().orElse(RenderType.outline(TextureAtlas.LOCATION_BLOCKS)));
+            itemRenderer.renderStatic(warden, KEY, ItemDisplayContext.FIXED, false, poseStack, outlineOnlyBuffer, warden.level(), packedLight, LivingEntityRenderer.getOverlayCoords(warden, 0.0F), warden.getId());
+            poseStack.popPose();
+        }
         poseStack.popPose();
     }
 }

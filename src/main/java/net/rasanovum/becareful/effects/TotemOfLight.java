@@ -27,12 +27,12 @@ public class TotemOfLight extends Item {
     /*? if <1.21 {*/
     /*@Override
     public int getUseDuration(ItemStack pStack) {
-        return 30;
+        return 10;
     }
     *//*?} else {*/
     @Override
     public int getUseDuration(ItemStack pStack, LivingEntity entity) {
-        return 30;
+        return 10;
     }
     /*?}*/
 
@@ -69,7 +69,12 @@ public class TotemOfLight extends Item {
             );
 
             if (!player.getAbilities().instabuild) {
-                pStack.shrink(1);
+                int nextDamage = pStack.getDamageValue() + 1;
+                if (nextDamage >= pStack.getMaxDamage()) {
+                    pStack.shrink(1);
+                } else {
+                    pStack.setDamageValue(nextDamage);
+                }
             }
         }
         return pStack;

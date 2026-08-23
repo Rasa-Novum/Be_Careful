@@ -14,6 +14,8 @@ public final class AdvancementManager {
     public static final String RUINED_PORTAL_VISITED = "be_careful:backend/ruined_portal_visited";
     public static final String ENDER_EYE_USED_IN_END = "be_careful:backend/ender_eye_used_in_end";
     public static final String COLD_BIOME_ENTERED = "be_careful:backend/cold_biome_entered";
+    public static final String ATTACK_WARDEN = "be_careful:backend/attack_warden";
+    public static final String ENTERED_DEEP_DARK = "be_careful:backend/entered_deep_dark";
     public static final String FOLLOW_ENDER_EYE = "minecraft:story/follow_ender_eye";
 
     private static final TagKey<Structure> RUINED_PORTALS =

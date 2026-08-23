@@ -19,7 +19,7 @@ public final class BeCarefulContent {
     public static final ModRegistrar REGISTRAR = new ModRegistrar(BeCareful.MOD_ID);
 
     public static final RegistryHandle<net.minecraft.world.effect.MobEffect> CORRUPTION = REGISTRAR.register(BuiltInRegistries.MOB_EFFECT, "corruption", CorruptionEffect::new);
-    public static final RegistryHandle<Item> TOTEM_OF_LIGHT = REGISTRAR.item("totem_of_light", TotemOfLight::new, new Item.Properties().stacksTo(1));
+    public static final RegistryHandle<Item> TOTEM_OF_LIGHT = REGISTRAR.item("totem_of_light", TotemOfLight::new, new Item.Properties().stacksTo(1).durability(3));
     public static final RegistryHandle<Item> ECHO_SHARD_DUST = REGISTRAR.item("echo_shard_dust", Item::new, new Item.Properties());
     public static final RegistryHandle<Item> LOST_KEY = REGISTRAR.item("lost_key", Item::new, new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
     public static final RegistryHandle<Item> FROZEN_CORE = REGISTRAR.item("frozen_core", Item::new, new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON));
