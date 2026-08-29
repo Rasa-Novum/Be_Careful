@@ -27,6 +27,7 @@ import net.rasanovum.becareful.light.LightFieldNetworking;
 import net.rasanovum.becareful.portals.AncientPortalHandler;
 import net.rasanovum.becareful.spawning.EndSpawnHandler;
 import net.rasanovum.becareful.util.EnvironmentHazard;
+import net.rasanovum.becareful.taming.ChunkTameNetworking;
 import net.rasanovum.rosetta.registry.RegistrationContext;
 import net.rasanovum.rosetta.util.GameRuleCompat;
 import net.rasanovum.rosetta.util.RegistryCompat;
@@ -119,6 +120,7 @@ public class BeCareful /*? if fabric {*/ implements ModInitializer /*?}*/ {
 
 		registerGameRules();
 		LightFieldNetworking.register();
+		ChunkTameNetworking.register();
 		BeCarefulHooks.register();
 		initializeHazards();
 

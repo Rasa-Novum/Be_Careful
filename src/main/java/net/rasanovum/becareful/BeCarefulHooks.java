@@ -9,7 +9,8 @@ import net.rasanovum.becareful.corruption.CorruptionManager;
 import net.rasanovum.becareful.light.LightFieldManager;
 import net.rasanovum.becareful.light.LightFieldNetworking;
 import net.rasanovum.becareful.util.AdvancementManager;
-import net.rasanovum.becareful.util.ChunkTameManager;
+import net.rasanovum.becareful.taming.ChunkTameManager;
+import net.rasanovum.becareful.taming.ChunkTameNetworking;
 import net.rasanovum.becareful.util.ColdEnvironmentManager;
 import net.rasanovum.becareful.util.MessageManager;
 import net.rasanovum.rosetta.event.ServerHooks;
@@ -47,12 +48,16 @@ public final class BeCarefulHooks {
             public void onPlayerJoin(ServerPlayer player) {
                 LightFieldNetworking.syncPlayer(player);
                 CorruptionManager.sync(player);
+                CorruptionManager.syncDebug(player);
+                ChunkTameNetworking.syncPlayer(player);
             }
 
             @Override
             public void onPlayerChangedDimension(ServerPlayer player) {
                 LightFieldNetworking.syncPlayer(player);
                 CorruptionManager.sync(player);
+                CorruptionManager.syncDebug(player);
+                ChunkTameNetworking.syncPlayer(player);
             }
 
             @Override
@@ -97,6 +102,10 @@ public final class BeCarefulHooks {
                             .copy().withStyle(ChatFormatting.GOLD),
                     false
             );
+        }
+
+        if (currentTick % 10 == 0) {
+            ChunkTameNetworking.syncPlayer(player);
         }
 
         if (currentTick % 20 == 0) {
@@ -158,7 +167,7 @@ public final class BeCarefulHooks {
                 inDeepDark && !protectedByLight
         );
         if (currentTick % 20 == 0) {
-            CorruptionManager.logState(player, protectedByLight, inDeepDark);
+            CorruptionManager.syncDebug(player);
         }
     }
 

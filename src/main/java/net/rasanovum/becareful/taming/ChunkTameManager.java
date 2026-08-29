@@ -1,8 +1,7 @@
-package net.rasanovum.becareful.util;
+package net.rasanovum.becareful.taming;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.ChunkPos;
@@ -11,8 +10,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.rasanovum.becareful.BeCareful;
-import net.rasanovum.rosetta.util.RegistryCompat;
 import net.rasanovum.becareful.BeCarefulConfig;
+import net.rasanovum.rosetta.util.RegistryCompat;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,23 +20,28 @@ import java.util.WeakHashMap;
 public final class ChunkTameManager {
     private static final Map<ServerLevel, Map<Long, SettlementProfile>> PROFILES = new WeakHashMap<>();
 
-    public static final TagKey<Block> CHUNK_TAME_CRAFTING_TABLES =
-            TagKey.create(Registries.BLOCK, RegistryCompat.getLocation(BeCareful.MOD_ID, "chunk_tame_crafting_tables"));
-    public static final TagKey<Block> CHUNK_TAME_FURNACES =
-            TagKey.create(Registries.BLOCK, RegistryCompat.getLocation(BeCareful.MOD_ID, "chunk_tame_furnaces"));
-    public static final TagKey<Block> CHUNK_TAME_STORAGE =
-            TagKey.create(Registries.BLOCK, RegistryCompat.getLocation(BeCareful.MOD_ID, "chunk_tame_storage"));
+    public static final TagKey<Block> CHUNK_TAME_CRAFTING_TABLES = TagKey.create(Registries.BLOCK, RegistryCompat.getLocation(BeCareful.MOD_ID, "chunk_tame_crafting_tables"));
+    public static final TagKey<Block> CHUNK_TAME_FURNACES = TagKey.create(Registries.BLOCK, RegistryCompat.getLocation(BeCareful.MOD_ID, "chunk_tame_furnaces"));
+    public static final TagKey<Block> CHUNK_TAME_STORAGE = TagKey.create(Registries.BLOCK, RegistryCompat.getLocation(BeCareful.MOD_ID, "chunk_tame_storage"));
 
-    private ChunkTameManager() {
-    }
+    private ChunkTameManager() {}
 
     public static int getEffectiveTameTime(ServerLevel level, BlockPos pos, int baseRequiredTicks) {
+        return getStatus(level, pos, baseRequiredTicks).effectiveRequiredTicks();
+    }
+
+    public static TameStatus getStatus(ServerLevel level, BlockPos pos, int baseRequiredTicks) {
         if (!BeCarefulConfig.doChunkTameAcceleration || baseRequiredTicks <= 0) {
-            return Math.max(0, baseRequiredTicks);
+            return new TameStatus(level.getChunkAt(pos).getInhabitedTime(), Math.max(0, baseRequiredTicks), 1, 0);
         }
 
         SettlementProfile profile = getProfile(level, level.getChunkAt(pos));
-        return Math.max(1, baseRequiredTicks / profile.getDivisor());
+        return new TameStatus(
+                level.getChunkAt(pos).getInhabitedTime(),
+                Math.max(1, baseRequiredTicks / profile.getDivisor()),
+                profile.getDivisor(),
+                profile.getCategoryCount()
+        );
     }
 
     public static boolean isSettlementBlock(BlockState state) {
@@ -81,18 +85,10 @@ public final class ChunkTameManager {
                 for (int y = level.getMinBuildHeight(); y < level.getMaxBuildHeight(); y++) {
                     BlockState state = chunk.getBlockState(mutablePos.set(x, y, z));
 
-                    if (!hasBed && state.getBlock() instanceof BedBlock) {
-                        hasBed = true;
-                    }
-                    if (!hasCraftingTable && state.is(CHUNK_TAME_CRAFTING_TABLES)) {
-                        hasCraftingTable = true;
-                    }
-                    if (!hasFurnace && state.is(CHUNK_TAME_FURNACES)) {
-                        hasFurnace = true;
-                    }
-                    if (!hasStorage && state.is(CHUNK_TAME_STORAGE)) {
-                        hasStorage = true;
-                    }
+                    if (!hasBed && state.getBlock() instanceof BedBlock) hasBed = true;
+                    if (!hasCraftingTable && state.is(CHUNK_TAME_CRAFTING_TABLES)) hasCraftingTable = true;
+                    if (!hasFurnace && state.is(CHUNK_TAME_FURNACES)) hasFurnace = true;
+                    if (!hasStorage && state.is(CHUNK_TAME_STORAGE)) hasStorage = true;
 
                     if (hasBed && hasCraftingTable && hasFurnace && hasStorage) {
                         return new SettlementProfile(true, true, true, true);
@@ -105,14 +101,19 @@ public final class ChunkTameManager {
     }
 
     private record SettlementProfile(boolean hasBed, boolean hasCraftingTable, boolean hasFurnace, boolean hasStorage) {
-        private int getDivisor() {
+        private int getCategoryCount() {
             int checks = 0;
             if (hasBed) checks++;
             if (hasCraftingTable) checks++;
             if (hasFurnace) checks++;
             if (hasStorage) checks++;
+            return checks;
+        }
 
-            return 1 << checks;
+        private int getDivisor() {
+            return 1 << getCategoryCount();
         }
     }
+
+    public record TameStatus(long inhabitedTime, int effectiveRequiredTicks, int rateMultiplier, int settlementCategories) {}
 }

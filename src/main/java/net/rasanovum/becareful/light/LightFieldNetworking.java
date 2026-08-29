@@ -6,6 +6,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
 import net.rasanovum.becareful.BeCareful;
 import net.rasanovum.becareful.corruption.ClientCorruptionState;
+import net.rasanovum.becareful.corruption.ClientDeepDarkDebugState;
+import net.rasanovum.becareful.corruption.CorruptionDebugPacket;
 import net.rasanovum.becareful.corruption.CorruptionUpdatePacket;
 import net.rasanovum.rosetta.network.RosettaNetwork;
 import net.rasanovum.rosetta.network.RosettaPacket;
@@ -30,6 +32,14 @@ public final class LightFieldNetworking {
                 "corruption", CorruptionUpdatePacket.class,
                 CorruptionUpdatePacket::write, CorruptionUpdatePacket::read,
                 (packet, level, player) -> ClientCorruptionState.set(packet.value())
+        );
+        CHANNEL.clientbound(
+                "corruption_debug", CorruptionDebugPacket.class,
+                CorruptionDebugPacket::write, CorruptionDebugPacket::read,
+                (packet, level, player) -> ClientDeepDarkDebugState.set(new ClientDeepDarkDebugState(
+                        packet.deepDarkTime(), packet.warningRemaining(), packet.dangerRemaining(),
+                        packet.inDeepDark(), packet.protectedByLight()
+                ))
         );
         CHANNEL.clientbound(
                 "totem_activation", TotemActivationPacket.class,

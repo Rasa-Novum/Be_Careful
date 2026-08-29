@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.rasanovum.becareful.BeCareful;
 import net.rasanovum.becareful.BeCarefulConfig;
-import net.rasanovum.becareful.util.ChunkTameManager;
+import net.rasanovum.becareful.taming.ChunkTameManager;
 import net.rasanovum.becareful.util.MessageManager;
 import net.rasanovum.rosetta.util.GameRuleCompat;
 import org.spongepowered.asm.mixin.Mixin;

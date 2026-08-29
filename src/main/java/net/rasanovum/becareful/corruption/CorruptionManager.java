@@ -1,12 +1,14 @@
 package net.rasanovum.becareful.corruption;
 
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.rasanovum.becareful.BeCareful;
 import net.rasanovum.becareful.BeCarefulConfig;
 import net.rasanovum.becareful.BeCarefulHooks;
+import net.rasanovum.becareful.light.LightFieldManager;
 import net.rasanovum.rosetta.network.RosettaNetwork;
 
 import java.util.HashMap;
@@ -107,31 +109,16 @@ public final class CorruptionManager {
         send(player, get(player));
     }
 
-    public static void logState(ServerPlayer player, boolean protectedByLight, boolean inDeepDark) {
-        float value = get(player);
+    public static void syncDebug(ServerPlayer player) {
+        boolean inDeepDark = player.serverLevel().getBiome(player.blockPosition()).is(Biomes.DEEP_DARK)
+                && BeCarefulConfig.doDeepDarkFeatures;
+        boolean protectedByLight = LightFieldManager.contains(player.serverLevel(), player);
         int deepDarkTime = BeCarefulHooks.deepDarkTime(player.getUUID());
         int warningRemaining = Math.max(0, BeCareful.DD_WARN_TICKS - deepDarkTime);
         int dangerRemaining = Math.max(0, BeCareful.DD_DANGER_TICKS - deepDarkTime);
-        String stage = protectedByLight
-                ? "protected"
-                : !inDeepDark
-                ? "outside"
-                : deepDarkTime >= BeCareful.DD_DANGER_TICKS
-                ? "danger"
-                : deepDarkTime >= BeCareful.DD_WARN_TICKS
-                ? "warning"
-                : "entry";
-        BeCareful.LOGGER.info(
-                "Corruption state: player={}, value={}, stage={}, deepDarkTime={}t, warningRemaining={}t, dangerRemaining={}t, inDeepDark={}, protectedByLight={}",
-                player.getGameProfile().getName(),
-                Math.round(value * 1000.0F) / 1000.0F,
-                stage,
-                deepDarkTime,
-                warningRemaining,
-                dangerRemaining,
-                inDeepDark,
-                protectedByLight
-        );
+        RosettaNetwork.sendToPlayer(new CorruptionDebugPacket(
+                deepDarkTime, warningRemaining, dangerRemaining, inDeepDark, protectedByLight
+        ), player);
     }
 
     public static void clear(UUID playerId) {
