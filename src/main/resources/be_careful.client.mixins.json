@@ -7,6 +7,7 @@
     "client.OnFireEntityMixin",
     "client.WardenRendererMixin",
     "client.LevelRendererMixin",
+    "client.WarningOverlayMixin",
     "DebugScreenOverlayMixin"
   ],
   "injectors": {

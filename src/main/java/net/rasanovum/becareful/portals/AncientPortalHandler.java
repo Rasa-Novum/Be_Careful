@@ -117,7 +117,7 @@ public class AncientPortalHandler {
         for (Direction dir : Direction.values()) {
             BlockPos offset = clicked.relative(dir);
             BlockState state = level.getBlockState(offset);
-            if (state.isAir() || state.is(Blocks.SCULK_VEIN)) {
+            if (state.isAir() || state.is(Blocks.SCULK_VEIN) || state.is(Blocks.GLOW_LICHEN)) {
                 return offset;
             }
         }

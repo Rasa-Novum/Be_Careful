@@ -57,6 +57,7 @@ public final class BeCarefulClientHooks {
             @Override
             public void renderHud(net.minecraft.client.gui.GuiGraphics graphics, float tickDelta) {
                 CorruptionOverlay.render(graphics, tickDelta);
+                WardenKeyPrompt.render(graphics);
             }
         });
         registered = true;

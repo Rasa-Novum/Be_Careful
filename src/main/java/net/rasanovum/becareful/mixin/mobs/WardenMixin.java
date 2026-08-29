@@ -4,6 +4,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -14,7 +16,9 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.monster.warden.Warden;
+import net.minecraft.world.phys.Vec3;
 import net.rasanovum.becareful.BeCarefulConfig;
 import net.rasanovum.becareful.util.AdvancementManager;
 import net.rasanovum.becareful.warden.WardenStunAccess;
@@ -79,9 +83,15 @@ public class WardenMixin implements WardenStunAccess {
     @Inject(method = "tick", at = @At("TAIL"))
     private void beCareful$tickStun(CallbackInfo ci) {
         Warden warden = (Warden) (Object) this;
-        if (!warden.level().isClientSide() && beCareful$isStunned()
-                && --beCareful$stunTicksRemaining <= 0) {
+        if (!warden.level().isClientSide() && beCareful$isStunned() && --beCareful$stunTicksRemaining <= 0) {
             beCareful$resume();
+        }
+    }
+
+    @Inject(method = "applyDarknessAround", at = @At("HEAD"), cancellable = true)
+    private static void beCareful$skipDarknessForStunnedWarden(ServerLevel level, Vec3 center, Entity source, int radius, CallbackInfo ci) {
+        if (source instanceof Warden warden && ((WardenStunAccess) warden).beCareful$isStunned()) {
+            ci.cancel();
         }
     }
 
@@ -131,6 +141,7 @@ public class WardenMixin implements WardenStunAccess {
         warden.setTarget(null);
         warden.setNoAi(true);
         warden.setPose(Pose.ROARING);
+        beCareful$clearDarknessAround(warden);
         if (playSound) {
             warden.level().playSound(
                     null, warden.getX(), warden.getY(), warden.getZ(),
@@ -150,5 +161,18 @@ public class WardenMixin implements WardenStunAccess {
                 null, warden.getX(), warden.getY(), warden.getZ(),
                 SoundEvents.WARDEN_ANGRY, SoundSource.HOSTILE, 1.0F, 1.0F
         );
+    }
+
+    @Unique
+    private void beCareful$clearDarknessAround(Warden warden) {
+        if (!(warden.level() instanceof ServerLevel level)) {
+            return;
+        }
+
+        for (ServerPlayer player : level.players()) {
+            if (player.distanceToSqr(warden) <= 400.0D) {
+                player.removeEffect(MobEffects.DARKNESS);
+            }
+        }
     }
 }

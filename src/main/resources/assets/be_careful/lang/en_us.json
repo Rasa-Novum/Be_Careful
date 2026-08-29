@@ -4,6 +4,7 @@
   "item.be_careful.totem_of_light": "Totem of Light",
   "item.be_careful.echo_shard_dust": "Echo Shard Dust",
   "item.be_careful.lost_key": "Lost Key",
+  "prompt.be_careful.steal_key": "Steal Key",
   "block.be_careful.frozen_campfire": "Frozen Campfire",
   "advancement.be_careful.eyes_up_guardian.title": "Eyes up, Guardian",
   "advancement.be_careful.eyes_up_guardian.description": "Use a Totem of Light to drive back the darkness",

@@ -149,16 +149,12 @@ public class BeCareful /*? if fabric {*/ implements ModInitializer /*?}*/ {
 					DD_ENTRY_VARIANTS,
 					"message.be_careful.deep_dark_warning", DD_WARN_VARIANTS,
 					DD_WARN_TICKS, DD_DANGER_TICKS,
-					player -> {
-						int playerTime = BeCarefulHooks.deepDarkTime(player.getUUID());
-						int heartbeatRate = (playerTime > 550) ? 10 : 20;
-						if ((player.level().getGameTime() % heartbeatRate) == 0) {
-							player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
-									SoundEvents.WARDEN_HEARTBEAT, SoundSource.PLAYERS, 1.5f, 1.0f);
-						}
-					},
-					CorruptionManager::expose
-			);
+                    BeCareful::playDeepDarkHeartbeat,
+                    player -> {
+                        BeCareful.playDeepDarkHeartbeat(player);
+                        CorruptionManager.expose(player);
+                    }
+            );
 		}
 
 		if (BeCarefulConfig.doNetherFeatures) {
@@ -181,7 +177,7 @@ public class BeCareful /*? if fabric {*/ implements ModInitializer /*?}*/ {
 		}
 	}
 
-	private static void refreshConfigValues() {
+    private static void refreshConfigValues() {
 		DD_ENTRY_VARIANTS = BeCarefulConfig.deepDarkEntryVariants;
 		DD_WARN_TICKS = BeCarefulConfig.deepDarkWarningTicks;
 		DD_WARN_VARIANTS = BeCarefulConfig.deepDarkWarningVariants;
@@ -191,8 +187,17 @@ public class BeCareful /*? if fabric {*/ implements ModInitializer /*?}*/ {
 		N_WARN_VARIANTS = BeCarefulConfig.netherWarningVariants;
 		N_WARN_TICKS = BeCarefulConfig.netherWarningTicks;
 		N_DANGER_TICKS = BeCarefulConfig.netherDangerTicks;
-		CHUNK_TAME_VARIANTS = BeCarefulConfig.chunkTameVariants;
-	}
+        CHUNK_TAME_VARIANTS = BeCarefulConfig.chunkTameVariants;
+    }
+
+    private static void playDeepDarkHeartbeat(net.minecraft.server.level.ServerPlayer player) {
+        int playerTime = BeCarefulHooks.deepDarkTime(player.getUUID());
+        int heartbeatRate = (playerTime > 550) ? 10 : 20;
+        if ((player.level().getGameTime() % heartbeatRate) == 0) {
+            player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+                    SoundEvents.WARDEN_HEARTBEAT, SoundSource.PLAYERS, 1.5f, 1.0f);
+        }
+    }
 
 	public static synchronized void registerGameRules() {
 		if (gameRulesRegistered) return;
