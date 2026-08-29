@@ -21,10 +21,13 @@ public abstract class FoodEatMixin {
     private void onEat(Level pLevel, ItemStack pStack, CallbackInfoReturnable<ItemStack> cir) {
         LivingEntity entity = (LivingEntity) (Object) this;
 
+        //? if >=1.21
+        if (net.rasanovum.rosetta.loaders.Platform.INSTANCE.isModLoaded("well_seasoned")) return;
+
         if (!pLevel.isClientSide() && entity instanceof ServerPlayer player && BeCarefulConfig.doNetherFeatures) {
             if (pStack.is(BeCareful.FIRE_RESISTANT_FOODS)) {
                 player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 300, 0));
-                player.displayClientMessage(Component.literal("The food cools your core...") // need to replace with key
+                player.displayClientMessage(Component.translatable("message.be_careful.food_cools_core")
                         .withStyle(ChatFormatting.AQUA), true);
             }
         }

@@ -1,0 +1,28 @@
+{
+  "intrinsics": [
+    {
+      "id": "be_careful:heat_resistance",
+      "effects": [
+        {
+          "id": "minecraft:fire_resistance",
+          "duration": 300,
+          "maximum_duration": 300,
+          "maximum_amplifier": 0,
+          "ambient": false,
+          "show_particles": true
+        }
+      ]
+    }
+  ],
+  "foods": [
+    {
+      "tag": "be_careful:fire_resistant_foods",
+      "tier": "simple",
+      "healing": 1,
+      "mode": "append",
+      "intrinsics": [
+        "be_careful:heat_resistance"
+      ]
+    }
+  ]
+}

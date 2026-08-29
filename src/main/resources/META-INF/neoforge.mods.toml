@@ -45,3 +45,10 @@ type="required"
 versionRange="[1.9.1,)"
 ordering="AFTER"
 side="BOTH"
+
+[[dependencies.be_careful]]
+modId="well_seasoned"
+type="optional"
+versionRange="[0.4.0,)"
+ordering="AFTER"
+side="BOTH"
