@@ -16,6 +16,7 @@
     "mobs.WardenMixin",
     "mobs.MobInteractMixin",
     "mobs.SonicBoomMixin",
+    "mobs.WardenLootMixin",
     "DisableStrongholdsMixin",
     "mobs.PhantomSpawnerMixin"
   ],
