@@ -120,6 +120,11 @@ public final class BeCarefulHooks {
 
     private static void tickDeepDark(ServerPlayer player, int currentTick) {
         ServerLevel level = player.serverLevel();
+        if (player.isCreative() || player.isSpectator()) {
+            CorruptionManager.cleanse(player);
+            return;
+        }
+
         boolean inDeepDark = level.getBiome(player.blockPosition()).is(Biomes.DEEP_DARK)
                 && BeCarefulConfig.doDeepDarkFeatures;
         boolean protectedByLight = LightFieldManager.contains(level, player);
