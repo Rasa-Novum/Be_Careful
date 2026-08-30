@@ -1,6 +1,7 @@
 package net.rasanovum.becareful;
 
 import eu.midnightdust.lib.config.MidnightConfig;
+import net.rasanovum.becareful.taming.SleepTamingMode;
 
 public class BeCarefulConfig extends MidnightConfig {
 
@@ -59,6 +60,16 @@ public class BeCarefulConfig extends MidnightConfig {
     public static boolean doDifficultyFeatures = true;
     @Entry(category = DIFFICULTY)
     public static boolean doChunkTameAcceleration = true;
+    @Entry(category = DIFFICULTY)
+    public static SleepTamingMode sleepTamingMode = SleepTamingMode.SHELTER_BYPASSES_TAMING;
+    @Entry(category = DIFFICULTY)
+    public static boolean doShelterDebugVisualizer = false;
+    @Entry(category = DIFFICULTY, min = 0, max = 15)
+    public static int shelterLightLevel = 8;
+    @Entry(category = DIFFICULTY, min = 1)
+    public static int shelterMaxBlocks = 256;
+    @Entry(category = DIFFICULTY, min = 1)
+    public static int shelterMaxDistance = 8;
     @Entry(category = DIFFICULTY,min = 1)
     public static int chunkTameVariants = 2;
     @Entry(category = DIFFICULTY,min = 1)

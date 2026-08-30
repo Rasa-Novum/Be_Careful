@@ -51,6 +51,12 @@ public final class ChunkTameManager {
                 || state.is(CHUNK_TAME_STORAGE);
     }
 
+    public static boolean isProcessedSettlementBlock(BlockState state) {
+        return state.is(CHUNK_TAME_CRAFTING_TABLES)
+                || state.is(CHUNK_TAME_FURNACES)
+                || state.is(CHUNK_TAME_STORAGE);
+    }
+
     public static void invalidate(ServerLevel level, BlockPos pos) {
         Map<Long, SettlementProfile> levelProfiles = PROFILES.get(level);
         if (levelProfiles != null) {

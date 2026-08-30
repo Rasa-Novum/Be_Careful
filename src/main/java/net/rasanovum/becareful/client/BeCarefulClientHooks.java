@@ -1,14 +1,12 @@
 package net.rasanovum.becareful.client;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.culling.Frustum;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.rasanovum.becareful.BeCarefulConfig;
 import net.rasanovum.becareful.corruption.ClientCorruptionState;
 import net.rasanovum.becareful.light.ClientLightFieldState;
 import net.rasanovum.becareful.light.LightFieldNetworking;
+import net.rasanovum.becareful.taming.ClientChunkTameState;
 import net.rasanovum.rosetta.event.ClientHooks;
 import net.rasanovum.rosetta.event.ClientRenderHooks;
 import net.rasanovum.rosetta.event.ClientShaderHooks;
@@ -32,12 +30,14 @@ public final class BeCarefulClientHooks {
             public void onJoin(net.minecraft.world.entity.player.Player player) {
                 ClientCorruptionState.clear();
                 ClientLightFieldState.clear();
+                ClientChunkTameState.clear();
             }
 
             @Override
             public void onDisconnect() {
                 ClientCorruptionState.clear();
                 ClientLightFieldState.clear();
+                ClientChunkTameState.clear();
             }
 
             @Override
@@ -48,12 +48,6 @@ public final class BeCarefulClientHooks {
             }
         });
         ClientRenderHooks.register(new ClientRenderHooks.Callbacks() {
-            @Override
-            public void renderWorld(PoseStack poseStack, ClientLevel level, net.minecraft.world.entity.player.Player player,
-                                    float tickDelta, Frustum frustum) {
-                LightFieldRenderer.render(poseStack, level, player, tickDelta, frustum);
-            }
-
             @Override
             public void renderHud(net.minecraft.client.gui.GuiGraphics graphics, float tickDelta) {
                 CorruptionOverlay.render(graphics, tickDelta);

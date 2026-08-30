@@ -55,7 +55,6 @@ public final class LightFieldRenderer {
         }
 
         poseStack.pushPose();
-        poseStack.translate(-camera.x, -camera.y, -camera.z);
 
         if (!useContactShader) {
             for (LightField field : ClientLightFieldState.get()) {

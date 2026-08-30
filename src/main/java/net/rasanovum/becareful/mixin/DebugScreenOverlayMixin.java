@@ -10,6 +10,7 @@ import net.rasanovum.becareful.BeCareful;
 import net.rasanovum.becareful.corruption.ClientCorruptionState;
 import net.rasanovum.becareful.corruption.ClientDeepDarkDebugState;
 import net.rasanovum.becareful.taming.ClientChunkTameState;
+import net.rasanovum.becareful.taming.ShelterStatus;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -82,6 +83,20 @@ public class DebugScreenOverlayMixin {
             String state = snapshot.inhabitedTime() >= snapshot.effectiveRequiredTicks() ? "TAMED" : "UNTAMED";
             infoLines.add(String.format(Locale.ROOT, "Taming: %,d / %,d (%dx; %d/4 types; %.1f%%; %s)",
                     snapshot.inhabitedTime(), snapshot.effectiveRequiredTicks(), snapshot.rateMultiplier(), snapshot.settlementCategories(), progress, state
+            ));
+        }
+
+        ShelterStatus shelter = snapshot == null ? null : snapshot.shelter();
+        if (shelter == null) {
+            infoLines.add("Shelter: no tracked bed");
+        } else {
+            infoLines.add(String.format(Locale.ROOT,
+                    "Shelter: %s (light %d/%s; sky %d/15; cover %s; processed %s; bounded %s; volume %d; mode %s)",
+                    shelter.isSafe() ? "SAFE" : "UNSAFE",
+                    shelter.minimumBlockLight(), shelter.lightSatisfied() ? "OK" : "FAIL",
+                    shelter.maximumSkyLight(),
+                    shelter.covered() ? "OK" : "FAIL", shelter.processed() ? "OK" : "FAIL",
+                    shelter.bounded() ? "OK" : "FAIL", shelter.volume().size(), snapshot.sleepMode()
             ));
         }
     }

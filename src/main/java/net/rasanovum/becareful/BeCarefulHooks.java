@@ -6,6 +6,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biomes;
 import net.rasanovum.becareful.spawning.EndPhantomSpawner;
 import net.rasanovum.becareful.corruption.CorruptionManager;
+import net.rasanovum.becareful.commands.BeCarefulCommands;
 import net.rasanovum.becareful.light.LightFieldManager;
 import net.rasanovum.becareful.light.LightFieldNetworking;
 import net.rasanovum.becareful.util.AdvancementManager;
@@ -35,12 +36,18 @@ public final class BeCarefulHooks {
         if (registered) return;
         ServerHooks.register(new ServerHooks.Callbacks() {
             @Override
+            public void registerCommands(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> dispatcher) {
+                BeCarefulCommands.register(dispatcher);
+            }
+
+            @Override
             public void onServerLevelTick(ServerLevel level) {
                 tickLevel(level);
             }
 
             @Override
             public void onPlayerLeave(ServerPlayer player) {
+                ChunkTameNetworking.clearShelterAnchor(player);
                 clearPlayerState(player.getUUID());
             }
 
@@ -54,6 +61,7 @@ public final class BeCarefulHooks {
 
             @Override
             public void onPlayerChangedDimension(ServerPlayer player) {
+                ChunkTameNetworking.clearShelterAnchor(player);
                 LightFieldNetworking.syncPlayer(player);
                 CorruptionManager.sync(player);
                 CorruptionManager.syncDebug(player);
@@ -70,6 +78,12 @@ public final class BeCarefulHooks {
 
     public static int deepDarkTime(UUID playerId) {
         return DEEP_DARK_TIMERS.getOrDefault(playerId, 0);
+    }
+
+    public static void resetDeepDarkState(ServerPlayer player) {
+        DEEP_DARK_TIMERS.remove(player.getUUID());
+        CorruptionManager.cleanse(player);
+        CorruptionManager.syncDebug(player);
     }
 
     private static void tickLevel(ServerLevel level) {
