@@ -9,6 +9,7 @@ import net.rasanovum.becareful.BeCareful;
 import net.rasanovum.becareful.BeCarefulConfig;
 import net.rasanovum.becareful.BeCarefulHooks;
 import net.rasanovum.becareful.light.LightFieldManager;
+import net.rasanovum.becareful.util.SculkHelper;
 import net.rasanovum.rosetta.network.RosettaNetwork;
 
 import java.util.HashMap;
@@ -117,7 +118,8 @@ public final class CorruptionManager {
         int warningRemaining = Math.max(0, BeCareful.DD_WARN_TICKS - deepDarkTime);
         int dangerRemaining = Math.max(0, BeCareful.DD_DANGER_TICKS - deepDarkTime);
         RosettaNetwork.sendToPlayer(new CorruptionDebugPacket(
-                deepDarkTime, warningRemaining, dangerRemaining, inDeepDark, protectedByLight
+                deepDarkTime, warningRemaining, dangerRemaining, inDeepDark, protectedByLight,
+                inDeepDark && SculkHelper.hasNearbySculk(player.serverLevel(), player.getEyePosition())
         ), player);
     }
 

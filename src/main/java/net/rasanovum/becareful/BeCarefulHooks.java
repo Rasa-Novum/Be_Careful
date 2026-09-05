@@ -14,6 +14,7 @@ import net.rasanovum.becareful.taming.ChunkTameManager;
 import net.rasanovum.becareful.taming.ChunkTameNetworking;
 import net.rasanovum.becareful.util.ColdEnvironmentManager;
 import net.rasanovum.becareful.util.MessageManager;
+import net.rasanovum.becareful.util.SculkHelper;
 import net.rasanovum.rosetta.event.ServerHooks;
 import net.rasanovum.rosetta.util.EntityCompat;
 import net.rasanovum.rosetta.util.GameRuleCompat;
@@ -151,26 +152,25 @@ public final class BeCarefulHooks {
         boolean inDeepDark = level.getBiome(player.blockPosition()).is(Biomes.DEEP_DARK)
                 && BeCarefulConfig.doDeepDarkFeatures;
         boolean protectedByLight = LightFieldManager.contains(level, player);
+        boolean timerIncreasing = inDeepDark && !protectedByLight
+                && SculkHelper.hasNearbySculk(level, player.getEyePosition());
 
-        if (inDeepDark && !protectedByLight) {
-            boolean newlyEntered = !DEEP_DARK_TIMERS.containsKey(player.getUUID());
+        if (inDeepDark && !DEEP_DARK_TIMERS.containsKey(player.getUUID())) {
+            DEEP_DARK_TIMERS.put(player.getUUID(), 0);
+            AdvancementManager.award(player, AdvancementManager.ENTERED_DEEP_DARK);
+        }
+
+        if (timerIncreasing) {
             int time = DEEP_DARK_TIMERS.getOrDefault(player.getUUID(), 0) + 1;
             DEEP_DARK_TIMERS.put(player.getUUID(), time);
-            if (newlyEntered) {
-                AdvancementManager.award(player, AdvancementManager.ENTERED_DEEP_DARK);
-            }
             BeCareful.DEEP_DARK.tick(player, time);
-        } else if (inDeepDark) {
-            boolean newlyEntered = !DEEP_DARK_TIMERS.containsKey(player.getUUID());
+        } else if (inDeepDark && protectedByLight) {
             int decrement = Math.max(0, BeCarefulConfig.lightFieldTimerDecrement);
             int time = decrement == 0
                     ? 0
                     : Math.max(0, DEEP_DARK_TIMERS.getOrDefault(player.getUUID(), 0) - decrement);
             DEEP_DARK_TIMERS.put(player.getUUID(), time);
-            if (newlyEntered) {
-                AdvancementManager.award(player, AdvancementManager.ENTERED_DEEP_DARK);
-            }
-        } else {
+        } else if (!inDeepDark) {
             DEEP_DARK_TIMERS.remove(player.getUUID());
         }
 
@@ -178,7 +178,7 @@ public final class BeCarefulHooks {
                 player,
                 inDeepDark,
                 DEEP_DARK_TIMERS.getOrDefault(player.getUUID(), 0),
-                inDeepDark && !protectedByLight
+                timerIncreasing
         );
         if (currentTick % 20 == 0) {
             CorruptionManager.syncDebug(player);

@@ -117,6 +117,8 @@ public class DebugScreenOverlayMixin {
                 ? "PROTECTED"
                 : !debugState.inDeepDark()
                 ? "OUTSIDE"
+                : !debugState.nearbySculk()
+                ? "NO NEARBY SCULK (PAUSED)"
                 : debugState.deepDarkTime() >= BeCareful.DD_DANGER_TICKS
                 ? "DANGER"
                 : debugState.deepDarkTime() >= BeCareful.DD_WARN_TICKS

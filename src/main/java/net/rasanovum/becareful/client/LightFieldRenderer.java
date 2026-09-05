@@ -71,7 +71,7 @@ public final class LightFieldRenderer {
 
                 poseStack.pushPose();
                 poseStack.translate(center.x, center.y, center.z);
-                drawSphere(poseStack, radius, SHELL_ALPHA * state.opacity());
+                drawSphere(poseStack, radius, SHELL_ALPHA * state.opacity(), field.isDeathWave());
                 poseStack.popPose();
             }
         }
@@ -118,7 +118,7 @@ public final class LightFieldRenderer {
 
             poseStack.pushPose();
             poseStack.translate(center.x, center.y, center.z);
-            drawSphere(poseStack, radius, state.opacity());
+            drawSphere(poseStack, radius, state.opacity(), field.isDeathWave());
             poseStack.popPose();
         }
     }
@@ -170,7 +170,7 @@ public final class LightFieldRenderer {
 
             poseStack.pushPose();
             poseStack.translate(center.x, center.y, center.z);
-            drawSphere(poseStack, radius, state.opacity());
+            drawSphere(poseStack, radius, state.opacity(), field.isDeathWave());
             poseStack.popPose();
         }
 
@@ -184,7 +184,7 @@ public final class LightFieldRenderer {
                 && !IrisCompat.isShaderPackInUse();
     }
 
-    private static void drawSphere(PoseStack poseStack, float radius, float alpha) {
+    private static void drawSphere(PoseStack poseStack, float radius, float alpha, boolean deathWave) {
         //? if <1.21 {
         /*BufferBuilder builder = Tesselator.getInstance().getBuilder();
         builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
@@ -193,9 +193,9 @@ public final class LightFieldRenderer {
         //?}
 
         Matrix4f pose = poseStack.last().pose();
-        int red = (int) (LIGHT_R * 255.0F);
-        int green = (int) (LIGHT_G * 255.0F);
-        int blue = (int) (LIGHT_B * 255.0F);
+        int red = deathWave ? 67 : (int) (LIGHT_R * 255.0F);
+        int green = deathWave ? 86 : (int) (LIGHT_G * 255.0F);
+        int blue = deathWave ? 109 : (int) (LIGHT_B * 255.0F);
         int alphaByte = (int) (Math.max(0.0F, Math.min(1.0F, alpha)) * 255.0F);
 
         for (int i = 0; i < UNIT_SPHERE_VERTICES.length; i += 3) {

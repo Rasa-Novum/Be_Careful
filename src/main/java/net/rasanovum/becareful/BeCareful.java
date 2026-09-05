@@ -130,8 +130,8 @@ public class BeCareful /*? if fabric {*/ implements ModInitializer /*?}*/ {
 
 	public static void reloadConfig() {
 		/*? if <1.21 {*/
-		MidnightConfig.init(MOD_ID, BeCarefulConfig.class);
-		/*?} else {*/
+		/*MidnightConfig.init(MOD_ID, BeCarefulConfig.class);
+		*//*?} else {*/
 		MidnightConfig config = MidnightConfig.configInstances.get(MOD_ID);
 		if (config != null) {
 			config.loadValuesFromJson();

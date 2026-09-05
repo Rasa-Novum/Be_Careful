@@ -66,7 +66,7 @@ void main() {
     if (RenderMode < 0.5) {
         float shellAlpha = vertexColor.a * mix(0.06, 0.45, noiseOpacity);
         if (shellAlpha <= 0.001) discard;
-        fragColor = vec4(1.0, 0.78, 0.20, shellAlpha);
+        fragColor = vec4(vertexColor.rgb, shellAlpha);
         return;
     }
 
@@ -82,5 +82,5 @@ void main() {
 
     float alpha = contact * vertexColor.a * mix(0.30, 0.95, noiseOpacity);
     if (alpha <= 0.001) discard;
-    fragColor = vec4(1.0, 0.78, 0.20, alpha);
+    fragColor = vec4(vertexColor.rgb, alpha);
 }

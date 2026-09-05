@@ -1,20 +1,19 @@
 package net.rasanovum.becareful.light;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.level.block.MultifaceBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LightBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.rasanovum.becareful.BeCareful;
 import net.rasanovum.becareful.BeCarefulConfig;
+import net.rasanovum.becareful.util.SculkHelper;
 import net.rasanovum.becareful.warden.WardenStunAccess;
 import net.rasanovum.rosetta.attachment.LevelAttachmentKey;
 import net.rasanovum.rosetta.attachment.RosettaAttachments;
@@ -52,6 +51,7 @@ public final class LightFieldManager {
     }
 
     public static void tick(ServerLevel level) {
+        WardenDeathWaveManager.tick(level);
         List<LightField> fields = FIELDS.getOrCreate(level).fields();
         long gameTime = level.getGameTime();
         List<LightField> expired = fields.stream()
@@ -85,7 +85,8 @@ public final class LightFieldManager {
 
     public static List<LightField> activeFields(ServerLevel level) {
         long gameTime = level.getGameTime();
-        return FIELDS.getOrCreate(level).fields().stream()
+        return java.util.stream.Stream.concat(FIELDS.getOrCreate(level).fields().stream(),
+                        WardenDeathWaveManager.activeFields(level).stream())
                 .filter(field -> field.expiresAt() > gameTime)
                 .toList();
     }
@@ -138,9 +139,9 @@ public final class LightFieldManager {
             for (int y = minY; y <= maxY; y++) {
                 for (int z = minZ; z <= maxZ; z++) {
                     BlockPos pos = new BlockPos(x, y, z);
-                    if (distanceToBlockSqr(center, pos) > radiusSqr || !level.hasChunkAt(pos)) continue;
+                    if (SculkHelper.distanceToBlockSqr(center, pos) > radiusSqr || !level.hasChunkAt(pos)) continue;
 
-                    BlockState replacement = replacementFor(level.getBlockState(pos));
+                    BlockState replacement = SculkHelper.replacementFor(level.getBlockState(pos));
                     if (replacement != null && level.random.nextFloat() < replacementChance) {
                         level.setBlockAndUpdate(pos, replacement);
                     }
@@ -164,36 +165,6 @@ public final class LightFieldManager {
                         && field.contains(candidate, gameTime))) {
             ((WardenStunAccess) warden).beCareful$stun();
         }
-    }
-
-    private static double distanceToBlockSqr(Vec3 point, BlockPos block) {
-        double x = distanceToRange(point.x(), block.getX(), block.getX() + 1.0D);
-        double y = distanceToRange(point.y(), block.getY(), block.getY() + 1.0D);
-        double z = distanceToRange(point.z(), block.getZ(), block.getZ() + 1.0D);
-        return x * x + y * y + z * z;
-    }
-
-    private static double distanceToRange(double value, double min, double max) {
-        return value < min ? min - value : value > max ? value - max : 0.0D;
-    }
-
-    private static BlockState replacementFor(BlockState state) {
-        if (state.is(Blocks.SCULK)) {
-            return Blocks.COBBLED_DEEPSLATE.defaultBlockState();
-        }
-        if (state.is(Blocks.SCULK_VEIN)) {
-            BlockState glowLichen = Blocks.GLOW_LICHEN.defaultBlockState();
-            for (Direction direction : Direction.values()) {
-                if (MultifaceBlock.hasFace(state, direction)) {
-                    glowLichen = glowLichen.setValue(MultifaceBlock.getFaceProperty(direction), true);
-                }
-            }
-            return glowLichen;
-        }
-        if (state.is(Blocks.SCULK_SENSOR) || state.is(Blocks.CALIBRATED_SCULK_SENSOR) || state.is(Blocks.SCULK_SHRIEKER) || state.is(Blocks.SCULK_CATALYST)) {
-            return Blocks.AIR.defaultBlockState();
-        }
-        return null;
     }
 
     private static void removeLightSourceIfUnused(ServerLevel level, LightField expired, List<LightField> remaining) {

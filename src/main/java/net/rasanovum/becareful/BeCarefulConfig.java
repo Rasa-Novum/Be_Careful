@@ -53,6 +53,16 @@ public class BeCarefulConfig extends MidnightConfig {
     public static int lightFieldTimerDecrement = 2;
     @Entry(category = DEEP_DARK, min = 1)
     public static int corruptionDamageIntervalTicks = 40;
+    @Entry(category = DEEP_DARK, min = 1, max = 8)
+    public static int wardenDeathWaveRadiusMultiplier = 2;
+    @Entry(category = DEEP_DARK, min = 1)
+    public static int wardenDeathWaveContractionTicks = 100;
+    @Entry(category = DEEP_DARK, min = 1)
+    public static int wardenDeathWaveReboundTicks = 20;
+    @Entry(category = DEEP_DARK, min = 1)
+    public static int wardenDeathWaveFadeTicks = 20;
+    @Entry(category = DEEP_DARK, min = 1)
+    public static int championOfTheDarkDurationTicks = 6000;
 
     // Regional Difficulty / Chunk Taming
 

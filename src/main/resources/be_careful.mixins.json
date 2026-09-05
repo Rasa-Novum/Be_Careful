@@ -5,6 +5,7 @@
   "refmap": "be_careful-refmap.json",
   "mixins": [
     "FoodEatMixin",
+    "MilkBucketMixin",
     "EndShipElytraMixin",
     "RuinedPortalStructureMixin",
     "portal.PortalShapeMixin",
@@ -14,6 +15,8 @@
     "difficulty.BedSleepRestrictionMixin",
     "difficulty.LevelSetBlockMixin",
     "mobs.WardenMixin",
+    "mobs.WardenDeathMixin",
+    "mobs.WardenSpawnTrackerMixin",
     "mobs.MobInteractMixin",
     "mobs.SonicBoomMixin",
     "mobs.WardenLootMixin",

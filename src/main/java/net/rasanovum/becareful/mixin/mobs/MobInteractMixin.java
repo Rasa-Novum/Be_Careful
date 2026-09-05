@@ -22,6 +22,7 @@ public abstract class MobInteractMixin {
                                                CallbackInfoReturnable<InteractionResult> cir) {
         Mob mob = (Mob) (Object) this;
         if (!(mob instanceof Warden warden)
+                || !warden.isAlive()
                 || !((WardenStunAccess) warden).beCareful$isStunned()
                 || !player.getItemInHand(hand).isEmpty()) {
             return;

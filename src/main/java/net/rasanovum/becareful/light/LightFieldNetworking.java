@@ -38,7 +38,7 @@ public final class LightFieldNetworking {
                 CorruptionDebugPacket::write, CorruptionDebugPacket::read,
                 (packet, level, player) -> ClientDeepDarkDebugState.set(new ClientDeepDarkDebugState(
                         packet.deepDarkTime(), packet.warningRemaining(), packet.dangerRemaining(),
-                        packet.inDeepDark(), packet.protectedByLight()
+                        packet.inDeepDark(), packet.protectedByLight(), packet.nearbySculk()
                 ))
         );
         CHANNEL.clientbound(
@@ -94,6 +94,8 @@ public final class LightFieldNetworking {
                 buffer.writeVarLong(field.startedAt());
                 buffer.writeVarLong(field.expiresAt());
                 buffer.writeBoolean(field.lightSourcePlaced());
+                buffer.writeVarInt(field.contractionTicks());
+                buffer.writeVarInt(field.reboundTicks());
             }
         }
 
@@ -105,7 +107,7 @@ public final class LightFieldNetworking {
                         buffer.readUUID(), new Vec3(
                                 buffer.readDouble(), buffer.readDouble(), buffer.readDouble()
                         ), buffer.readVarInt(), buffer.readVarLong(),
-                        buffer.readVarLong(), buffer.readBoolean()
+                        buffer.readVarLong(), buffer.readBoolean(), buffer.readVarInt(), buffer.readVarInt()
                 ));
             }
             return new LightFieldSnapshotPacket(fields);
