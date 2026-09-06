@@ -6,8 +6,6 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.rasanovum.becareful.BeCareful;
 import net.rasanovum.becareful.warden.WardenStunAccess;
 import org.spongepowered.asm.mixin.Mixin;
@@ -29,14 +27,11 @@ public abstract class MobInteractMixin {
         }
 
         if (!mob.level().isClientSide()) {
+            ((WardenStunAccess) warden).beCareful$beginKeyDeath();
             ItemStack key = new ItemStack(BeCareful.LOST_KEY);
             if (!player.addItem(key)) {
                 player.drop(key, false);
             }
-            warden.level().playSound(
-                    null, warden.getX(), warden.getY(), warden.getZ(),
-                    SoundEvents.WARDEN_DEATH, SoundSource.HOSTILE, 1.0F, 1.0F
-            );
             warden.setHealth(0.0F);
             warden.die(player.damageSources().playerAttack(player));
         }

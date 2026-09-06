@@ -28,6 +28,7 @@ public final class BeCarefulClientHooks {
         ClientHooks.register(new ClientHooks.Callbacks() {
             @Override
             public void onJoin(net.minecraft.world.entity.player.Player player) {
+                ClientTotemUse.reset();
                 ClientCorruptionState.clear();
                 ClientLightFieldState.clear();
                 ClientChunkTameState.clear();
@@ -35,6 +36,7 @@ public final class BeCarefulClientHooks {
 
             @Override
             public void onDisconnect() {
+                ClientTotemUse.reset();
                 ClientCorruptionState.clear();
                 ClientLightFieldState.clear();
                 ClientChunkTameState.clear();

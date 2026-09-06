@@ -41,6 +41,13 @@ public class WardenMixin implements WardenStunAccess {
     @Unique
     private int beCareful$stunTicksRemaining;
 
+    @Unique
+    private static final EntityDataAccessor<Integer> BE_CAREFUL$KEY_DEATH_DURATION =
+            SynchedEntityData.defineId(Warden.class, EntityDataSerializers.INT);
+    @Unique
+    private static final EntityDataAccessor<Long> BE_CAREFUL$KEY_DEATH_START =
+            SynchedEntityData.defineId(Warden.class, EntityDataSerializers.LONG);
+
     @Inject(method = "createAttributes", at = @At("RETURN"), cancellable = true)
     private static void reduceWardenBaseHealth(CallbackInfoReturnable<AttributeSupplier.Builder> cir) {
         int WardenHealthValue = BeCarefulConfig.wardenHealthValue;
@@ -56,17 +63,23 @@ public class WardenMixin implements WardenStunAccess {
     /*@Inject(method = "defineSynchedData", at = @At("TAIL"))
     private void beCareful$defineStunnedData(CallbackInfo ci) {
         ((Warden) (Object) this).getEntityData().define(BE_CAREFUL$STUNNED, false);
+        ((Warden) (Object) this).getEntityData().define(BE_CAREFUL$KEY_DEATH_DURATION, 0);
+        ((Warden) (Object) this).getEntityData().define(BE_CAREFUL$KEY_DEATH_START, 0L);
     }
     *//*?} else {*/
     @Inject(method = "defineSynchedData", at = @At("TAIL"))
     private void beCareful$defineStunnedData(SynchedEntityData.Builder builder, CallbackInfo ci) {
         builder.define(BE_CAREFUL$STUNNED, false);
+        builder.define(BE_CAREFUL$KEY_DEATH_DURATION, 0);
+        builder.define(BE_CAREFUL$KEY_DEATH_START, 0L);
     }
     /*?}*/
 
     @Inject(method = "addAdditionalSaveData", at = @At("TAIL"))
     private void beCareful$saveStunned(CompoundTag tag, CallbackInfo ci) {
         tag.putBoolean("BeCarefulStunned", beCareful$isStunned());
+        tag.putInt("BeCarefulKeyDeathDuration", beCareful$keyDeathDuration());
+        tag.putLong("BeCarefulKeyDeathStart", beCareful$keyDeathStartedAt());
         if (beCareful$isStunned()) {
             tag.putInt("BeCarefulStunTicks", beCareful$stunTicksRemaining);
         }
@@ -74,6 +87,9 @@ public class WardenMixin implements WardenStunAccess {
 
     @Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
     private void beCareful$loadStunned(CompoundTag tag, CallbackInfo ci) {
+        Warden warden = (Warden) (Object) this;
+        warden.getEntityData().set(BE_CAREFUL$KEY_DEATH_DURATION, tag.getInt("BeCarefulKeyDeathDuration"));
+        warden.getEntityData().set(BE_CAREFUL$KEY_DEATH_START, tag.getLong("BeCarefulKeyDeathStart"));
         if (tag.getBoolean("BeCarefulStunned")) {
             beCareful$beginStun(false);
             beCareful$stunTicksRemaining = Math.max(1, tag.getInt("BeCarefulStunTicks"));
@@ -83,6 +99,10 @@ public class WardenMixin implements WardenStunAccess {
     @Inject(method = "tick", at = @At("TAIL"))
     private void beCareful$tickStun(CallbackInfo ci) {
         Warden warden = (Warden) (Object) this;
+        if (beCareful$keyDeathDuration() > 0) {
+            warden.setDeltaMovement(Vec3.ZERO);
+            return;
+        }
         if (!warden.level().isClientSide() && beCareful$isStunned() && --beCareful$stunTicksRemaining <= 0) {
             beCareful$resume();
         }
@@ -117,6 +137,26 @@ public class WardenMixin implements WardenStunAccess {
     @Override
     public boolean beCareful$isStunned() {
         return ((Warden) (Object) this).getEntityData().get(BE_CAREFUL$STUNNED);
+    }
+
+    @Override
+    public void beCareful$beginKeyDeath() {
+        Warden warden = (Warden) (Object) this;
+        warden.getEntityData().set(BE_CAREFUL$KEY_DEATH_START, warden.level().getGameTime());
+        warden.getEntityData().set(BE_CAREFUL$KEY_DEATH_DURATION,
+                Math.max(1, BeCarefulConfig.wardenDeathWaveContractionTicks));
+        warden.setDeltaMovement(Vec3.ZERO);
+        warden.setNoGravity(true);
+    }
+
+    @Override
+    public int beCareful$keyDeathDuration() {
+        return ((Warden) (Object) this).getEntityData().get(BE_CAREFUL$KEY_DEATH_DURATION);
+    }
+
+    @Override
+    public long beCareful$keyDeathStartedAt() {
+        return ((Warden) (Object) this).getEntityData().get(BE_CAREFUL$KEY_DEATH_START);
     }
 
     @Override

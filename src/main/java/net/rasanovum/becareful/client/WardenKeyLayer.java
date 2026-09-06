@@ -28,6 +28,7 @@ public final class WardenKeyLayer extends RenderLayer<Warden, WardenModel<Warden
 
     @Override
     public void render(PoseStack poseStack, MultiBufferSource buffer, int packedLight, Warden warden, float limbSwing, float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw, float headPitch) {
+        if (((WardenStunAccess) warden).beCareful$keyDeathDuration() > 0) return;
         poseStack.pushPose();
 
         WardenModel<Warden> model = getParentModel();

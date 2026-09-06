@@ -38,14 +38,17 @@ public record LightField(
         if (isDeathWave()) {
             double age = Math.max(0.0, gameTime - startedAt);
             if (age < contractionTicks) {
-                return new FieldState((float) (radius * (1.0 - age / contractionTicks)), 1.0F);
+                return new FieldState((float) (radius * (1.0 - age / contractionTicks)),
+                        smoothFade(age / Math.min(10, contractionTicks)));
             }
             double expansion = age - contractionTicks;
             if (expansion <= reboundTicks) {
-                return new FieldState((float) (radius * expansion / Math.max(1, reboundTicks)), 1.0F);
+                double progress = expansion / Math.max(1, reboundTicks);
+                return new FieldState((float) (radius * progress),
+                        1.0F - 0.75F * smoothFade((progress - 0.8) / 0.2));
             }
             double fade = Math.max(1L, expiresAt - startedAt - contractionTicks - reboundTicks);
-            return new FieldState(radius, (float) Math.max(0.0, 1.0 - (expansion - reboundTicks) / fade));
+            return new FieldState(radius, 0.25F * (1.0F - smoothFade((expansion - reboundTicks) / fade)));
         }
         if (startedAt < 0) {
             return new FieldState(radius, 1.0F);
@@ -56,6 +59,11 @@ public record LightField(
                 Math.max(MIN_RADIUS, radius * progress),
                 1.0F - progress
         );
+    }
+
+    private static float smoothFade(double progress) {
+        float clamped = (float) Math.max(0.0, Math.min(1.0, progress));
+        return clamped * clamped * (3.0F - 2.0F * clamped);
     }
 
     public boolean contains(Player player, long gameTime) {

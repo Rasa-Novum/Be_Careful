@@ -45,6 +45,7 @@ public final class LightFieldManager {
         );
         List<LightField> fields = FIELDS.getOrCreate(level).fields();
         fields.add(field);
+        affectWardens(level, field.center(), field.radius());
         FIELDS.markDirty(level);
         LightFieldNetworking.sync(level);
         return field;
@@ -64,7 +65,6 @@ public final class LightFieldManager {
         for (LightField field : fields) {
             updateLightSource(level, field, gameTime);
             cleanseSculk(level, field, gameTime);
-            stunChargingWardens(level, field, gameTime);
         }
         if (changed) {
             FIELDS.markDirty(level);
@@ -150,20 +150,26 @@ public final class LightFieldManager {
         }
     }
 
-    private static void stunChargingWardens(ServerLevel level, LightField field, long gameTime) {
-        float radius = field.stateAt(gameTime).radius();
-        Vec3 center = field.center();
+    private static void affectWardens(ServerLevel level, Vec3 center, int radius) {
         AABB bounds = new AABB(
                 center.x() - radius, center.y() - radius, center.z() - radius,
                 center.x() + radius, center.y() + radius, center.z() + radius
         );
         for (Warden warden : level.getEntitiesOfClass(
                 Warden.class, bounds,
-                candidate -> !((WardenStunAccess) candidate).beCareful$isStunned()
-                        && candidate.getBrain().hasMemoryValue(
-                        net.minecraft.world.entity.ai.memory.MemoryModuleType.SONIC_BOOM_SOUND_DELAY)
-                        && field.contains(candidate, gameTime))) {
-            ((WardenStunAccess) warden).beCareful$stun();
+                candidate -> candidate.isAlive() && !((WardenStunAccess) candidate).beCareful$isStunned()
+                        && candidate.getBoundingBox().distanceToSqr(center) <= (double) radius * radius)) {
+            if (warden.getBrain().hasMemoryValue(net.minecraft.world.entity.ai.memory.MemoryModuleType.SONIC_BOOM_SOUND_DELAY)) {
+                ((WardenStunAccess) warden).beCareful$stun();
+            } else {
+                Vec3 away = new Vec3(warden.getX() - center.x, 0, warden.getZ() - center.z);
+                if (away.lengthSqr() < 0.0001) away = new Vec3(1, 0, 0);
+                away = away.normalize().scale(0.35);
+                warden.push(away.x, 0.1, away.z);
+                warden.hurtMarked = true;
+                level.playSound(null, warden.blockPosition(), net.minecraft.sounds.SoundEvents.WARDEN_HURT,
+                        net.minecraft.sounds.SoundSource.HOSTILE, 1.0F, 1.0F);
+            }
         }
     }
 

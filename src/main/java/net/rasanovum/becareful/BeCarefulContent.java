@@ -19,6 +19,15 @@ import net.rasanovum.rosetta.registry.RegistryHandle;
 
 public final class BeCarefulContent {
     public static final ModRegistrar REGISTRAR = new ModRegistrar(BeCareful.MOD_ID);
+    public static final RegistryHandle<net.minecraft.sounds.SoundEvent> WARDEN_DEATH_ROAR = sound("warden_death_roar");
+    public static final RegistryHandle<net.minecraft.sounds.SoundEvent> WARDEN_DEATH_CHARGE = sound("warden_death_charge");
+    public static final RegistryHandle<net.minecraft.sounds.SoundEvent> WARDEN_DEATH_BOOM = sound("warden_death_boom");
+
+    private static RegistryHandle<net.minecraft.sounds.SoundEvent> sound(String name) {
+        return REGISTRAR.register(BuiltInRegistries.SOUND_EVENT, name,
+                () -> net.minecraft.sounds.SoundEvent.createVariableRangeEvent(
+                        net.rasanovum.rosetta.util.RegistryCompat.getLocation(BeCareful.MOD_ID, name)));
+    }
 
     public static final RegistryHandle<net.minecraft.world.effect.MobEffect> CORRUPTION = REGISTRAR.register(BuiltInRegistries.MOB_EFFECT, "corruption", CorruptionEffect::new);
     public static final RegistryHandle<net.minecraft.world.effect.MobEffect> CHAMPION_OF_THE_DARK = REGISTRAR.register(BuiltInRegistries.MOB_EFFECT, "champion_of_the_dark", ChampionOfTheDarkEffect::new);

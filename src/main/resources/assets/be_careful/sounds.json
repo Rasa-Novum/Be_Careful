@@ -1,0 +1,14 @@
+{
+  "warden_death_roar": {
+    "subtitle": "subtitles.entity.warden.roar",
+    "sounds": ["minecraft:mob/warden/roar_3"]
+  },
+  "warden_death_charge": {
+    "subtitle": "subtitles.entity.warden.sonic_charge",
+    "sounds": ["minecraft:mob/warden/sonic_charge1"]
+  },
+  "warden_death_boom": {
+    "subtitle": "subtitles.entity.warden.sonic_boom",
+    "sounds": ["minecraft:mob/warden/sonic_boom1"]
+  }
+}

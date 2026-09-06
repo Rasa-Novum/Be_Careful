@@ -5,6 +5,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
 import net.rasanovum.becareful.BeCarefulConfig;
+import net.rasanovum.becareful.BeCarefulContent;
 import net.rasanovum.becareful.effects.ChampionOfTheDarkEffect;
 import net.rasanovum.becareful.util.SculkHelper;
 
@@ -32,8 +33,9 @@ public final class WardenDeathWaveManager {
                 Math.max(1, Math.min(8, BeCarefulConfig.wardenDeathWaveRadiusMultiplier)));
         LightField field = new LightField(UUID.randomUUID(), center, radius, start,
                 start + contraction + (long) rebound + fade, false, contraction, rebound);
-        WAVES.computeIfAbsent(level, ignored -> new ArrayList<>())
-                .add(new Wave(field, Math.max(1, BeCarefulConfig.championOfTheDarkDurationTicks)));
+        Wave wave = new Wave(field, Math.max(1, BeCarefulConfig.championOfTheDarkDurationTicks));
+        WAVES.computeIfAbsent(level, ignored -> new ArrayList<>()).add(wave);
+        wave.play(level, BeCarefulContent.WARDEN_DEATH_ROAR.get(), wave.sequencePitch);
         LightFieldNetworking.sync(level);
     }
 
@@ -70,14 +72,40 @@ public final class WardenDeathWaveManager {
         private final Set<UUID> rewarded = new HashSet<>();
         private final ArrayDeque<SphericalShell> pending = new ArrayDeque<>();
         private double sweptRadius = -1;
+        private boolean blastPlayed;
+        private boolean chargePlayed;
+        private final int chargeDelay;
+        private final float sequencePitch;
 
         private Wave(LightField field, int effectDuration) {
             this.field = field;
             this.effectDuration = effectDuration;
+            sequencePitch = Math.max(0.5F, Math.min(2.0F, 100.0F / field.contractionTicks()));
+            chargeDelay = Math.max(1, Math.round(67.0F / sequencePitch));
+        }
+
+        private void play(ServerLevel level, net.minecraft.sounds.SoundEvent sound, float pitch) {
+            level.playSound(null, field.center().x, field.center().y, field.center().z,
+                    sound, net.minecraft.sounds.SoundSource.HOSTILE,
+                    Math.max(0, Math.min(10, BeCarefulConfig.wardenDeathWaveBlastVolume)), pitch);
         }
 
         private void tick(ServerLevel level, long time) {
+            if (!chargePlayed && time >= field.startedAt() + chargeDelay
+                    && time < field.startedAt() + field.contractionTicks()) {
+                chargePlayed = true;
+                play(level, BeCarefulContent.WARDEN_DEATH_CHARGE.get(), sequencePitch);
+            }
             if (time < field.startedAt() + field.contractionTicks()) return;
+            if (!blastPlayed) {
+                blastPlayed = true;
+                var soundId = net.minecraft.resources.ResourceLocation.tryParse(BeCarefulConfig.wardenDeathWaveBlastSound);
+                var sound = soundId == null || soundId.toString().equals("minecraft:entity.warden.sonic_boom")
+                        ? BeCarefulContent.WARDEN_DEATH_BOOM.get()
+                        : net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.getOptional(soundId)
+                                .orElse(BeCarefulContent.WARDEN_DEATH_BOOM.get());
+                play(level, sound, Math.max(0.5F, Math.min(2, BeCarefulConfig.wardenDeathWaveBlastPitch)));
+            }
             double radius = field.stateAt(time).radius();
             if (radius > sweptRadius) {
                 if (BeCarefulConfig.replaceSculkInLightFields) {

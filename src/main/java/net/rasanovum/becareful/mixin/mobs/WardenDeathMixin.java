@@ -6,6 +6,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.warden.Warden;
 import net.rasanovum.becareful.BeCarefulConfig;
 import net.rasanovum.becareful.light.WardenDeathWaveManager;
+import net.rasanovum.becareful.warden.WardenStunAccess;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -19,6 +20,18 @@ public abstract class WardenDeathMixin {
     protected boolean dead;
     @Unique
     private boolean beCareful$deathWaveStarted;
+
+    @Inject(method = "tickDeath", at = @At("HEAD"), cancellable = true)
+    private void beCareful$holdKeyDeath(CallbackInfo ci) {
+        if ((Object) this instanceof Warden warden) {
+            WardenStunAccess stun = (WardenStunAccess) warden;
+            if (stun.beCareful$keyDeathDuration() <= 0) return;
+            if (warden.level().getGameTime() - stun.beCareful$keyDeathStartedAt() >= stun.beCareful$keyDeathDuration()) return;
+            warden.deathTime = 0;
+            warden.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);
+            ci.cancel();
+        }
+    }
 
     @Inject(method = "die", at = @At("TAIL"))
     private void beCareful$startDeathWave(DamageSource source, CallbackInfo ci) {

@@ -61,6 +61,12 @@ public class BeCarefulConfig extends MidnightConfig {
     public static int wardenDeathWaveReboundTicks = 20;
     @Entry(category = DEEP_DARK, min = 1)
     public static int wardenDeathWaveFadeTicks = 20;
+    @Entry(category = DEEP_DARK)
+    public static String wardenDeathWaveBlastSound = "be_careful:warden_death_boom";
+    @Entry(category = DEEP_DARK, min = 0, max = 10)
+    public static float wardenDeathWaveBlastVolume = 3.0F;
+    @Entry(category = DEEP_DARK, min = 0.5, max = 2)
+    public static float wardenDeathWaveBlastPitch = 1.0F;
     @Entry(category = DEEP_DARK, min = 1)
     public static int championOfTheDarkDurationTicks = 6000;
 
