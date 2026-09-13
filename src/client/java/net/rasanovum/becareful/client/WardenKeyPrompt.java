@@ -28,3 +28,4 @@ public final class WardenKeyPrompt {
         graphics.drawString(minecraft.font, STEAL_KEY, x, y, 0xFFFFFF, true);
     }
 }
+

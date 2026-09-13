@@ -1,4 +1,4 @@
-package net.rasanovum.becareful.client;
+package net.rasanovum.becareful.client.player;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
@@ -12,3 +12,4 @@ public final class ClientTotemActivation {
         minecraft.gameRenderer.displayItemActivation(new ItemStack(BeCareful.TOTEM_OF_LIGHT));
     }
 }
+

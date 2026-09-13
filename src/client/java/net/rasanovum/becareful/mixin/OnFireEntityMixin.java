@@ -1,4 +1,4 @@
-package net.rasanovum.becareful.mixin.client;
+package net.rasanovum.becareful.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -23,3 +23,4 @@ public class OnFireEntityMixin {
         }
     }
 }
+

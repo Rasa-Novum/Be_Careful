@@ -1,8 +1,8 @@
-package net.rasanovum.becareful.mixin.client;
+package net.rasanovum.becareful.mixin;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.rasanovum.becareful.client.ClientTotemUse;
+import net.rasanovum.becareful.client.player.ClientTotemUse;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -18,3 +18,4 @@ public abstract class TotemUseKeyMixin {
         }
     }
 }
+

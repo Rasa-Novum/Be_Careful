@@ -1,10 +1,10 @@
-package net.rasanovum.becareful.mixin.client;
+package net.rasanovum.becareful.mixin;
 
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.rasanovum.becareful.client.ClientTotemUse;
+import net.rasanovum.becareful.client.player.ClientTotemUse;
 import net.rasanovum.becareful.effects.TotemOfLight;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -30,3 +30,4 @@ public abstract class TotemUseMixin {
         }
     }
 }
+

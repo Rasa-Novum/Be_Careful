@@ -40,18 +40,6 @@ loom {
 
 sourceSets.main.java.exclude '**/loaders/neoforge/**'
 sourceSets.client.java.exclude '**/loaders/neoforge/**'
-sourceSets.main.java.exclude '**/client/**'
-sourceSets.main.java.exclude '**/mixin/client/**'
-sourceSets.main.java.exclude '**/mixin/DebugScreenOverlayMixin.java'
-sourceSets.main.java.exclude '**/mixin/portal/EndPortalRenderMixin.java'
-def activeStonecutterTarget = (rootProject.file('stonecutter.gradle').text =~ /stonecutter\.active '([^']+)'/)[0][1]
-sourceSets.client.java.srcDir(project.name == activeStonecutterTarget
-		? rootProject.file('src/main/java')
-		: layout.buildDirectory.dir('generated/stonecutter/main/java'))
-sourceSets.client.java.include '**/client/**'
-sourceSets.client.java.include '**/mixin/client/**'
-sourceSets.client.java.include '**/mixin/DebugScreenOverlayMixin.java'
-sourceSets.client.java.include '**/mixin/portal/EndPortalRenderMixin.java'
 
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
@@ -127,6 +115,14 @@ processResources {
 		}
 	}
 	exclude 'META-INF/neoforge.mods.toml'
+}
+
+tasks.named('processClientResources') {
+	inputs.property 'java_version', project.java_version
+	filesMatching('be_careful*.mixins.json') {
+		filter { line -> line.replace('"compatibilityLevel": "JAVA_17"',
+				"\"compatibilityLevel\": \"JAVA_${project.java_version}\"") }
+	}
 }
 
 java {

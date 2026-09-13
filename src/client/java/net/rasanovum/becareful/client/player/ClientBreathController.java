@@ -1,4 +1,4 @@
-package net.rasanovum.becareful.client;
+package net.rasanovum.becareful.client.player;
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.Minecraft;
@@ -75,3 +75,4 @@ public class ClientBreathController {
         return false;
     }
 }
+

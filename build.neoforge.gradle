@@ -12,9 +12,14 @@ base {
 }
 
 sourceSets.main.java.exclude '**/loaders/fabric/**'
-sourceSets.main.java.srcDir rootProject.file('versions/1.21.1-fabric/build/generated/stonecutter/client/java')
+def activeStonecutterTarget = (rootProject.file('stonecutter.gradle').text =~ /stonecutter\.active '([^']+)'/)[0][1]
+sourceSets.main.java.srcDir(activeStonecutterTarget == project.name
+		? rootProject.file('src/client/java')
+		: rootProject.file('versions/1.21.1-fabric/build/generated/stonecutter/client/java'))
 sourceSets.main.java.exclude '**/client/BeCarefulClient.java'
-sourceSets.main.resources.srcDir rootProject.file('src/client/resources')
+sourceSets.main.resources.srcDir(project.name == activeStonecutterTarget
+		? rootProject.file('src/client/resources')
+		: rootProject.file('versions/1.21.1-fabric/build/generated/stonecutter/client/resources'))
 
 repositories {
 	maven {
@@ -68,6 +73,7 @@ tasks.withType(JavaExec).configureEach {
 }
 
 processResources {
+	dependsOn project(':1.21.1-fabric').tasks.named('stonecutterGenerateClient')
 	def modVersion = project.version
 	inputs.properties 'version': modVersion, 'minecraft_version': project.minecraft_version,
 			'neoforge_version': project.neoforge_version, 'java_version': project.java_version

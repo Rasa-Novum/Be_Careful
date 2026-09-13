@@ -1,4 +1,4 @@
-package net.rasanovum.becareful.client;
+package net.rasanovum.becareful.client.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -205,3 +205,4 @@ public final class ShelterRenderer {
         }
     }
 }
+

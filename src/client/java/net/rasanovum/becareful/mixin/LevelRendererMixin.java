@@ -1,4 +1,4 @@
-package net.rasanovum.becareful.mixin.client;
+package net.rasanovum.becareful.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -7,8 +7,8 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.monster.warden.Warden;
-import net.rasanovum.becareful.client.LightFieldRenderer;
-import net.rasanovum.becareful.client.ShelterRenderer;
+import net.rasanovum.becareful.client.render.LightFieldRenderer;
+import net.rasanovum.becareful.client.render.ShelterRenderer;
 import net.rasanovum.becareful.warden.WardenStunAccess;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
@@ -62,3 +62,4 @@ public abstract class LevelRendererMixin {
         return false;
     }
 }
+

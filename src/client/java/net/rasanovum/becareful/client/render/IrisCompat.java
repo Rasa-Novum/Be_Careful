@@ -1,4 +1,4 @@
-package net.rasanovum.becareful.client;
+package net.rasanovum.becareful.client.render;
 
 import java.lang.reflect.Method;
 
@@ -31,3 +31,4 @@ public final class IrisCompat {
         }
     }
 }
+

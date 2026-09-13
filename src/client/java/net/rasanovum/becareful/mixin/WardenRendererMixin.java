@@ -1,4 +1,4 @@
-package net.rasanovum.becareful.mixin.client;
+package net.rasanovum.becareful.mixin;
 
 import net.minecraft.client.model.WardenModel;
 import net.minecraft.client.model.EntityModel;
@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.WardenRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.world.entity.monster.warden.Warden;
-import net.rasanovum.becareful.client.WardenKeyLayer;
+import net.rasanovum.becareful.client.render.WardenKeyLayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -31,3 +31,4 @@ public abstract class WardenRendererMixin implements RenderLayerParent<Warden, W
         }
     }
 }
+

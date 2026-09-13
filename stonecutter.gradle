@@ -5,6 +5,10 @@ plugins {
 
 stonecutter.active '1.21.1-fabric' /* [SC] DO NOT EDIT */
 
+tasks.named('stonecutterSwitchTo1.21.1-neoforge') {
+	dependsOn ':1.21.1-fabric:stonecutterMergeClient'
+}
+
 stonecutter {
 	parameters { params ->
 		params.constants.match(params.node.metadata.project.substring(params.node.metadata.project.lastIndexOf('-') + 1), 'fabric', 'neoforge')

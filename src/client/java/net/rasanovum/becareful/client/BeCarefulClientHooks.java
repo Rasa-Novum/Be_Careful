@@ -3,6 +3,11 @@ package net.rasanovum.becareful.client;
 import net.minecraft.client.Minecraft;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import net.rasanovum.becareful.BeCarefulConfig;
+import net.rasanovum.becareful.client.player.ClientBreathController;
+import net.rasanovum.becareful.client.player.ClientTotemActivation;
+import net.rasanovum.becareful.client.player.ClientTotemUse;
+import net.rasanovum.becareful.client.player.CorruptionOverlay;
+import net.rasanovum.becareful.client.render.LightFieldShader;
 import net.rasanovum.becareful.corruption.ClientCorruptionState;
 import net.rasanovum.becareful.light.ClientLightFieldState;
 import net.rasanovum.becareful.light.LightFieldNetworking;
@@ -59,3 +64,4 @@ public final class BeCarefulClientHooks {
         registered = true;
     }
 }
+

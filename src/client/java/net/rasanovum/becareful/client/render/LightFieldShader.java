@@ -1,4 +1,4 @@
-package net.rasanovum.becareful.client;
+package net.rasanovum.becareful.client.render;
 
 import net.minecraft.client.renderer.ShaderInstance;
 
@@ -15,3 +15,4 @@ public final class LightFieldShader {
         return instance;
     }
 }
+

@@ -7,6 +7,8 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.rasanovum.becareful.BeCareful;
 import net.rasanovum.becareful.BeCarefulConfig;
+import net.rasanovum.becareful.client.render.AncientEndPortalRenderer;
+import net.rasanovum.becareful.client.render.FrozenCampfireRenderer;
 
 public class BeCarefulClient implements ClientModInitializer {
     @Override
@@ -19,3 +21,4 @@ public class BeCarefulClient implements ClientModInitializer {
         }
     }
 }
+

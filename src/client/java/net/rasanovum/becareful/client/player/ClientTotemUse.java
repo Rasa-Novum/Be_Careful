@@ -1,4 +1,4 @@
-package net.rasanovum.becareful.client;
+package net.rasanovum.becareful.client.player;
 
 public final class ClientTotemUse {
     private static boolean awaitingRelease;
@@ -17,3 +17,4 @@ public final class ClientTotemUse {
         awaitingRelease = false;
     }
 }
+

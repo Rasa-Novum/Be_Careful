@@ -1,4 +1,4 @@
-package net.rasanovum.becareful.mixin.client;
+package net.rasanovum.becareful.mixin;
 
 import net.minecraft.client.animation.KeyframeAnimations;
 import net.minecraft.client.animation.definitions.WardenAnimation;
@@ -34,3 +34,4 @@ public abstract class WardenDeathPoseMixin {
                 (long) (elapsed * 50) % cycleMillis, 1.0F, beCareful$animationVector);
     }
 }
+

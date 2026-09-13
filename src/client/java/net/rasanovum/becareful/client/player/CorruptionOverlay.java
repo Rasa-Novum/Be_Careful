@@ -1,4 +1,4 @@
-package net.rasanovum.becareful.client;
+package net.rasanovum.becareful.client.player;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
@@ -47,3 +47,4 @@ public final class CorruptionOverlay {
         RenderSystem.disableBlend();
     }
 }
+
